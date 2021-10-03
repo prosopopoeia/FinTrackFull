@@ -1,0 +1,113 @@
+{% extends "proj5FinTracker/layout.html" %}
+{% load static %}
+
+{% block whiteli %}	
+	
+	<li id='navyear'><a href="#">Year View</a></li>	
+	<li id='navepoch'><a href="#">Epoch View</a></li>
+	
+
+{% endblock %}
+
+{% block body %}
+
+<br />
+<div class="container-fluid">
+	
+	<div class="row">
+		<div class="col-xs-6">
+				<div class="form-group container-fluid" id="findby-form">
+					<label for="searchrange">Search Range</label>
+					<form id="search-range-form" name="searchrange" method="post">
+						{{ rangeform.as_p }}
+						<!-- <label for="begin-range">From</label>
+						<input type="date" id="bybeginrange" name="begin-range" />						
+						<br />
+						<label for="end-range">To   </label>
+						<input type="date" id="byendrange" name="end-range" /> -->
+						<br /><br />
+						{% csrf_token %}
+					
+					</form>
+					<button type="submit" id="get-range-button" form="search-range-form" class="btn btn-primary" value="Submit">View Range</button>
+				</div>	
+				
+				
+				
+		</div>
+		
+		<div class="col-xs-4">
+			<h2><strong> <span id="date-span"> {{ vrange }} </span></strong></h2>						
+		</div>
+	
+	</div>
+		
+</div>
+<br />
+
+
+<div class="container-fluid" >
+	
+		
+		<div id="leftPanel" class="col-xs-6">
+		  <h3><div class="panel alert alert-info panel-primary" id='cat-grp'></div></h3>
+		  <table class="table table-bordered table-striped" id="bits">
+			
+		  </table>
+		  <table class="table table-bordered table-striped" id="tran-table">
+			  <thead>
+				<tr>
+					<th id="edit-column">Edit</th>
+					<th id="edit-date">Date</th>
+					<th id="edit-description">Description</th>
+					<th id="edit-amount">Amount</th>
+					<th id="edit-category">Category</th>
+					<th id="edit-group">Group</th>
+				</tr>
+			  </thead>
+			  <tbody id='target'>
+			  </tbody>
+		  </table>
+		</div>
+		<div id="aggregates" class="col-xs-4">
+			<h4><div class="panel alert alert-info panel-primary" id='amt-saved'></div></h4>
+			<div id="detail-table1">
+				<table class="table table-bordered">
+				    <thead>
+				      <tr>
+					    <th>Debits - Grand Total:</th><th id="tot-deb"></th>
+					  </tr>
+				    </thead>
+					<tbody id='debit-overview'></tbody>
+				</table>
+			</div>
+			
+			<div id="debit-pie"></div>
+
+			<div id="detail-table2">
+				<table class="table table-bordered">
+					<thead>
+				      <tr>
+					    <th>Credits - Grand Total:</th><th id="tot-cred"></th>
+					  </tr>
+				    </thead>
+					<tbody id='credit-overview'></tbody>
+				</table>
+			</div>
+			
+			<div id="credit-pie"></div>
+			<div id="char-view-div"><button id="chart-view-btn"></button></div>
+		</div>
+	
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>	
+	
+	<script src="{% static 'FinTracker/range.js' %}"></script> 
+		
+	
+{% endblock %}
