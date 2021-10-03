@@ -1,3 +1,5 @@
+Note: this is orignally from a school project. Using Javascript to avoid reloading pages is pretty nice, but definitely presents design problems. Some day, I may feel ambitious enough to refactor this whole mess, but for now I am just having fun.
+
 FinTrack v1.0 (FT1)
 
 One of the big incentives to take this course and learn Django and Javascript is to harness the power and flexibility of full stack programming. 
