@@ -219,7 +219,7 @@ def vrange(request):
 
 def vcompare(request):
     fbrform = FindByRangeForm()
-    return render(request, "proj5FinTracker/range.html", {
+    return render(request, "proj5FinTracker/compare.html", {
         'rangeform' : fbrform
     })
 

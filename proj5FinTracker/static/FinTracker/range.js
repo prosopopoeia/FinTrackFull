@@ -345,7 +345,10 @@ function findTransactionsByDate(event) {
 	
 }
 
-//loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE) 
+
+/////////////////////////
+/// need for range.js ///
+/////////////////////////
 
 function getDateData(iDate) {
 	displayDataDate(iDate);	
@@ -681,7 +684,12 @@ function saveEdit(tranID) {
 	//console.log("saveEdit end");
 }
 
+/////////////////////////
+/// need for range.js ///
+/////////////////////////
+
 function returnToDisplayView(tranID) {	
+
 	//console.log("ret to display view");
 	tdate = document.querySelector(`#date${tranID} > textarea`).value;
 	tamt = document.querySelector(`#amt${tranID} > textarea`).value;
@@ -720,6 +728,7 @@ function returnToDisplayView(tranID) {
 	Cb.remove()
 }
 
+/*
 function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 	catOrDate = cod.CATGRP;
 	console.log(`catView enter ColumnType: ${COLUMN_TYPE}`);
@@ -810,9 +819,9 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 	});
 	//console.log("catview end");
 }
+*/
 
-
-function createCatbyMonthChart(transactions, periodType=0, ctype = chartType.PIE, ags=0, COLUMN_TYPE = column.CAT) {
+/* function createCatbyMonthChart(transactions, periodType=0, ctype = chartType.PIE, ags=0, COLUMN_TYPE = column.CAT) {
 	catOrDate = cod.CATGRP;
 	var creditMap = new Object();
 	var debitMap = new Object();
@@ -884,14 +893,14 @@ function createCatbyMonthChart(transactions, periodType=0, ctype = chartType.PIE
 	var savingsDiv = document.querySelector('#amt-saved');
 	savingsDiv.style.display = 'none';
 	//console.log("via createbyCat");
-	/*----------calcs----------*/
+	//----------calcs----------/
 	catTotal = (dtotal != 0) ? dtotal : ctotal;		
-	/*-------------------------*/
+
 	
 	createCatFactTable(catTotal, ags, (dtotal != 0));	
-}
+} */
 
-function createCatFactTable(catTotal, ags, isDebits) {
+/* function createCatFactTable(catTotal, ags, isDebits) {
 	
 	console.log(`createCatFactTable: catTotal = ${catTotal}, debTotal = ${ags.debTotal}, credTotal = ${ags.credTotal} `);
 		
@@ -929,7 +938,7 @@ function createCatFactTable(catTotal, ags, isDebits) {
 		cfTable.append(tr1);
 		cfTable.append(tr2);	
 	}
-}
+} */
 
 function createChart(transactions, ctype = chartType.PIE) {
 	
