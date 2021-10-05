@@ -32,6 +32,8 @@
 		  
 		  <li id="navrange"><a href="{% url 'vrange' %}">View by Range</a></li>
 		  
+		  <li id="navcompare"><a href="{% url 'vcompare' %}">Comparisons</a></li>
+		  
 		  {% if user.is_authenticated %}
 			 <li><a href="{% url 'vlogout' %}">Logout</a></li>
 		  {% else %}

@@ -153,7 +153,7 @@ function getTextMonth(month_ord) {
                 "December"]
     return months[month_ord - 1]   
 }
-
+	
 function sortByColumn(transactions, sortBy, pdate, period) {
  	console.log(`sort by column, pdate: ${pdate}, period: ${period}`);
 	//console.log(transactions);

@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	chartViewBtn.innerHTML = "Bar Graph";
 	//console.log(`load chrtview: ${chartViewBtn.innerHTML}`);
 	let currentDate = new Date();
-	//console.log(currentDate);
+	console.log(currentDate);
 	createDateMenu();
 	catOrDate = cod.DATE;
 	

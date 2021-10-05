@@ -210,8 +210,14 @@ def jsvmonth(request):
         transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user)
     return JsonResponse([transact.serialize() for transact in transactions], safe=False)
 
-
+### View a range of transactions of a user-supplied period 
 def vrange(request):
+    fbrform = FindByRangeForm()
+    return render(request, "proj5FinTracker/range.html", {
+        'rangeform' : fbrform
+    })
+
+def vcompare(request):
     fbrform = FindByRangeForm()
     return render(request, "proj5FinTracker/range.html", {
         'rangeform' : fbrform
@@ -286,25 +292,6 @@ def jsvcat(request):
             transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_group=group)
     
     return JsonResponse([transact.serialize() for transact in transactions], safe=False)
-
-###remove if unused!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#################################################################
-###remove if unused!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#################################################################
-###remove if unused!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#################################################################
-###remove if unused!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#################################################################
-# @login_required
-# @csrf_exempt
-# def jsvAggregates(request):
-    # data = json.loads(request.body)
-    # current_user = get_user(request)
-    # totes = BankTransaction.objects.filter(trans_owner = current_user).aggregate(atotal=Sum('trans_amt'))
-    # posTotes = BankTransaction.objects.filter(trans_owner = current_user, trans_amt__gte=0).aggregate(patotal=Sum('trans_amt'))
-    # negTotes = BankTransaction.objects.filter(trans_owner = current_user, trans_amt__lte=0).aggregate(debtotal=Sum('trans_amt'))
-    
-    # return JsonResponse(
-        # {"total": totes['atotal'], 
-        # "credtotal" : posTotes['patotal'],
-        # "debtotal" : negTotes['debtotal']},
-        # status=201)
 
 @login_required
 @csrf_exempt
@@ -409,7 +396,8 @@ def vupload(request):
 def get_user(request):
     return User.objects.get(username = request.session["current_user"])
   
-  
+ 
+##### The following has been supplanted by CSV processing 
 def parse_pdf_text(pdf_text, request):
     
     transaction_pattern = '\d\d/\d\d\s+[\d,]+\.\d{2}\s+.+?\w\w\s+\d{6}\s+?'
