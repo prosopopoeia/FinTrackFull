@@ -31,3 +31,11 @@ class FindByRangeForm(forms.Form):
                                 widget= forms.TextInput(attrs={'id':'bybeginrange'}))
     end_range = forms.DateField(initial=datetime.date.today(),
                             widget= forms.TextInput(attrs={'id':'byendrange'}))
+                            
+class CompareForm(forms.Form):
+    value1 = forms.CharField(
+        max_length=10,
+        widget = forms.TextInput(attrs={'id':'value1', "rows":10}))
+    value2 = forms.CharField(
+        max_length=10,
+        widget = forms.TextInput(attrs={'id':'value2', "rows":10}))

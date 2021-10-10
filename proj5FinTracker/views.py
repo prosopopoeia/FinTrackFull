@@ -13,7 +13,7 @@ from datetime import datetime, date
 from json import dumps
 
 from .models import User, BankTransaction
-from .forms import InputBankStatementForm, FindByDateForm, TransactionForm, FindByRangeForm
+from .forms import InputBankStatementForm, FindByDateForm, TransactionForm, FindByRangeForm, CompareForm
 
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
@@ -218,9 +218,9 @@ def vrange(request):
     })
 
 def vcompare(request):
-    fbrform = FindByRangeForm()
+    cmpform = CompareForm()
     return render(request, "proj5FinTracker/compare.html", {
-        'rangeform' : fbrform
+        'compareform' : cmpform
     })
 
 @login_required

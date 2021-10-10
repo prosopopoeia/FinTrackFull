@@ -17,19 +17,19 @@
 	<div class="row">
 		<div class="col-xs-6">
 				<div class="form-group container-fluid" id="findby-form">
-					<label for="searchrange">Search Range</label>
-					<form id="search-range-form" name="searchrange" method="post">
-						{{ rangeform.as_p }}
+					<label for="searchrange">To compare, enter 2 terms in the boxes. (e.g. 2021, 10-2020, 23-02-2021).</label>
+					<form id="compare-form" name="searchrange" method="post">
+						{{ compareform.as_p }}
 						<!-- <label for="begin-range">From</label>
 						<input type="date" id="bybeginrange" name="begin-range" />						
 						<br />
 						<label for="end-range">To   </label>
 						<input type="date" id="byendrange" name="end-range" /> -->
-						<br /><br />
+						
 						{% csrf_token %}
 					
 					</form>
-					<button type="submit" id="get-range-button" form="search-range-form" class="btn btn-primary" value="Submit">View Range</button>
+					<button type="submit" id="get-range-button" form="search-range-form" class="btn btn-primary" value="Submit">Compare!</button>
 				</div>	
 				
 				
@@ -37,7 +37,12 @@
 		</div>
 		
 		<div class="col-xs-4">
-			<h2><strong> <span id="date-span"> {{ vrange }} </span></strong></h2>						
+			<h2><strong> 
+				> Click <br /><br />
+				<span id="by-year"> > By Year </span><br />
+				<span id="by-month"> > By Month </span><br />
+				<span id="by-cat"> > By Category </span><br />
+			</strong></h2>						
 		</div>
 	
 	</div>
@@ -48,9 +53,9 @@
 
 <div class="container-fluid" >
 	
-		
-		<div id="leftPanel" class="col-xs-6">
-		  <h3><div class="panel alert alert-info panel-primary" id='cat-grp'></div></h3>
+		<!-- 
+		<div id="leftPanel" class="col-xs-5">
+		  <h3><div class="panel alert alert-info panel-primary" id='cat-grp'>Term1</div></h3>
 		  <table class="table table-bordered table-striped" id="bits">
 			
 		  </table>
@@ -69,8 +74,8 @@
 			  </tbody>
 		  </table>
 		</div>
-		<div id="aggregates" class="col-xs-4">
-			<h4><div class="panel alert alert-info panel-primary" id='amt-saved'></div></h4>
+		<div id="rightPanel" class="col-xs-5">
+			<h3><div class="panel alert alert-info panel-primary" id='amt-saved'>Term2</div></h3>
 			<div id="detail-table1">
 				<table class="table table-bordered">
 				    <thead>
@@ -83,22 +88,8 @@
 			</div>
 			
 			<div id="debit-pie"></div>
-
-			<div id="detail-table2">
-				<table class="table table-bordered">
-					<thead>
-				      <tr>
-					    <th>Credits - Grand Total:</th><th id="tot-cred"></th>
-					  </tr>
-				    </thead>
-					<tbody id='credit-overview'></tbody>
-				</table>
-			</div>
-			
-			<div id="credit-pie"></div>
-			<div id="char-view-div"><button id="chart-view-btn"></button></div>
 		</div>
-	
+	 -->
 </div>
 
 {% endblock %}
@@ -107,7 +98,8 @@
 {% block script %}
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>	
 	
-	<script src="{% static 'FinTracker/range.js' %}"></script> 
+	<script src="{% static 'FinTracker/transactionLib.js' %}"></script> 
+	<script src="{% static 'FinTracker/compare.js' %}"></script> 
 		
 	
 {% endblock %}
