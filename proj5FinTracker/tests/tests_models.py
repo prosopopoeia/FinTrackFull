@@ -2,8 +2,7 @@ from django.test import RequestFactory, TestCase
 import json
 #import proj5FinTracker.views
 from django.contrib.auth import authenticate, login, logout
-
-
+from django.contrib.auth.models import User
 
 class MostBasicTest(TestCase):
       
@@ -11,26 +10,36 @@ class MostBasicTest(TestCase):
         self.assertEqual(1 + 2, 3)
         
 class inputStatementTests(TestCase):    
-    
+
     def setUp(self):
+        pass
+        #session = self.client.session
+        #session['current_user'] = 'prosopopoeia'
         #self.factory = RequestFactory()
         #request = self.factory.
-        login(self.client.post({'username': 'prosopopoeia', 
-             'password': 'friendx'}), 'prosopopoeia')
-        
-    
+    #    login(self.client.post({'username': 'prosopopoeia', 
+     #        'password': 'friendx'}), 'prosopopoeia')
+            
     
     def test_check_template(self):
         response = self.client.get('/vinput')
         self.assertTemplateUsed(response, 'proj5FinTracker/input.html')    
         
-    # def test_check_status(self):
+    # def test_check_status(self):        
+        # self.client.login(username='prosopopoeia', password='friendx')
+        # session = self.client.session
+        # session['current_user'] = 'prosopopoeia'
+        
+        # session.save()
+        # #self.assertEqual(session['current_user'],'prosopopoeia')
         # response = self.client.post('/vupdateEntry', 
-            # data=json.dumps({"ddate": "02-02-2020",
+            # data=json.dumps({                  
+                  # "ddate": "02-02-2020",
                   # "damt": "100.00",
                   # "ddescription": "transnational transaction",
                   # "dcat": "oaken-wood furniture butcher"}),
-                  # content_type="application/json")
+                  # content_type="application/json",
+                  # current_user="prosopopoeia")
         # self.assertIs(response.status_code, 200)
         
     # def test_response_content(self):

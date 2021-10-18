@@ -82,9 +82,8 @@ def vregister(request):
         return HttpResponseRedirect(reverse("vmonth"))
     else:
         return render(request, "proj5FinTracker/register.html")
-        
-         
-   
+
+
 #-------called from input.js---------#   
 @csrf_exempt
 def vupdateEntry(request):
@@ -94,8 +93,7 @@ def vupdateEntry(request):
     
     tmp_amt = data['damt']
     tmp = 'success'
-    formatted_amt = tmp_amt.replace(",","")
-############ conversion point ##############    
+    formatted_amt = tmp_amt.replace(",","")    
     try:
         BankTransaction.objects.create(
                     trans_date=data['ddate'],
@@ -113,7 +111,6 @@ def vupdateEntry(request):
                         "msg4": vdesc})
                         
  
-
 def get_text_month(month_ord):
     
     months =   ["January",
@@ -298,7 +295,7 @@ def jsvcat(request):
 def jsvsave(request):
     data = json.loads(request.body)
     current_user = get_user(request)
-############ conversion point ##############    
+    ############ conversion point ##############    
     BankTransaction.objects.create(
         trans_date = data['trans_date'],
         trans_amt = data['trans_amt'],
@@ -306,7 +303,7 @@ def jsvsave(request):
         trans_category = data['trans_category'],
         trans_owner = current_user,
         trans_group = data['trans_group'])
-    return JsonResponse({"message": "success"}, status=201) 
+    return JsonResponse({"message": "success"}, status=302) 
     
 
 @csrf_exempt
