@@ -1,4 +1,5 @@
-Note: this is orignally from a school project. Using Javascript to avoid reloading pages is pretty nice, but definitely presents design problems. Splitting my work on this between refactoring the mess I created before I knew better, and adding new features. Mainly though, I am just having fun.
+10/20
+Note: this is orignally from a school project. Using Javascript to avoid reloading pages is pretty nice, but definitely presents design problems. This project has outsized a single page. Next stemp adding tests to facilitate refactoring code into cohesive modular units. 
 
 FinTrack v1.0 (FT1)
 
