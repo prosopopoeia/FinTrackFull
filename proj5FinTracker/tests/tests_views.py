@@ -4,7 +4,7 @@ import json
 from proj5FinTracker.models import BankTransaction
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import User
-
+from django.urls import reverse
 
 class MostBasicTest(TestCase):
       
@@ -16,8 +16,11 @@ class inputStatementTests(TestCase):
     #run once for class
     @classmethod
     def setUpTestData(cls):
-        User = get_user_model()
-        mainUser = User.objects.create(username='proppy')
+        User = get_user_model() #get custom User rather than django.contrib...User
+        main_user = User.objects.create(username='proppy')
+        secondary_user = User.objects.create(username='props', password='1234')############################
+        
+        #secondary_user.save()
         
         BankTransaction.objects.create(
             trans_date="2020-12-12",
@@ -25,13 +28,25 @@ class inputStatementTests(TestCase):
             trans_msg="transnational transaction",
             trans_category="tulette",
             trans_group="gorsha",
-            trans_owner=mainUser)
+            trans_owner=main_user)
+            
+        BankTransaction.objects.create(
+            trans_date="2020-11-12",
+            trans_amt="10.00",
+            trans_msg="transnational transaction II",
+            trans_category="joil-span",
+            trans_group="crinshaw",
+            trans_owner=main_user)
         
-    # run once for every test methond
+    # run once for every test method###################################################
     def setUp(self):
         pass#session = self.client.session
         #session['current_user'] = 'prosopopoeia'        
         #session.save()
+        
+    def test_index(self):
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 302)    
         
     def test_check_template(self):
         response = self.client.get('/vinput')
@@ -51,8 +66,18 @@ class inputStatementTests(TestCase):
                   content_type="application/json",
                   current_user="prosopopoeia")
         self.assertEqual(response.status_code, 302)
-        #self.assertIs(response.status_code, 201)
-        
+       
+    def test_update(self):
+        response = self.client.post('/vupdateEntry',
+            data=json.dumps({
+    # def test_login(self):
+        # response = self.client.post('/vlogin',
+            # username = 'props',
+            # password = '1234')
+        # print(response)
+        # pass#self.assertEqual(response.status_code, 201)
+            
+    
     # def test_response_content(self):
         # response = self.client.get('/vupdateEntry')
         # msg = response.json()        
