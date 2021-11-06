@@ -84,31 +84,31 @@ def vregister(request):
         return render(request, "proj5FinTracker/register.html")
 
 
-#-------called from input.js---------#   
-@csrf_exempt
-def vupdateEntry(request):
-    data = json.loads(request.body)
-    vdesc = data['ddescription']
-    c_user = get_user(request)
+#-------depracated---------#   
+# @csrf_exempt
+# def vupdateEntry(request):
+    # data = json.loads(request.body)
+    # vdesc = data['ddescription']
+    # c_user = get_user(request)
     
-    tmp_amt = data['damt']
-    tmp = 'success'
-    formatted_amt = tmp_amt.replace(",","")    
-    try:
-        BankTransaction.objects.create(
-                    trans_date=data['ddate'],
-                    trans_owner=c_user,
-                    trans_amt = float(formatted_amt),
-                    trans_msg = vdesc,
-                    trans_category = data['dcat'],
-                    trans_group = data['dgroup']
-                    )
-    except:
-        tmp = 'fail'
-    return JsonResponse({"msg1": data['ddate'],
-                        "msg2": data['damt'],
-                        "msg3": tmp,
-                        "msg4": vdesc})
+    # tmp_amt = data['damt']
+    # tmp = 'success'
+    # formatted_amt = tmp_amt.replace(",","")    
+    # try:
+        # BankTransaction.objects.create(
+                    # trans_date=data['ddate'],
+                    # trans_owner=c_user,
+                    # trans_amt = float(formatted_amt),
+                    # trans_msg = vdesc,
+                    # trans_category = data['dcat'],
+                    # trans_group = data['dgroup']
+                    # )
+    # except:
+        # tmp = 'fail'
+    # return JsonResponse({"msg1": data['ddate'],
+                        # "msg2": data['damt'],
+                        # "msg3": tmp,
+                        # "msg4": vdesc})
                         
  
 def get_text_month(month_ord):

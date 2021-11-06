@@ -22,9 +22,8 @@ class inputStatementTests(TestCase):
         secondary_user = User.objects.create(username='props', password='1234')############################
         main_user.save()
         secondary_user.save()
-        print(main_user.username)
+                
         
-        #secondary_user.save()
         #number_of_transactions = 5
         #for object_number in range(number_of_transactions):
         BankTransaction.objects.create(
@@ -49,12 +48,10 @@ class inputStatementTests(TestCase):
         
     def test_table_engine(self):   
         """ test 1"""
-        #tran = BankTransaction.objects.filter(trans_owner=main_user)
-        #print(tran[0].trans_owner.password)
-        print(main_user)
-        login = self.client.login(username='propy', password='321')
+        
+        #login = self.client.login(username='propy', password='4321')
         response = self.client.post(reverse('vmonth'))
-        print(login)
+        
         #self.assertEqual(str(response.context['username']), 'proppy')
         self.assertEqual(response.status_code, 302)
         #self.assertTemplateUsed(response, 'proj5FinTracker/singlePageTransactions.html')
@@ -84,7 +81,11 @@ class inputStatementTests(TestCase):
                   content_type="application/json",
                   current_user="props")
         self.assertEqual(response.status_code, 302)
-       
+    
+    def test_range_form_returned(self):
+        response = self.client.get('/vrange')
+        print(response.fbrform)
+        
     #def test_update(self):
      #   response = self.client.post('/vupdateEntry',
       #      data=json.dumps({
