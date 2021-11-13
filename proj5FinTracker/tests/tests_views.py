@@ -1,9 +1,10 @@
-from django.test import RequestFactory, TestCase
+from django.test import Client, TestCase#, RequestFactory
 import json
 #import proj5FinTracker.views
-from proj5FinTracker.models import BankTransaction
+from django.core.files import File
+from proj5FinTracker.models import BankTransaction, User
 from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
 from django.urls import reverse
 
 
@@ -14,61 +15,103 @@ class MostBasicTest(TestCase):
         
 class inputStatementTests(TestCase):    
 
-    #run once for class
     @classmethod
-    def setUpTestData(cls):
-        User = get_user_model() #get custom User rather than django.contrib...User
-        main_user = User.objects.create(username='proppy', password='4321')
-        secondary_user = User.objects.create(username='props', password='1234')############################
-        main_user.save()
-        secondary_user.save()
-                
+    def UserFactory(numb, name):
+        #User = get_user_model() #get custom User rather than django.contrib...User
+        #print('created user:')
         
-        #number_of_transactions = 5
-        #for object_number in range(number_of_transactions):
+        gen_user = User.objects.create(username=name, password='password')
+        
+        #print(gen_user.username)
+        return gen_user
+        
+        
+    def setUp(self):
+        self.gen_user = self.UserFactory('banjo')
+        #print(self.gen_user.username)
         BankTransaction.objects.create(
-                trans_date="2020-12-12",
+                trans_date="2020-10-12",
                 trans_amt="100.00",
                 trans_msg="transnational transaction",
                 trans_category="tulette",
                 trans_group="gorsha",
-                trans_owner=main_user)
+                trans_owner=self.gen_user)
             
         
         BankTransaction.objects.create(
-            trans_date="2020-11-12",
+            trans_date="2020-10-01",
             trans_amt="10.00",
             trans_msg="transnational transaction II",
             trans_category="joil-span",
             trans_group="crinshaw",
-            trans_owner=main_user)
+            trans_owner=self.gen_user)
         
-    def setUp(self):
-        pass
+        print(BankTransaction.objects.filter(trans_owner=self.gen_user).first().trans_amt)
         
-    def test_table_engine(self):   
-        """ test 1"""
-        
+    # TODO need tear down
+    def test_table_vmonth_redirects(self):   
+        """ test 1"""        
         #login = self.client.login(username='propy', password='4321')
         response = self.client.post(reverse('vmonth'))
-        
         #self.assertEqual(str(response.context['username']), 'proppy')
         self.assertEqual(response.status_code, 302)
         #self.assertTemplateUsed(response, 'proj5FinTracker/singlePageTransactions.html')
         
     def test_index(self):
         response = self.client.get(reverse('vimonth'))
-        #self.assertTemplateUsed(response, 'proj5FinTracker/login.html')
         self.assertEqual(response.status_code, 302)    
+        
+    def test_index_redirects2(self):
+        response = self.client.get('/')
+        #print(response.content)
+        self.assertEqual(response.status_code, 302)
         
     def test_check_template_input(self):
         response = self.client.get('/vinput')
         self.assertTemplateUsed(response, 'proj5FinTracker/input.html')    
-
+    
     def test_can_upload_document(self):
-        pass#response = self.client.get('/vupload')
+        pass
+        #util_client = Client()
+        #util_client.login(username=self.gen_user.username, password='password')
+        #util_client.FILES = {'file_name': 'mocks\\b_est.txt'}
+        #print(util_client.FILES['file_name'])
+        #print(util_client.POST)
+        #print(self.gen_user.username)      
+        #response = self.client.post('/vupload', util_client.FILES)
+        #print(response)        
         #self.assertTemplateUsed(response, 'proj5FinTracker/input.html')    
+
+    def test_range_form_returned(self):
+        response = self.client.get('/vrange')
+        #print(response.content)
+        self.assertContains(response, 'bybeginrange')
+        self.assertContains(response, 'byendrange')
+    
+    def test_vrange_template(self):
+        response = self.client.get('/vrange')
+        self.assertTemplateUsed('proj5FinTracker/compare.html')
         
+##############################################################################
+##                              JSV TESTS                                   ##
+##############################################################################
+    
+    def test_jsvperiod_month(self):
+        #util_client = Client()
+        #util_client.login(username=self.gen_user.username, password='password')
+        #util_client.FILES = {'file_name': 'mocks\\b_est.txt'}
+        #print(util_client.FILES['file_name'])
+        #print(util_client.POST)
+        self.client.login(username=self.gen_user.username, password='password')
+        print(self.gen_user.username)      
+        test_date = "2021-10-1"
+        #response = util_client.post(reverse('jsvperiod'), 
+        #    data={"jsdate": test_date})
+        response = self.client.post('/jsvperiod', 
+            data={"jsdate": test_date})
+        print(response.content)
+        print(test_date)
+        pass
     def test_check_status(self): 
         #c = self.client(content_type=application/json)
         response = self.client.post('/jsvsave', 
@@ -82,9 +125,10 @@ class inputStatementTests(TestCase):
                   current_user="props")
         self.assertEqual(response.status_code, 302)
     
-    def test_range_form_returned(self):
-        response = self.client.get('/vrange')
-        print(response.fbrform)
+
+##############################################################################
+##                              UNIMPLEMENTED                               ##
+##############################################################################    
         
     #def test_update(self):
      #   response = self.client.post('/vupdateEntry',

@@ -232,7 +232,7 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE) {
 	if (isNaN(ctype))
 		ctype = chartType.PIE;
 		
-	fetch('jsvmonth', {
+	fetch('jsvperiod', {
 		method: 'POST',
 		body: JSON.stringify({
 			jsdate: pdate,
@@ -491,7 +491,7 @@ function getDateData(iDate) {
 	//transRows.innerHTML = "";
 	loadTable(iDate, currtype);
 	createDateMenu(iDate, currtype);
-	/* fetch('jsvmonth', {
+	/* fetch('jsvperiod', {
 		method: 'POST',
 		body: JSON.stringify({
 			jsdate: iDate,
