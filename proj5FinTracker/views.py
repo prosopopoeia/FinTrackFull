@@ -253,9 +253,9 @@ def jsvperiod(request):
         vmo = int(vdate[5:7])
         vdy = int(vdate[8:10])        
 
-    try:
-       this_user = get_user(request)
-    except:
+    #try:
+    #   this_user = get_user(request)
+    #except:
         return HttpResponseRedirect(reverse("vlogin"))
     
     if data["jstype"] == Period.Month.value:

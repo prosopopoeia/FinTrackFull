@@ -46,7 +46,7 @@ class inputStatementTests(TestCase):
             trans_group="crinshaw",
             trans_owner=self.gen_user)
         
-        print(BankTransaction.objects.filter(trans_owner=self.gen_user).first().trans_amt)
+        #print(BankTransaction.objects.filter(trans_owner=self.gen_user).first().trans_amt)
         
     # TODO need tear down
     def test_table_vmonth_redirects(self):   
@@ -95,23 +95,47 @@ class inputStatementTests(TestCase):
 ##############################################################################
 ##                              JSV TESTS                                   ##
 ##############################################################################
+    #def test_login(self):
+        #test_client = Client()
+        #response = test_client.get('/vlogin', follow=True)
+        #print(self.gen_user.username)
+        #print(self.gen_user.password)
+        #response = test_client.post('/vlogin', {'username': self.gen_user.username, 'password': 'password'})
+        #print(response.content)
+        #pass
     
     def test_jsvperiod_month(self):
-        #util_client = Client()
-        #util_client.login(username=self.gen_user.username, password='password')
-        #util_client.FILES = {'file_name': 'mocks\\b_est.txt'}
-        #print(util_client.FILES['file_name'])
-        #print(util_client.POST)
-        self.client.login(username=self.gen_user.username, password='password')
+        huh = BankTransaction.objects.create(
+                trans_date="2020-10-1",
+                trans_amt="100.00",
+                trans_msg="transnational transaction",
+                trans_category="torte-le",
+                trans_group="jimp-su",
+                trans_owner=self.gen_user)
+        print(huh)
+        #print(BankTransaction.objects.first().trans_category)
+        #print(BankTransaction.objects.filter(trans_date__day=1).first().trans_category)
+        #self.client.login(username=self.gen_user.username, password='password')
         print(self.gen_user.username)      
-        test_date = "2021-10-1"
-        #response = util_client.post(reverse('jsvperiod'), 
+        test_date = "2020-10-1"
+        jdata = {"jsdate": "2020-10-01"}
+        #response = self.client.post(reverse('jsvperiod'), json.dumps(jdata))
         #    data={"jsdate": test_date})
-        response = self.client.post('/jsvperiod', 
-            data={"jsdate": test_date})
-        print(response.content)
-        print(test_date)
-        pass
+        response = self.client.post('/jsvperiod', kwargs=json.dumps(jdata))
+            #kwargs={"jsdate": test_date,
+            #"jstype": "1"})
+        #repo = response.json()
+        #print(repo)
+        #print(response.text)
+        print(jdata)
+        dumped = json.dumps(jdata)
+        print(dumped)
+        loaded = json.loads(dumped)
+        print(loaded)
+        self.assertEqual(response.status_code, 302)
+        #self.assertEqual(self.response.status_code, "200")
+        #pass
+        
     def test_check_status(self): 
         #c = self.client(content_type=application/json)
         response = self.client.post('/jsvsave', 
