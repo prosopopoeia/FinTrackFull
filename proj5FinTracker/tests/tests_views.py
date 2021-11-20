@@ -121,19 +121,19 @@ class inputStatementTests(TestCase):
         jdata = {"jsdate": "2020-10-01"}
         #response = self.client.post(reverse('jsvperiod'), json.dumps(jdata))
         #    data={"jsdate": test_date})
-        response = self.client.post('/jsvperiod', kwargs=json.dumps(jdata))
+        response = self.client.post('/jsvperiod', kwargs=json.dumps(jdata), follow=True)
             #kwargs={"jsdate": test_date,
             #"jstype": "1"})
         #repo = response.json()
         #print(repo)
-        #print(response.text)
+        print(response.redirect_chain)
         print(jdata)
         dumped = json.dumps(jdata)
         print(dumped)
         loaded = json.loads(dumped)
         print(loaded)
-        self.assertEqual(response.status_code, 302)
-        #self.assertEqual(self.response.status_code, "200")
+        #self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         #pass
         
     def test_check_status(self): 
