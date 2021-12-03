@@ -35,6 +35,22 @@ class inputStatementTests(TestCase):
                 trans_category="tulette",
                 trans_group="gorsha",
                 trans_owner=self.gen_user)
+                
+        BankTransaction.objects.create(
+                trans_date="2020-09-12",
+                trans_amt="110.00",
+                trans_msg="t2",
+                trans_category="t3",
+                trans_group="t4",
+                trans_owner=self.gen_user)
+                
+        BankTransaction.objects.create(
+                trans_date="2020-08-12",
+                trans_amt="130.00",
+                trans_msg="t7",
+                trans_category="t6",
+                trans_group="t5",
+                trans_owner=self.gen_user)
         
         BankTransaction.objects.create(
             trans_date="2020-10-01",
@@ -117,9 +133,9 @@ class inputStatementTests(TestCase):
         self.assertIn("torte-le", str(response.content))
         
     def test_jsvperiod_other(self):        
-        using = User.objects.create_user(username='temp', password='pw',  is_active=1, is_superuser=True)
-        using.set_password('pw')
-        using.save()
+        # using = User.objects.create_user(username='temp', password='pw',  is_active=1, is_superuser=True)
+        # using.set_password('pw')
+        # using.save()
         test_client = Client()        
         
         jdata = {"jsdate": "2020-10-01", "jstype": "2"}
@@ -129,10 +145,22 @@ class inputStatementTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("tulette", str(response.content))
         
+    def test_jsvrange(self):
+        jdata = {"begindate": "2020-08-01", "enddate": "2020-10-01"}
+        #   login = self.client.login(username=self.gen_user, password="password")
+        response = self.client.post('/jsvrange', content_type='application/json', data=jdata, follow=True)
+        print(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("2020-10", str(response.content))
+        self.assertIn("2020-08", str(response.content))
+        
+    # def test_jsvcat(self):
+        # self.client.post(reverse('jsvcat'), json.dumps(jdata))
+        # login = self.client.login(username=self.gen_user, password="password")
+        
     def test_check_status(self): 
         #c = self.client(content_type=application/json)
-        response = self.client.post('/jsvsave', 
-                    
+        response = self.client.post('/jsvsave',                     
                   {"trans_date": "2020-02-02",
                   "trans_amt": "100.00",
                   "trans_msg": "transnational transaction",
@@ -143,13 +171,9 @@ class inputStatementTests(TestCase):
         self.assertEqual(response.status_code, 302)
     
     def test_login(self):
-        user_logged_in = self.client.login(username="banjo", password="password")
+        user_logged_in = self.client.login(username=self.gen_user, password="password")
         check_user = User.objects.first()
-        print(check_user)
-        # response = self.client.post('/vlogin',
-            # username = 'props',
-            # password = '1234')
-        # print(response)
+        print(check_user)       
         self.assertTrue(user_logged_in)
             
     
