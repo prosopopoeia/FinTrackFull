@@ -232,7 +232,7 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE) {
 	if (isNaN(ctype))
 		ctype = chartType.PIE;
 		
-	fetch('jsvmonth', {
+	fetch('jsvperiod', {
 		method: 'POST',
 		body: JSON.stringify({
 			jsdate: pdate,
@@ -467,17 +467,14 @@ function findTransactionsByDate(event) {
 	
 }
 
-//loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE) 
-
 function getDateData(iDate) {
 	displayDataDate(iDate);	
 	
 	var tem = typeof iDate;
-	//console.log(`tem: ${iDate}`);
+	
 	if (tem == "number")
 		iDate =  iDate.toString();
-	//var tem = typeof iDate;
-	//console.log(`tem: ${tem}`);
+	
 	
 	//* set Global date *//
 	globalDisplayedDate = iDate; 
@@ -485,38 +482,9 @@ function getDateData(iDate) {
 	let currtype = (inYearView()) ? jperiod.YEAR : (inEpochView()) ? jperiod.ALL : jperiod.MONTH;
 	console.log(`currtype is : ${currtype}, dateVaule is ${iDate}`);
 	console.log("getDate data");
-	
-	//hrt
-	//var transRows = document.querySelector('#target');
-	//transRows.innerHTML = "";
-	loadTable(iDate, currtype);
-	createDateMenu(iDate, currtype);
-	/* fetch('jsvmonth', {
-		method: 'POST',
-		body: JSON.stringify({
-			jsdate: iDate,
-			jstype: currtype			
-		})
-	})
-	.then(response => response.json())
-	.then(transactions => {
-		var transRows = document.querySelector('#target');
-		transRows.innerHTML = "";
-		transactions.forEach(displayTrans)
-		if (currtype == jperiod.MONTH) {
-			createChart(transactions);
-			createDateMenu(iDate, currtype);
-		}
-		else {
-			createCatbyMonthChart(transactions, currtype);
-			createDateMenu(iDate, currtype);
-		}
 		
-		//clean 'percentage-of display (if needed)
-		document.querySelector('#bits').style.display = 'none';
-		//var grpHeading = document.querySelector('#cat-grp');
-		console.log(`getDataeData: idate = ${iDate}`);
-	});		 */
+	loadTable(iDate, currtype);
+	createDateMenu(iDate, currtype);	
 }
 
 function putDateInTransactionPeriodTextBox(date) {

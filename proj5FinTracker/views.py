@@ -84,7 +84,7 @@ def vregister(request):
         return render(request, "proj5FinTracker/register.html")
 
 
-#-------called from input.js---------#   
+#-------depracated---------#   
 @csrf_exempt
 def vupdateEntry(request):
     data = json.loads(request.body)
@@ -105,8 +105,8 @@ def vupdateEntry(request):
                     )
     except:
         tmp = 'fail'
-    return JsonResponse({"msg1": data['ddate'],
-                        "msg2": data['damt'],
+    return JsonResponse({"msg1": formatted_amt,#,#data['ddate'],
+                        "msg2": c_user.username,#data['damt'],
                         "msg3": tmp,
                         "msg4": vdesc})
                         
@@ -179,34 +179,6 @@ def byDateProcessing(request, period):
         'dperiod' : period      
     })
 
-
-#-------called from month.js---------#                        
-@login_required
-@csrf_exempt
-def jsvmonth(request):
-    data = json.loads(request.body)
-    vdate = data["jsdate"]
-    if vdate == 0: 
-        vyr = date.today().year
-        vmo = date.today().month
-    else:
-        vyr = int(vdate[0:4])
-        vmo = int(vdate[5:7])
-        vdy = int(vdate[8:10])        
-
-    try:
-       this_user = get_user(request)
-    except:
-        return HttpResponseRedirect(reverse("vlogin"))
-    
-    if data["jstype"] == Period.Month.value:
-        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo)
-    elif data["jstype"] == Period.Year.value:
-        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr)
-    else:
-        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user)
-    return JsonResponse([transact.serialize() for transact in transactions], safe=False)
-
 ### View a range of transactions of a user-supplied period 
 def vrange(request):
     fbrform = FindByRangeForm()
@@ -220,10 +192,83 @@ def vcompare(request):
         'compareform' : cmpform
     })
 
+#-------called from input.html-------------#   
+
+def vinput(request):
+    ibsForm = InputBankStatementForm()
+    return render(request, "proj5FinTracker/input.html", {
+        'tform' : ibsForm,
+    })
+
+                     
+@csrf_exempt
+def vupload(request):    
+    #####################################################################
+    ## IMPORTANT: REMOVE ANY BLANK LINES FROM CSV OR IT WILL DIE HERE! ##
+    ## even just put transactions in erase.txt -- on the TODO list     ##
+    #####################################################################
+    
+    bf_open = request.FILES['file_name']
+   
+    ###parse PDF document###
+    ###PDF DEPRECATED###
+    ###PDF DEPRECATED###
+    ###PDF DEPRECATED###    
+    if ('PDF' in bf_open.name.upper()): 
+        bf_str = StringIO()
+        bf_parser = PDFParser(bf_open)
+        bf_doc = PDFDocument(bf_parser)
+        bf_mgr = PDFResourceManager()
+        bf_converter = TextConverter(bf_mgr, bf_str, laparams=LAParams())
+        bf_interpreter = PDFPageInterpreter(bf_mgr, bf_converter)
+        for bf_page in PDFPage.create_pages(bf_doc):
+            bf_interpreter.process_page(bf_page)        
+        transactions_needing_classification = parse_pdf_text(bf_str.getvalue(), request)      
+    else:
+        transactions_needing_classification = parse_csv(bf_open, request)        
+    
+    dmp = dumps(transactions_needing_classification)
+    ibsForm = InputBankStatementForm()
+    return render(request, "proj5FinTracker/input.html", {
+        'tform' : ibsForm,
+        'dmp': dmp,
+        #uncomment for diagnostic info
+        #'msg5' : count,
+        #'msg3': dmp,
+        #'msg6': transactions_needing_classification
+    })
+        
+
+#-------called from month.js---------#                        
 @login_required
 @csrf_exempt
-def jsvrange(request):
-    #return JsonResponse({"message": "success"}, status=201) 
+def jsvperiod(request):
+    data = json.loads(request.body)
+    vdate = data["jsdate"]
+    if vdate == 0: 
+        vyr = date.today().year
+        vmo = date.today().month
+    else:
+        vyr = int(vdate[0:4])
+        vmo = int(vdate[5:7])
+        vdy = int(vdate[8:10])        
+
+    try:
+       this_user = get_user(request)
+    except:
+       return HttpResponseRedirect(reverse("vlogin"))
+    
+    if data["jstype"] == Period.Month.value:
+        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo)
+    elif data["jstype"] == Period.Year.value:
+        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr)
+    else:
+        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user)
+    return JsonResponse([transact.serialize() for transact in transactions], safe=False)
+
+@login_required
+@csrf_exempt
+def jsvrange(request):    
     data = json.loads(request.body)
     vbegindate = data["begindate"]
     venddate = data["enddate"]
@@ -349,48 +394,6 @@ def edittransaction(request):
     
     return JsonResponse({"reload_necessary" : vreload_necessary}, status=201)
 
-#-------called from input.html-------------#   
-
-def vinput(request):
-    ibsForm = InputBankStatementForm()
-    return render(request, "proj5FinTracker/input.html", {
-        'tform' : ibsForm,
-    })
-
-                     
-@csrf_exempt
-def vupload(request):    
-    #####################################################################
-    ## IMPORTANT: REMOVE ANY BLANK LINES FROM CSV OR IT WILL DIE HERE! ##
-    ## even just put transactions in erase.txt                         ##
-    #####################################################################
-    ###parse PDF document###
-    bf_str = StringIO()
-    bf_open = request.FILES['file_name']
-    
-    if ('PDF' in bf_open.name.upper()): 
-        bf_parser = PDFParser(bf_open)
-        bf_doc = PDFDocument(bf_parser)
-        bf_mgr = PDFResourceManager()
-        bf_converter = TextConverter(bf_mgr, bf_str, laparams=LAParams())
-        bf_interpreter = PDFPageInterpreter(bf_mgr, bf_converter)
-        for bf_page in PDFPage.create_pages(bf_doc):
-            bf_interpreter.process_page(bf_page)        
-        transactions_needing_classification = parse_pdf_text(bf_str.getvalue(), request)      
-    else:
-        transactions_needing_classification = parse_csv(bf_open, request)        
-    
-    dmp = dumps(transactions_needing_classification)
-    ibsForm = InputBankStatementForm()
-    return render(request, "proj5FinTracker/input.html", {
-        'tform' : ibsForm,
-        'dmp': dmp,
-        #uncomment for diagnostic info
-        #'msg5' : count,
-        #'msg3': dmp,
-        #'msg6': transactions_needing_classification
-    })
-        
 def get_user(request):
     return User.objects.get(username = request.session["current_user"])
   

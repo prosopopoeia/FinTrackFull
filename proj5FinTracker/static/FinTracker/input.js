@@ -34,14 +34,14 @@ function scanDocument() {
 			//console.log(`date: ${tdate}`);
 			console.log(`ddescription: ${afterDateAmtPattern}`);
 			console.log(`desc: ${desc}`);
-			fetch('vupdateEntry', {
+			fetch('jsvsave', { //vupdateEntry', {
 				method: 'POST',
 				body:	JSON.stringify({
-					ddate : tdate[0],
-					damt : tamt[0],
-					ddescription : desc[0],
-					dcat : ocat[0],
-					dgroup: ocat[1]
+					trans_date : tdate[0],
+					trans_amt : tamt[0],
+					trans_msg : desc[0],
+					trans_category : ocat[0],
+					trans_group: ocat[1]
 				})
 			})
 			.then(response => response.json())
