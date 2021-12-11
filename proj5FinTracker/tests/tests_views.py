@@ -29,6 +29,7 @@ class inputStatementTests(TestCase):
         response2 = self.client.post('/login', {'username': self.gen_user.username, 'password': 'password'})
         
 
+
     def setUpTestData(cls):
         User = get_user_model() #get custom User rather than django.contrib...User
         main_user = User.objects.create(username='proppy', password='4321')
@@ -64,6 +65,7 @@ class inputStatementTests(TestCase):
             trans_category="t6",
             trans_group="t5",
             trans_owner=self.gen_user)
+
         
         BankTransaction.objects.create(
             trans_date="2020-10-01",
@@ -72,6 +74,7 @@ class inputStatementTests(TestCase):
             trans_category="joil-span",
             trans_group="crinshaw",
             trans_owner=self.gen_user)
+
         
                
     # TODO need tear down
@@ -108,23 +111,18 @@ class inputStatementTests(TestCase):
         #login = self.client.login(username='propy', password='4321')
         response = self.client.post(reverse('vmonth'))
 
-         
+ 
         
-    def setUp(self):
-        pass
-        
-    def test_table_engine(self):   
-        """ test 1"""
-        #tran = BankTransaction.objects.filter(trans_owner=main_user)
-        #print(tran[0].trans_owner.password)
-        print(main_user)
-        login = self.client.login(username='propy', password='321')
+               
+    # TODO need tear down
+    
+    
+    def test_table_vmonth_redirects(self):   
+        """ test 1"""        
+        #login = self.client.login(username='propy', password='4321')
         response = self.client.post(reverse('vmonth'))
         print(login)
-<<<<<<< HEAD
 
-=======
->>>>>>> parent of 0135d73... added some tests, removed some code
         #self.assertEqual(str(response.context['username']), 'proppy')
         self.assertEqual(response.status_code, 200)
         #self.assertTemplateUsed(response, 'proj5FinTracker/singlePageTransactions.html')
@@ -173,6 +171,7 @@ class inputStatementTests(TestCase):
         using.set_password('pw')
         using.save()
         test_client = Client()        
+<<<<<<< HEAD
         #print(User.objects.last())#filter(username='temp'))
         huh = BankTransaction.objects.create(
                 trans_date="2020-10-01",
@@ -189,8 +188,8 @@ class inputStatementTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("torte-le", str(response.content))
         
-    def test_jsvperiod_other(self):        
-        test_client = Client()        
+    def test_jsvperiod_other(self):  
+        test_client = Client()
         jdata = {"jsdate": "2020-10-01", "jstype": "2"}
         login = test_client.post('/login', {'username': 'banjo', 'password': 'password'})
         response = test_client.post('/jsvperiod', content_type='application/json', data=jdata, follow=True)
@@ -238,6 +237,7 @@ class inputStatementTests(TestCase):
         self.assertIn("t5", str(response2.content))        
         print("repo2: ")
         print(response2.content)
+
         
     def test_check_status(self): 
         #c = self.client(content_type=application/json)
@@ -250,19 +250,21 @@ class inputStatementTests(TestCase):
                   content_type="application/json",
                   current_user="props")
         self.assertEqual(response.status_code, 302)
-<<<<<<< HEAD
 
-
-
+    
+    def test_login(self):
+        user_logged_in = self.client.login(username=self.gen_user, password="password")
+        check_user = User.objects.first()
+        print(check_user)       
+        self.assertTrue(user_logged_in)
+            
+    
+        
 ##############################################################################
 ##                              UNIMPLEMENTED                               ##
 ##############################################################################    
+        
 
-       
-
-=======
-       
->>>>>>> parent of 0135d73... added some tests, removed some code
     #def test_update(self):
      #   response = self.client.post('/vupdateEntry',
       #      data=json.dumps({

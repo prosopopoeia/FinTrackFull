@@ -1,0 +1,10 @@
+db.sqlite3
+.gitignore
+.pdf
+media/static/uploads/*
+static/FinTracker/month - Copy.js
+static/FinTracker/summaryPanel.js
+proj5FinTracker/static/FinTracker/summaryPanel.js
+*.pyc
+proj5FinTracker/__pycache__/*
+C:/Users/ngwtt/Documents/cs50W/ProjectFive/FinTrack/proj5FinTracker/__pycache__/*

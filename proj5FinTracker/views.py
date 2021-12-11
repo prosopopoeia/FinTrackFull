@@ -84,13 +84,9 @@ def vregister(request):
         return render(request, "proj5FinTracker/register.html")
 
 
-<<<<<<< HEAD
 
 #-------called from input.js---------#   
 
-=======
-#-------called from input.js---------#   
->>>>>>> parent of 0135d73... added some tests, removed some code
 @csrf_exempt
 def vupdateEntry(request):
     data = json.loads(request.body)
@@ -111,14 +107,10 @@ def vupdateEntry(request):
                     )
     except:
         tmp = 'fail'
-<<<<<<< HEAD
+
 
     return JsonResponse({"msg1": formatted_amt,#,#data['ddate'],
                         "msg2": c_user.username,#data['damt'],
-=======
-    return JsonResponse({"msg1": data['ddate'],
-                        "msg2": data['damt'],
->>>>>>> parent of 0135d73... added some tests, removed some code
                         "msg3": tmp,
                         "msg4": vdesc})
                         
