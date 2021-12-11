@@ -75,6 +75,7 @@ class inputStatementTests(TestCase):
             trans_owner=self.gen_user)
 
         
+<<<<<<< HEAD
                
     # TODO need tear down
     
@@ -111,6 +112,9 @@ class inputStatementTests(TestCase):
         response = self.client.post(reverse('vmonth'))
 
  
+=======
+        print(BankTransaction.objects.filter(trans_owner=self.gen_user).first().trans_amt)
+>>>>>>> parent of ca900bf... adding tests
         
                
     # TODO need tear down
@@ -155,15 +159,8 @@ class inputStatementTests(TestCase):
 ##############################################################################
 ##                              JSV TESTS                                   ##
 ##############################################################################
-    #def test_login(self):
-        #test_client = Client()
-        #response = test_client.get('/vlogin', follow=True)
-        #print(self.gen_user.username)
-        #print(self.gen_user.password)
-        #response = test_client.post('/vlogin', {'username': self.gen_user.username, 'password': 'password'})
-        #print(response.content)
-        #pass
     
+<<<<<<< HEAD
     def test_jsvperiod_month(self):        
         using = User.objects.create_user(username='temp', password='pw',  is_active=1, is_superuser=True)
         using.set_password('pw')
@@ -235,6 +232,24 @@ class inputStatementTests(TestCase):
         print("repo2: ")
         print(response2.content)
    
+=======
+    def test_jsvperiod_month(self):
+        #util_client = Client()
+        #util_client.login(username=self.gen_user.username, password='password')
+        #util_client.FILES = {'file_name': 'mocks\\b_est.txt'}
+        #print(util_client.FILES['file_name'])
+        #print(util_client.POST)
+        self.client.login(username=self.gen_user.username, password='password')
+        print(self.gen_user.username)      
+        test_date = "2021-10-1"
+        #response = util_client.post(reverse('jsvperiod'), 
+        #    data={"jsdate": test_date})
+        response = self.client.post('/jsvperiod', 
+            data={"jsdate": test_date})
+        print(response.content)
+        print(test_date)
+        pass
+>>>>>>> parent of ca900bf... adding tests
     def test_check_status(self): 
         #c = self.client(content_type=application/json)
         response = self.client.post('/jsvsave',                     
