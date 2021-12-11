@@ -28,6 +28,19 @@ class inputStatementTests(TestCase):
         self.gen_user.save()
         response2 = self.client.post('/login', {'username': self.gen_user.username, 'password': 'password'})
         
+
+    def setUpTestData(cls):
+        User = get_user_model() #get custom User rather than django.contrib...User
+        main_user = User.objects.create(username='proppy', password='4321')
+        secondary_user = User.objects.create(username='props', password='1234')############################
+        main_user.save()
+        secondary_user.save()
+        print(main_user.username)
+        
+        #secondary_user.save()
+        #number_of_transactions = 5
+        #for object_number in range(number_of_transactions):
+
         BankTransaction.objects.create(
             trans_date="2020-10-12",
             trans_amt="100.00",
@@ -94,6 +107,21 @@ class inputStatementTests(TestCase):
         """ test 1"""        
         #login = self.client.login(username='propy', password='4321')
         response = self.client.post(reverse('vmonth'))
+
+         
+        
+    def setUp(self):
+        pass
+        
+    def test_table_engine(self):   
+        """ test 1"""
+        #tran = BankTransaction.objects.filter(trans_owner=main_user)
+        #print(tran[0].trans_owner.password)
+        print(main_user)
+        login = self.client.login(username='propy', password='321')
+        response = self.client.post(reverse('vmonth'))
+        print(login)
+
         #self.assertEqual(str(response.context['username']), 'proppy')
         self.assertEqual(response.status_code, 200)
         #self.assertTemplateUsed(response, 'proj5FinTracker/singlePageTransactions.html')
@@ -221,10 +249,13 @@ class inputStatementTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
 
+
 ##############################################################################
 ##                              UNIMPLEMENTED                               ##
 ##############################################################################    
-        
+
+       
+
     #def test_update(self):
      #   response = self.client.post('/vupdateEntry',
       #      data=json.dumps({

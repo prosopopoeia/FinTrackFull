@@ -84,7 +84,9 @@ def vregister(request):
         return render(request, "proj5FinTracker/register.html")
 
 
-#-------depracated---------#   
+
+#-------called from input.js---------#   
+
 @csrf_exempt
 def vupdateEntry(request):
     data = json.loads(request.body)
@@ -105,6 +107,7 @@ def vupdateEntry(request):
                     )
     except:
         tmp = 'fail'
+
     return JsonResponse({"msg1": formatted_amt,#,#data['ddate'],
                         "msg2": c_user.username,#data['damt'],
                         "msg3": tmp,
