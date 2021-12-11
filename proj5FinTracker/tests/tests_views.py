@@ -1,10 +1,9 @@
-from django.test import Client, TestCase#, RequestFactory
+from django.test import RequestFactory, TestCase
 import json
 #import proj5FinTracker.views
-from django.core.files import File
-from proj5FinTracker.models import BankTransaction, User
+from proj5FinTracker.models import BankTransaction
 from django.contrib.auth import authenticate, login, logout, get_user_model
-#from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 
@@ -15,7 +14,9 @@ class MostBasicTest(TestCase):
         
 class inputStatementTests(TestCase):    
 
+    #run once for class
     @classmethod
+<<<<<<< HEAD
     def UserFactory(self, name):
         User = get_user_model() #get custom User rather than django.contrib...User        
         gen_user = User.objects.create(username=name)
@@ -28,7 +29,6 @@ class inputStatementTests(TestCase):
         self.gen_user.save()
         response2 = self.client.post('/login', {'username': self.gen_user.username, 'password': 'password'})
         
-
 
     def setUpTestData(cls):
         User = get_user_model() #get custom User rather than django.contrib...User
@@ -65,10 +65,9 @@ class inputStatementTests(TestCase):
             trans_category="t6",
             trans_group="t5",
             trans_owner=self.gen_user)
-
         
         BankTransaction.objects.create(
-            trans_date="2020-10-01",
+            trans_date="2020-11-12",
             trans_amt="10.00",
             trans_msg="transnational transaction II",
             trans_category="joil-span",
@@ -122,7 +121,6 @@ class inputStatementTests(TestCase):
         #login = self.client.login(username='propy', password='4321')
         response = self.client.post(reverse('vmonth'))
         print(login)
-
         #self.assertEqual(str(response.context['username']), 'proppy')
         self.assertEqual(response.status_code, 200)
         #self.assertTemplateUsed(response, 'proj5FinTracker/singlePageTransactions.html')
@@ -170,8 +168,7 @@ class inputStatementTests(TestCase):
         using = User.objects.create_user(username='temp', password='pw',  is_active=1, is_superuser=True)
         using.set_password('pw')
         using.save()
-        test_client = Client()        
-<<<<<<< HEAD
+        test_client = Client()       
         #print(User.objects.last())#filter(username='temp'))
         huh = BankTransaction.objects.create(
                 trans_date="2020-10-01",
@@ -237,8 +234,7 @@ class inputStatementTests(TestCase):
         self.assertIn("t5", str(response2.content))        
         print("repo2: ")
         print(response2.content)
-
-        
+   
     def test_check_status(self): 
         #c = self.client(content_type=application/json)
         response = self.client.post('/jsvsave',                     
@@ -251,7 +247,6 @@ class inputStatementTests(TestCase):
                   current_user="props")
         self.assertEqual(response.status_code, 302)
 
-    
     def test_login(self):
         user_logged_in = self.client.login(username=self.gen_user, password="password")
         check_user = User.objects.first()

@@ -232,7 +232,7 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE) {
 	if (isNaN(ctype))
 		ctype = chartType.PIE;
 		
-	fetch('jsvperiod', {
+	fetch('jsvmonth', {
 		method: 'POST',
 		body: JSON.stringify({
 			jsdate: pdate,
@@ -482,6 +482,35 @@ function getDateData(iDate) {
 	let currtype = (inYearView()) ? jperiod.YEAR : (inEpochView()) ? jperiod.ALL : jperiod.MONTH;
 	console.log(`currtype is : ${currtype}, dateVaule is ${iDate}`);
 	console.log("getDate data");
+<<<<<<< HEAD
+=======
+	
+	//hrt
+	//var transRows = document.querySelector('#target');
+	//transRows.innerHTML = "";
+	loadTable(iDate, currtype);
+	createDateMenu(iDate, currtype);
+	/* fetch('jsvmonth', {
+		method: 'POST',
+		body: JSON.stringify({
+			jsdate: iDate,
+			jstype: currtype			
+		})
+	})
+	.then(response => response.json())
+	.then(transactions => {
+		var transRows = document.querySelector('#target');
+		transRows.innerHTML = "";
+		transactions.forEach(displayTrans)
+		if (currtype == jperiod.MONTH) {
+			createChart(transactions);
+			createDateMenu(iDate, currtype);
+		}
+		else {
+			createCatbyMonthChart(transactions, currtype);
+			createDateMenu(iDate, currtype);
+		}
+>>>>>>> parent of d620c31... test additions continue...
 		
 	loadTable(iDate, currtype);
 	createDateMenu(iDate, currtype);	
