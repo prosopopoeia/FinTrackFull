@@ -187,7 +187,7 @@ def byDateProcessing(request, period):
 #-------called from month.js---------#                        
 @login_required
 @csrf_exempt
-def jsvmonth(request):
+def jsvperiod(request):
     data = json.loads(request.body)
     vdate = data["jsdate"]
     if vdate == 0: 
@@ -198,10 +198,10 @@ def jsvmonth(request):
         vmo = int(vdate[5:7])
         vdy = int(vdate[8:10])        
 
-    #try:
-    #   this_user = get_user(request)
-    #except:
-        return HttpResponseRedirect(reverse("vlogin"))
+    try:
+       this_user = get_user(request)
+    except:
+       return HttpResponseRedirect(reverse("vlogin"))
     
     if data["jstype"] == Period.Month.value:
         transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo)
@@ -210,6 +210,32 @@ def jsvmonth(request):
     else:
         transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user)
     return JsonResponse([transact.serialize() for transact in transactions], safe=False)
+
+# @login_required
+# @csrf_exempt
+# def jsvmonth(request):
+    # data = json.loads(request.body)
+    # vdate = data["jsdate"]
+    # if vdate == 0: 
+        # vyr = date.today().year
+        # vmo = date.today().month
+    # else:
+        # vyr = int(vdate[0:4])
+        # vmo = int(vdate[5:7])
+        # vdy = int(vdate[8:10])        
+
+    # #try:
+    # #   this_user = get_user(request)
+    # #except:
+        # return HttpResponseRedirect(reverse("vlogin"))
+    
+    # if data["jstype"] == Period.Month.value:
+        # transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo)
+    # elif data["jstype"] == Period.Year.value:
+        # transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr)
+    # else:
+        # transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user)
+    # return JsonResponse([transact.serialize() for transact in transactions], safe=False)
 
 ### View a range of transactions of a user-supplied period 
 def vrange(request):
