@@ -198,10 +198,10 @@ def jsvmonth(request):
         vmo = int(vdate[5:7])
         vdy = int(vdate[8:10])        
 
-    try:
-       this_user = get_user(request)
-    except:
-       return HttpResponseRedirect(reverse("vlogin"))
+    #try:
+    #   this_user = get_user(request)
+    #except:
+        return HttpResponseRedirect(reverse("vlogin"))
     
     if data["jstype"] == Period.Month.value:
         transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo)
