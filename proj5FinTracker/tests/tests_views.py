@@ -16,7 +16,6 @@ class inputStatementTests(TestCase):
 
     #run once for class
     @classmethod
-<<<<<<< HEAD
     def UserFactory(self, name):
         User = get_user_model() #get custom User rather than django.contrib...User        
         gen_user = User.objects.create(username=name)
@@ -74,9 +73,6 @@ class inputStatementTests(TestCase):
             trans_group="crinshaw",
             trans_owner=self.gen_user)
 
-        
-<<<<<<< HEAD
-               
     # TODO need tear down
     
     
@@ -112,10 +108,7 @@ class inputStatementTests(TestCase):
         response = self.client.post(reverse('vmonth'))
 
  
-=======
-        print(BankTransaction.objects.filter(trans_owner=self.gen_user).first().trans_amt)
->>>>>>> parent of ca900bf... adding tests
-        
+
                
     # TODO need tear down
     
@@ -160,7 +153,6 @@ class inputStatementTests(TestCase):
 ##                              JSV TESTS                                   ##
 ##############################################################################
     
-<<<<<<< HEAD
     def test_jsvperiod_month(self):        
         using = User.objects.create_user(username='temp', password='pw',  is_active=1, is_superuser=True)
         using.set_password('pw')
@@ -219,7 +211,7 @@ class inputStatementTests(TestCase):
         Month = 2        
         transaction_date = "August 2020"        
         login = self.client.post('/login', {'username': 'banjo', 'password': 'password'})
-        
+
         mogrp_data = {"jscat": 0, "jsgrp": "t5", "jsperiod": Month, "jsdate": transaction_date}        
         response1 = self.client.post(reverse('jsvcat'), content_type='application/json', data=mogrp_data, follow=True)
         self.assertEqual(response1.status_code, 200)
@@ -230,26 +222,8 @@ class inputStatementTests(TestCase):
         self.assertEqual(response2.status_code, 200)
         self.assertIn("t5", str(response2.content))        
         print("repo2: ")
-        print(response2.content)
-   
-=======
-    def test_jsvperiod_month(self):
-        #util_client = Client()
-        #util_client.login(username=self.gen_user.username, password='password')
-        #util_client.FILES = {'file_name': 'mocks\\b_est.txt'}
-        #print(util_client.FILES['file_name'])
-        #print(util_client.POST)
-        self.client.login(username=self.gen_user.username, password='password')
-        print(self.gen_user.username)      
-        test_date = "2021-10-1"
-        #response = util_client.post(reverse('jsvperiod'), 
-        #    data={"jsdate": test_date})
-        response = self.client.post('/jsvperiod', 
-            data={"jsdate": test_date})
-        print(response.content)
-        print(test_date)
-        pass
->>>>>>> parent of ca900bf... adding tests
+        print(response2.content)   
+
     def test_check_status(self): 
         #c = self.client(content_type=application/json)
         response = self.client.post('/jsvsave',                     
