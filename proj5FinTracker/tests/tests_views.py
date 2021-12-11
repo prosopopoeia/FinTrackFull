@@ -121,7 +121,10 @@ class inputStatementTests(TestCase):
         login = self.client.login(username='propy', password='321')
         response = self.client.post(reverse('vmonth'))
         print(login)
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 0135d73... added some tests, removed some code
         #self.assertEqual(str(response.context['username']), 'proppy')
         self.assertEqual(response.status_code, 200)
         #self.assertTemplateUsed(response, 'proj5FinTracker/singlePageTransactions.html')
@@ -247,6 +250,7 @@ class inputStatementTests(TestCase):
                   content_type="application/json",
                   current_user="props")
         self.assertEqual(response.status_code, 302)
+<<<<<<< HEAD
 
 
 
@@ -256,6 +260,9 @@ class inputStatementTests(TestCase):
 
        
 
+=======
+       
+>>>>>>> parent of 0135d73... added some tests, removed some code
     #def test_update(self):
      #   response = self.client.post('/vupdateEntry',
       #      data=json.dumps({
