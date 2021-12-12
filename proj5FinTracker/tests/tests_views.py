@@ -4,9 +4,8 @@ import json
 from django.core.files import File
 from proj5FinTracker.models import BankTransaction, User
 from django.contrib.auth import authenticate, login, logout, get_user_model
-#from django.contrib.auth.models import User
 from django.urls import reverse
-
+from datetime import datetime, date
 
 class MostBasicTest(TestCase):
       
@@ -22,11 +21,96 @@ class inputStatementTests(TestCase):
         gen_user.set_password('password')        
         return gen_user
         
+    def get_valid_month(self):
+        month = date.today().month        
+        if (month == 12):
+            month = 1
+        elif (month == 1):
+            month = 12
+        else:
+            month = month + 1
+        return month
+    
+    # @classmethod
+    # def setUpTestData(cls):    
+        # self.gen_user = self.UserFactory('banjo')
+        # self.gen_user.save()
+        # response2 = self.client.post('/login', {'username': self.gen_user.username, 'password': 'password'})
+        # todays_date = str(date.today().year) + "-" + str(date.today().month) + "-01"
+        # valid_month = self.get_valid_month()       
+        # date_from_this_year = str(date.today().year) + "-" + str(valid_month) + "-01"
         
+        # BankTransaction.objects.create(
+            # trans_date=todays_date,
+            # trans_amt="10.00",
+            # trans_msg="todays transaction",
+            # trans_category="todays category",
+            # trans_group="todays group",
+            # trans_owner=self.gen_user)
+        
+        # BankTransaction.objects.create(
+            # trans_date=date_from_this_year,
+            # trans_amt="10.00",
+            # trans_msg="this years transaction",
+            # trans_category="this years category",
+            # trans_group="this years group",
+            # trans_owner=self.gen_user)
+        
+        # BankTransaction.objects.create(
+            # trans_date="2020-10-12",
+            # trans_amt="100.00",
+            # trans_msg="transnational transaction",
+            # trans_category="tulette",
+            # trans_group="gorsha",
+            # trans_owner=self.gen_user)
+                
+        # BankTransaction.objects.create(
+            # trans_date="2020-09-12",
+            # trans_amt="110.00",
+            # trans_msg="t2",
+            # trans_category="t3",
+            # trans_group="t4",
+            # trans_owner=self.gen_user)
+                
+        # BankTransaction.objects.create(
+            # trans_date="2020-08-12",
+            # trans_amt="130.00",
+            # trans_msg="t7",
+            # trans_category="t6",
+            # trans_group="t5",
+            # trans_owner=self.gen_user)
+        
+        # BankTransaction.objects.create(
+            # trans_date="2020-10-01",
+            # trans_amt="10.00",
+            # trans_msg="transnational transaction II",
+            # trans_category="joil-span",
+            # trans_group="crinshaw",
+            # trans_owner=self.gen_user) 
+            
     def setUp(self):
         self.gen_user = self.UserFactory('banjo')
         self.gen_user.save()
         response2 = self.client.post('/login', {'username': self.gen_user.username, 'password': 'password'})
+        todays_date = str(date.today().year) + "-" + str(date.today().month) + "-01"
+        valid_month = self.get_valid_month()       
+        date_from_this_year = str(date.today().year) + "-" + str(valid_month) + "-01"
+              
+        BankTransaction.objects.create(
+            trans_date=todays_date,
+            trans_amt="10.00",
+            trans_msg="todays transaction",
+            trans_category="todays category",
+            trans_group="todays group",
+            trans_owner=self.gen_user)
+        
+        BankTransaction.objects.create(
+            trans_date=date_from_this_year,
+            trans_amt="10.00",
+            trans_msg="this years transaction",
+            trans_category="this years category",
+            trans_group="this years group",
+            trans_owner=self.gen_user)
         
         BankTransaction.objects.create(
             trans_date="2020-10-12",
@@ -60,7 +144,7 @@ class inputStatementTests(TestCase):
             trans_group="crinshaw",
             trans_owner=self.gen_user)
         
-               
+        self.transaction_count = BankTransaction.objects.count()       
     # TODO need tear down
     
     
@@ -89,10 +173,11 @@ class inputStatementTests(TestCase):
               follow=True)
         #print(response.content)
         self.assertTemplateUsed('singlePageTransactions.html')
+        registrationSucceeded = self.client.login(username="SolomonGrundy", password="1234")
+        self.assertTrue(registrationSucceeded)
     
     def test_table_vmonth_redirects(self):   
-        """ test 1"""        
-        #login = self.client.login(username='propy', password='4321')
+        """ test 1"""         
         response = self.client.post(reverse('vmonth'))
         #self.assertEqual(str(response.context['username']), 'proppy')
         self.assertEqual(response.status_code, 200)
@@ -112,8 +197,7 @@ class inputStatementTests(TestCase):
         self.assertTemplateUsed(response, 'proj5FinTracker/input.html')    
     
     def test_range_form_returned(self):
-        response = self.client.get('/vrange')
-        #print(response.content)
+        response = self.client.get('/vrange')        
         self.assertContains(response, 'bybeginrange')
         self.assertContains(response, 'byendrange')
     
@@ -128,48 +212,42 @@ class inputStatementTests(TestCase):
 ##############################################################################
 ##                              JSV TESTS                                   ##
 ##############################################################################
-    #def test_login(self):
-        #test_client = Client()
-        #response = test_client.get('/vlogin', follow=True)
-        #print(self.gen_user.username)
-        #print(self.gen_user.password)
-        #response = test_client.post('/vlogin', {'username': self.gen_user.username, 'password': 'password'})
-        #print(response.content)
-        #pass
-    
-    # def test_jsvperiod_month(self):        
-        # using = User.objects.create_user(username='temp', password='pw',  is_active=1, is_superuser=True)
-        # using.set_password('pw')
-        # using.save()
-        # test_client = Client()        
-        # #print(User.objects.last())#filter(username='temp'))
-        # huh = BankTransaction.objects.create(
-                # trans_date="2020-10-01",
-                # trans_amt="100.00",
-                # trans_msg="transnational transaction",
-                # trans_category="torte-le",
-                # trans_group="jimp-su",
-                # trans_owner=using)        
-        
-        # jdata = {"jsdate": "2020-10-01", "jstype": "2"}
-        # login = test_client.post('/login', {'username': 'temp', 'password': 'pw'})
-        # response = test_client.post('/jsvperiod', content_type='application/json', data=jdata, follow=True)
-        # #print(response.content)
-        # self.assertEqual(response.status_code, 200)
-        # self.assertIn("torte-le", str(response.content))
         
     def test_jsvperiod_other(self):        
         test_client = Client()        
-        jdata = {"jsdate": "2020-10-01", "jstype": "2"}
-        #login = test_client.post('/login', {'username': 'banjo', 'password': 'password'})
+        jdata = {"jsdate": "2020-10-01", "jstype": "2"}        
         response = self.client.post('/jsvperiod', content_type='application/json', data=jdata, follow=True)
-        print(response.content)
+        #print(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertIn("tulette", str(response.content))
 
+    def test_jsvmonth_today_month(self):
+        Month = 2        
+        date_data = {"jsdate": 0, "jstype": Month}
+        response = self.client.post('/jsvmonth', content_type='application/json', data=date_data, follow=True)        
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(response.content,[
+            {"id": 1, 
+            "trans_date": "2021-12-01", 
+            "trans_amt": "10.00", "trans_msg": 
+            "todays transaction", "trans_group": 
+            "todays group", "trans_category": 
+            "todays category"}])
+        self.assertIn("todays transaction", str(response.content))
+    
+    def test_jsvmonth_today_year(self):
+        Year = 2        
+        date_data = {"jsdate": 0, "jstype": Year}
+        response = self.client.post('/jsvmonth', content_type='application/json', data=date_data, follow=True)        
+        self.assertEqual(response.status_code, 200)
+        #self.assertEqual(BankTransaction.objects.filter(.count(),6)
+        self.assertIn("todays transaction", str(response.content))
+        #self.assertNumQueries(3,response.content)#this is broken!!!
+        #print(response.content)
+        
+    
     def test_jsvrange(self):
-        jdata = {"begindate": "2020-08-01", "enddate": "2020-10-01"}
-        #   login = self.client.login(username=self.gen_user, password="password")
+        jdata = {"begindate": "2020-08-01", "enddate": "2020-10-01"}        
         response = self.client.post('/jsvrange', content_type='application/json', data=jdata, follow=True)
         #print(response.content)
         self.assertEqual(response.status_code, 200)
@@ -179,7 +257,6 @@ class inputStatementTests(TestCase):
     def test_jsvcat_yr(self):
         Year = 3
         transaction_date = "August 2020"        
-        login = self.client.post('/login', {'username': 'banjo', 'password': 'password'})
         
         yrgrp_data = {"jscat": 0, "jsgrp": "t5", "jsperiod": Year, "jsdate": transaction_date}        
         response1 = self.client.post(reverse('jsvcat'), content_type='application/json', data=yrgrp_data, follow=True)
@@ -193,14 +270,13 @@ class inputStatementTests(TestCase):
 
     def test_jsvcat_mo(self):
         Month = 2        
-        transaction_date = "August 2020"        
-        login = self.client.post('/login', {'username': 'banjo', 'password': 'password'})
+        transaction_date = "August 2020"
         
         mogrp_data = {"jscat": 0, "jsgrp": "t5", "jsperiod": Month, "jsdate": transaction_date}        
         response1 = self.client.post(reverse('jsvcat'), content_type='application/json', data=mogrp_data, follow=True)
         self.assertEqual(response1.status_code, 200)
         self.assertIn("t5", str(response1.content))
-        #print(response1.content)
+        
         mocat_data = {"jscat": "t6", "jsgrp": 0, "jsperiod": Month, "jsdate": transaction_date}        
         response2 = self.client.post(reverse('jsvcat'), content_type='application/json', data=mocat_data, follow=True)
         self.assertEqual(response2.status_code, 200)
@@ -208,7 +284,7 @@ class inputStatementTests(TestCase):
         #print("repo2: ")
         #print(response2.content)
         
-    def test_check_status(self): 
+    def test_jsvsave_status(self): 
         #c = self.client(content_type=application/json)
         response = self.client.post('/jsvsave',                     
                   {"trans_date": "2020-02-02",
@@ -220,6 +296,17 @@ class inputStatementTests(TestCase):
                   current_user="props")
         self.assertEqual(response.status_code, 302)
 
+    def test_jsvsave(self):
+        user_data = {"trans_date": "2012-12-21", 
+                   "trans_amt": "10.00", 
+                   "trans_msg": "test transaction",
+                   "trans_category": "cat1",
+                   "trans_group": "group1"}
+        
+        response = self.client.post(reverse('jsvsave'), content_type='application/json', data=user_data)
+        self.assertEqual(BankTransaction.objects.count(), (self.transaction_count + 1))
+        tranny = BankTransaction.objects.get(trans_date="2012-12-21")
+        self.assertEqual(tranny.trans_category, 'cat1')          
 
 ##############################################################################
 ##                              UNIMPLEMENTED                               ##
@@ -279,4 +366,32 @@ class inputStatementTests(TestCase):
         #print(response)        
         #self.assertTemplateUsed(response, 'proj5FinTracker/input.html')    
 
-   
+       # def test_jsvperiod_month(self):        
+        # using = User.objects.create_user(username='temp', password='pw',  is_active=1, is_superuser=True)
+        # using.set_password('pw')
+        # using.save()
+        # test_client = Client()        
+        # #print(User.objects.last())#filter(username='temp'))
+        # huh = BankTransaction.objects.create(
+                # trans_date="2020-10-01",
+                # trans_amt="100.00",
+                # trans_msg="transnational transaction",
+                # trans_category="torte-le",
+                # trans_group="jimp-su",
+                # trans_owner=using)        
+        
+        # jdata = {"jsdate": "2020-10-01", "jstype": "2"}
+        # login = test_client.post('/login', {'username': 'temp', 'password': 'pw'})
+        # response = test_client.post('/jsvperiod', content_type='application/json', data=jdata, follow=True)
+        # #print(response.content)
+        # self.assertEqual(response.status_code, 200)
+        # self.assertIn("torte-le", str(response.content))
+
+    #def test_login(self):
+        #test_client = Client()
+        #response = test_client.get('/vlogin', follow=True)
+        #print(self.gen_user.username)
+        #print(self.gen_user.password)
+        #response = test_client.post('/vlogin', {'username': self.gen_user.username, 'password': 'password'})
+        #print(response.content)
+        #pass
