@@ -31,78 +31,21 @@ class inputStatementTests(TestCase):
             month = month + 1
         return month
     
-    # @classmethod
-    # def setUpTestData(cls):    
-        # self.gen_user = self.UserFactory('banjo')
-        # self.gen_user.save()
-        # response2 = self.client.post('/login', {'username': self.gen_user.username, 'password': 'password'})
-        # todays_date = str(date.today().year) + "-" + str(date.today().month) + "-01"
-        # valid_month = self.get_valid_month()       
-        # date_from_this_year = str(date.today().year) + "-" + str(valid_month) + "-01"
-        
-        # BankTransaction.objects.create(
-            # trans_date=todays_date,
-            # trans_amt="10.00",
-            # trans_msg="todays transaction",
-            # trans_category="todays category",
-            # trans_group="todays group",
-            # trans_owner=self.gen_user)
-        
-        # BankTransaction.objects.create(
-            # trans_date=date_from_this_year,
-            # trans_amt="10.00",
-            # trans_msg="this years transaction",
-            # trans_category="this years category",
-            # trans_group="this years group",
-            # trans_owner=self.gen_user)
-        
-        # BankTransaction.objects.create(
-            # trans_date="2020-10-12",
-            # trans_amt="100.00",
-            # trans_msg="transnational transaction",
-            # trans_category="tulette",
-            # trans_group="gorsha",
-            # trans_owner=self.gen_user)
-                
-        # BankTransaction.objects.create(
-            # trans_date="2020-09-12",
-            # trans_amt="110.00",
-            # trans_msg="t2",
-            # trans_category="t3",
-            # trans_group="t4",
-            # trans_owner=self.gen_user)
-                
-        # BankTransaction.objects.create(
-            # trans_date="2020-08-12",
-            # trans_amt="130.00",
-            # trans_msg="t7",
-            # trans_category="t6",
-            # trans_group="t5",
-            # trans_owner=self.gen_user)
-        
-        # BankTransaction.objects.create(
-            # trans_date="2020-10-01",
-            # trans_amt="10.00",
-            # trans_msg="transnational transaction II",
-            # trans_category="joil-span",
-            # trans_group="crinshaw",
-            # trans_owner=self.gen_user) 
-            
-    def setUp(self):
-        self.gen_user = self.UserFactory('banjo')
-        self.gen_user.save()
-        response2 = self.client.post('/login', {'username': self.gen_user.username, 'password': 'password'})
+    @classmethod
+    def setUpTestData(cls):    
+        cls.gen_user = cls.UserFactory('banjo')
+        cls.gen_user.save()
         todays_date = str(date.today().year) + "-" + str(date.today().month) + "-01"
-        valid_month = self.get_valid_month()       
+        valid_month = cls.get_valid_month(cls)       
         date_from_this_year = str(date.today().year) + "-" + str(valid_month) + "-01"
-              
+        
         BankTransaction.objects.create(
             trans_date=todays_date,
             trans_amt="10.00",
             trans_msg="todays transaction",
             trans_category="todays category",
             trans_group="todays group",
-            trans_owner=self.gen_user)
+            trans_owner=cls.gen_user)
         
         BankTransaction.objects.create(
             trans_date=date_from_this_year,
@@ -110,7 +53,7 @@ class inputStatementTests(TestCase):
             trans_msg="this years transaction",
             trans_category="this years category",
             trans_group="this years group",
-            trans_owner=self.gen_user)
+            trans_owner=cls.gen_user)
         
         BankTransaction.objects.create(
             trans_date="2020-10-12",
@@ -118,7 +61,7 @@ class inputStatementTests(TestCase):
             trans_msg="transnational transaction",
             trans_category="tulette",
             trans_group="gorsha",
-            trans_owner=self.gen_user)
+            trans_owner=cls.gen_user)
                 
         BankTransaction.objects.create(
             trans_date="2020-09-12",
@@ -126,7 +69,7 @@ class inputStatementTests(TestCase):
             trans_msg="t2",
             trans_category="t3",
             trans_group="t4",
-            trans_owner=self.gen_user)
+            trans_owner=cls.gen_user)
                 
         BankTransaction.objects.create(
             trans_date="2020-08-12",
@@ -134,7 +77,7 @@ class inputStatementTests(TestCase):
             trans_msg="t7",
             trans_category="t6",
             trans_group="t5",
-            trans_owner=self.gen_user)
+            trans_owner=cls.gen_user)
         
         BankTransaction.objects.create(
             trans_date="2020-10-01",
@@ -142,11 +85,12 @@ class inputStatementTests(TestCase):
             trans_msg="transnational transaction II",
             trans_category="joil-span",
             trans_group="crinshaw",
-            trans_owner=self.gen_user)
-        
-        self.transaction_count = BankTransaction.objects.count()       
-    # TODO need tear down
-    
+            trans_owner=cls.gen_user)
+            
+        cls.transaction_count = BankTransaction.objects.count()       
+            
+    def setUp(self):
+        response2 = self.client.post('/login', {'username': self.gen_user.username, 'password': 'password'})
     
     #remove with vupdateEntry from views.py
     def test_vUpdateEntry(self):
