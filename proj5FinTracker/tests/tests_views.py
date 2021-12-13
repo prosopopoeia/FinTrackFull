@@ -20,7 +20,8 @@ class inputStatementTests(TestCase):
         gen_user = User.objects.create(username=name)
         gen_user.set_password('password')        
         return gen_user
-        
+    
+    @staticmethod
     def get_valid_month(self):
         month = date.today().month        
         if (month == 12):
@@ -38,7 +39,7 @@ class inputStatementTests(TestCase):
         todays_date = str(date.today().year) + "-" + str(date.today().month) + "-01"
         valid_month = cls.get_valid_month(cls)       
         date_from_this_year = str(date.today().year) + "-" + str(valid_month) + "-01"
-        
+        #ID 1
         BankTransaction.objects.create(
             trans_date=todays_date,
             trans_amt="10.00",
@@ -46,7 +47,7 @@ class inputStatementTests(TestCase):
             trans_category="todays category",
             trans_group="todays group",
             trans_owner=cls.gen_user)
-        
+        #ID 2
         BankTransaction.objects.create(
             trans_date=date_from_this_year,
             trans_amt="10.00",
@@ -54,7 +55,7 @@ class inputStatementTests(TestCase):
             trans_category="this years category",
             trans_group="this years group",
             trans_owner=cls.gen_user)
-        
+        #ID 3
         BankTransaction.objects.create(
             trans_date="2020-10-12",
             trans_amt="100.00",
@@ -62,7 +63,7 @@ class inputStatementTests(TestCase):
             trans_category="tulette",
             trans_group="gorsha",
             trans_owner=cls.gen_user)
-                
+        #ID 4        
         BankTransaction.objects.create(
             trans_date="2020-09-12",
             trans_amt="110.00",
@@ -70,7 +71,7 @@ class inputStatementTests(TestCase):
             trans_category="t3",
             trans_group="t4",
             trans_owner=cls.gen_user)
-                
+        #ID 5        
         BankTransaction.objects.create(
             trans_date="2020-08-12",
             trans_amt="130.00",
@@ -78,7 +79,7 @@ class inputStatementTests(TestCase):
             trans_category="t6",
             trans_group="t5",
             trans_owner=cls.gen_user)
-        
+        #ID 6
         BankTransaction.objects.create(
             trans_date="2020-10-01",
             trans_amt="10.00",
@@ -100,7 +101,6 @@ class inputStatementTests(TestCase):
         response = test_client.post('/vupdateEntry', content_type='application/json', data=jdata, follow=True)
         #print(response.content)
         self.assertEqual(response.content, b'{"msg1": "0", "msg2": "banjo", "msg3": "success", "msg4": "t7"}')
-    
     
     def test_login(self):
         user_logged_in = self.client.login(username=self.gen_user, password="password")
@@ -173,23 +173,42 @@ class inputStatementTests(TestCase):
         self.assertJSONEqual(response.content,[
             {"id": 1, 
             "trans_date": "2021-12-01", 
-            "trans_amt": "10.00", "trans_msg": 
-            "todays transaction", "trans_group": 
-            "todays group", "trans_category": 
-            "todays category"}])
+            "trans_amt": "10.00", 
+            "trans_msg": "todays transaction",
+            "trans_group": "todays group", 
+            "trans_category": "todays category"}])
         self.assertIn("todays transaction", str(response.content))
     
     def test_jsvmonth_today_year(self):
-        Year = 2        
-        date_data = {"jsdate": 0, "jstype": Year}
+        Year_enum = 3        
+        date_data = {"jsdate": 0, "jstype": Year_enum}
         response = self.client.post('/jsvmonth', content_type='application/json', data=date_data, follow=True)        
         self.assertEqual(response.status_code, 200)
-        #self.assertEqual(BankTransaction.objects.filter(.count(),6)
         self.assertIn("todays transaction", str(response.content))
-        #self.assertNumQueries(3,response.content)#this is broken!!!
-        #print(response.content)
-        
+            
+    # def test_jsvmonth_specified_date_month(self):
+        Month_enum = 2
+        trans_date = "2020-09-12"
+        date_data = {"jsdate": trans_date, "jstype": Month_enum}
+        response = self.client.post('/jsvmonth', content_type='application/json', data=date_data, follow=True)        
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(response.content,[
+            {"id": 4, 
+            "trans_date": "2020-09-12", 
+            "trans_amt": "110.00", 
+            "trans_msg": "t2",
+            "trans_group": "t4",
+            "trans_category": "t3"}])
+        self.assertIn("t2", str(response.content))
     
+    def test_jsvmonth_specified_date_year(self):
+        Year_enum = 3
+        trans_date = "2020-09-12"
+        date_data = {"jsdate": trans_date, "jstype": Year_enum}
+        response = self.client.post('/jsvmonth', content_type='application/json', data=date_data, follow=True)        
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("t2", str(response.content))
+        
     def test_jsvrange(self):
         jdata = {"begindate": "2020-08-01", "enddate": "2020-10-01"}        
         response = self.client.post('/jsvrange', content_type='application/json', data=jdata, follow=True)
