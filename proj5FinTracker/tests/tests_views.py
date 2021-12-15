@@ -186,7 +186,7 @@ class inputStatementTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("todays transaction", str(response.content))
             
-    # def test_jsvmonth_specified_date_month(self):
+    def test_jsvmonth_specified_date_month(self):
         Month_enum = 2
         trans_date = "2020-09-12"
         date_data = {"jsdate": trans_date, "jstype": Month_enum}
@@ -247,8 +247,7 @@ class inputStatementTests(TestCase):
         #print("repo2: ")
         #print(response2.content)
         
-    def test_jsvsave_status(self): 
-        #c = self.client(content_type=application/json)
+    def test_jsvsave_status(self):        
         response = self.client.post('/jsvsave',                     
                   {"trans_date": "2020-02-02",
                   "trans_amt": "100.00",
@@ -267,10 +266,29 @@ class inputStatementTests(TestCase):
                    "trans_group": "group1"}
         
         response = self.client.post(reverse('jsvsave'), content_type='application/json', data=user_data)
+        ####transaction_count holds the number of objects created during setup###
         self.assertEqual(BankTransaction.objects.count(), (self.transaction_count + 1))
         tranny = BankTransaction.objects.get(trans_date="2012-12-21")
         self.assertEqual(tranny.trans_category, 'cat1')          
 
+    def test_jsvdelete(self):
+        test = BankTransaction.objects.create(
+            id=100,
+            trans_date="2020-10-01",
+            trans_amt="10.00",
+            trans_msg="transnational transaction II",
+            trans_category="joil-span",
+            trans_group="crinshaw",
+            trans_owner=self.gen_user)
+        print(test.id)
+        transaction_data = {"jid": 100}
+        if test.id == 100:
+            response = self.client.post(reverse('jsvdelete'), content_type='application/json', data=transaction_data)
+            self.assertJSONEqual(response.content, {"message": "success", "vid": 100})
+            self.assertEqual(response.status_code, 201)
+        else:
+            self.assertTrue(False)
+        
 ##############################################################################
 ##                              UNIMPLEMENTED                               ##
 ##############################################################################    
