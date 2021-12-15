@@ -280,7 +280,7 @@ class inputStatementTests(TestCase):
             trans_category="joil-span",
             trans_group="crinshaw",
             trans_owner=self.gen_user)
-        print(test.id)
+        #print(test.id)
         transaction_data = {"jid": 100}
         if test.id == 100:
             response = self.client.post(reverse('jsvdelete'), content_type='application/json', data=transaction_data)
@@ -288,7 +288,42 @@ class inputStatementTests(TestCase):
             self.assertEqual(response.status_code, 201)
         else:
             self.assertTrue(False)
+   
+    def test_edittransaction(self):
+        test = BankTransaction.objects.create(
+            id=100,
+            trans_date="2020-10-01",
+            trans_amt="10.00",
+            trans_msg="msg prior to edit",
+            trans_category="cat prior to edit",
+            trans_group="group prior to edit",
+            trans_owner=self.gen_user)
+        transaction_data = {"jid": 100,
+                        "jdate": "2020-11-01",
+                        "jamt": "100.00",
+                        "jmsg": "msg after edit",
+                        "jcat": "cat after edit",
+                        "jgrp": "group after edit"}
+        response = self.client.post(reverse('edittransaction'), content_type='application/json', data=transaction_data)
+        self.assertEqual(response.status_code, 201)
+        tranny = BankTransaction.objects.get(id=100)
         
+        self.assertNotEqual(tranny.trans_date,date(2020,10,1))
+        self.assertEqual(tranny.trans_date,date(2020,11,1))
+        
+        self.assertNotEqual(tranny.trans_amt,10)
+        self.assertEqual(tranny.trans_amt,100)
+        
+        self.assertNotEqual(tranny.trans_msg,"msg prior to edit")
+        self.assertEqual(tranny.trans_msg,"msg after edit")
+
+        self.assertNotEqual(tranny.trans_category,"cat prior to edit")
+        self.assertEqual(tranny.trans_category,"cat after edit")
+
+        self.assertNotEqual(tranny.trans_group,"group prior to edit")
+        self.assertEqual(tranny.trans_group,"group after edit")
+
+   
 ##############################################################################
 ##                              UNIMPLEMENTED                               ##
 ##############################################################################    
