@@ -1,3 +1,3 @@
 Status,Date,Description,Debit,Credit,Member Name
-Cleared,10/31/2021,Adorama Door Bell,89.37,,JASON Z ISAACS
-Cleared,10/31/2021,Bandcamp Sense from Nonsense,6.41,,RONNI C MONSTER
+Cleared,10/31/2021,Andromedia items,89.37,,JZ I
+Cleared,10/31/2021,Bandcamp Sense from Nonsense,6.41,,RONSTER

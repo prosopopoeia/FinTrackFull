@@ -323,7 +323,16 @@ class inputStatementTests(TestCase):
         self.assertNotEqual(tranny.trans_group,"group prior to edit")
         self.assertEqual(tranny.trans_group,"group after edit")
 
-   
+    def test_vinputs_template(self):
+        response = self.client.post(reverse('vinput'))
+        self.assertTemplateUsed(response, 'proj5FinTracker/input.html')    
+        
+    # def test_vupload(self):
+        # with open('proj5FinTracker\\tests\\mocks\\b_est.txt') as fp:
+            # print(fp)
+            # self.client.post(reverse('vupload'), {'file_name', fp})
+        # #print(proj5FinTracker\tests\mocks)
+        
 ##############################################################################
 ##                              UNIMPLEMENTED                               ##
 ##############################################################################    
@@ -337,11 +346,13 @@ class inputStatementTests(TestCase):
         # msg = response.json()        
         # self.assertEqual(msg['msg'],"cecil 2")
         
-    # def test_entry_is_returned(self):
-        # testFile = open('proj5FinTracker/d9.pdf', 'r', encoding='utf-8', errors='ignore')
-        # response = self.client.post('/vupload', data={'file_name': testFile})
-        # self.assertContains(response,'CREDIT')
-        # #self.assertIs(response.status_code, 300)
+    def test_entry_is_returned(self):
+        testFile = open('proj5FinTracker\\tests\\mocks\\b_est.txt', 'r', encoding='utf-8', errors='ignore')
+        response = self.client.post(reverse('vupload'), data={'file_name': testFile})
+        print(response.content)
+        #self.assertContains(response,'CREDIT')
+        
+        self.assertIs(response.status_code, 200)
         
     
         # huh = BankTransaction.objects.create(
