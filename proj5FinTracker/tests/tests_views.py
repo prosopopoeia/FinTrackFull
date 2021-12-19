@@ -349,6 +349,7 @@ class inputStatementTests(TestCase):
     def test_entry_is_returned(self):
         testFile = open('proj5FinTracker\\tests\\mocks\\b_est.txt', 'r', encoding='utf-8', errors='ignore')
         response = self.client.post(reverse('vupload'), data={'file_name': testFile})
+        print(testFile)
         print(response.content)
         #self.assertContains(response,'CREDIT')
         

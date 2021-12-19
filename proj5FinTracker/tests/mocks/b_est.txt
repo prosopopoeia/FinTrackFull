@@ -1,3 +1,4 @@
 Status,Date,Description,Debit,Credit,Member Name
 Cleared,10/31/2021,Andromedia items,89.37,,JZ I
 Cleared,10/31/2021,Bandcamp Sense from Nonsense,6.41,,RONSTER
+Cleared,11/29/2021,Bandcasense,6.33,,RONSTER
