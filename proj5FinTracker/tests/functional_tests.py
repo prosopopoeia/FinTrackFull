@@ -1,6 +1,21 @@
 from selenium import webdriver
+import unittest
 
-browser = webdriver.Firefox()
-browser.get('http://127.0.0.1:8000/')
+class VisitFinPageTest(unittest.TestCase):
+    
+    def setUp(self):
+        self.browser = webdriver.Firefox()
 
-assert 'Fantastic Fin-Tracker' in browser.title
+    def tearDown(self):
+        self.browser.quit()
+        
+    def test_expected_Page_Retrieved(self):
+        self.browser.get('http://127.0.0.1:8000/')
+        self.assertIn('Fantastic Fin-Tracker', self.browser.title)
+        self.fail('incorrect title, actual title is: ' + self.browser.title)
+
+if __name__ == '__main__':
+    unittest.main()
+#User logs into site
+
+
