@@ -37,8 +37,8 @@
 		  {% if user.is_authenticated %}
 			 <li><a href="{% url 'vlogout' %}">Logout</a></li>
 		  {% else %}
-			 <li><a href="{% url 'vlogin' %}">Login</a></li>
-			 <li><a href="{% url 'vregister' %}">Register</a></li>
+			 <li><a id="tlogin" href="{% url 'vlogin' %}">Login</a></li>
+			 <li><a id="reg" href="{% url 'vregister' %}">Register</a></li>
 		  {% endif %}		  
 		</ul>
 		
