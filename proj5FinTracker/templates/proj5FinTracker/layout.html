@@ -35,7 +35,7 @@
 		  <li id="navcompare"><a href="{% url 'vcompare' %}">Comparisons</a></li>
 		  
 		  {% if user.is_authenticated %}
-			 <li><a href="{% url 'vlogout' %}">Logout</a></li>
+			 <li><a id="tlogout" href="{% url 'vlogout' %}">Logout</a></li>
 		  {% else %}
 			 <li><a id="tlogin" href="{% url 'vlogin' %}">Login</a></li>
 			 <li><a id="reg" href="{% url 'vregister' %}">Register</a></li>

@@ -1,15 +1,18 @@
+from django.test import LiveServerTestCase, TestCase;j;lk ;lkj;lkj
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 import unittest
 
-class VisitFinPageTest(unittest.TestCase):
+class VisitFinPageTest(TestCase):
     
     def setUp(self):
+        print("begin set up")
         self.browser = webdriver.Firefox()
-        self.browser.get('http://127.0.0.1:8000/')
-        time.sleep(5)
+        self.browser.get(self.live_server_url)
+        print("end set up")
+        #time.sleep(5)
         try:    
             self.login()
             
@@ -99,8 +102,8 @@ class VisitFinPageTest(unittest.TestCase):
         #    print(f"number {nummy} is {tranny}")
             
             
-if __name__ == '__main__':
-    unittest.main()
+#if __name__ == '__main__':
+ #  unittest.main()
 #User logs into site
 
 
