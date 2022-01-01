@@ -28,7 +28,7 @@ class inputStatementTests(TestCase):
             month = 1
         elif (month == 1):
             month = 12
-        else:
+        else:   
             month = month + 1
         return month
     
