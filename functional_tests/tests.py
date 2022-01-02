@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 import time
 import unittest
+from datetime import date
 from proj5FinTracker.models import BankTransaction, User
 
 class VisitFinPageTest(StaticLiveServerTestCase): #unittest.TestCase):
@@ -157,26 +158,13 @@ class VisitFinPageTest(StaticLiveServerTestCase): #unittest.TestCase):
                 if (time.time() - lstart_time) > self.MAX_WAIT:
                     raise e
                 time.sleep(0.5)
-        #usernamebox = self.browser.find_element(By.NAME, 'username')
-        #passwordbox = self.browser.find_element(By.NAME, 'password')
-        #usernamebox.send_keys('testname')
-        #passwordbox.send_keys('testpassword')
-        #print("have da boxes")
-        # time.sleep(1)
-        # submit_login = self.browser.find_element(By.ID,'submit-login')
-        # submit_login.send_keys(Keys.ENTER)
-        # print("da enter depressed")
-        #time.sleep(1)
-        
-        
-
+                
     def tearDown(self):
         self.browser.quit()
-        #self.template
-        
+                
     # def test_user_is_logged_in(self):
             
-        # self.assertIn('Fantastic Fin-Tracker', self.browser.title, "mismatch title indicates wrong page")
+        self.assertIn('Fantastic Fin-Tracker', self.browser.title, "mismatch title indicates wrong page")
         # try:
             # list_item1 = self.browser.find_element(By.ID, 'tlogout').text
         # except:
@@ -188,11 +176,20 @@ class VisitFinPageTest(StaticLiveServerTestCase): #unittest.TestCase):
         
         
         
-    def test_default_page_operations(self):
-        
-        
+    def test_add_new_transaction(self):
+        tyr = date.today().year
+        if date.today().month < 10:
+            tmo = f"0{date.today().month}"
+        else:
+            tmo = str(date.today().month)
+        if date.today().day < 10:
+            tdy = f"0{date.today().day}"
+        else:
+            tdy = str(date.today().day)
+        tdate = f"{tyr}-{tmo}-{tdy}"
+        print(tdate)
         #user adds transaction
-        #!!!1 - hits 'Add transaction' to make input text boxes appear
+        #hits 'Add transaction' to make input text boxes appear
         while True:
             lstart_time = time.time()
             try:
@@ -215,42 +212,12 @@ class VisitFinPageTest(StaticLiveServerTestCase): #unittest.TestCase):
                 if (time.time() - lstart_time) > self.MAX_WAIT:
                     raise e
                 time.sleep(0.5)
-        # add_trans_button = self.browser.find_element(By.ID, 'add-trans-button')
-        # add_trans_button.send_keys(Keys.ENTER)
-        # add_transaction_amt = self.browser.find_element(By.ID, 'amt')
-        # add_transaction_msg = self.browser.find_element(By.ID, 'msg')
-        # add_transaction_cat = self.browser.find_element(By.ID, 'cat')
-        # add_transaction_grp = self.browser.find_element(By.ID, 'grp')
-        # add_transaction_button = self.browser.find_element(By.ID, 'add-btn')
+        # get displayed transactions
+        trans_table = self.browser.find_element(By.ID, 'target')        
+        transactions = trans_table.find_elements(By.TAG_NAME, 'tr')
         
-        # add_transaction_amt.send_keys("10")
-        # add_transaction_msg.send_keys("10 test dollars")
-        # add_transaction_cat.send_keys("test cat")
-        # add_transaction_grp.send_keys("test group")
-        # #time.sleep(5)
-        # add_transaction_button.click()#send_keys(Keys.ENTER)
-
-        
-        
-        trans_table = self.browser.find_element(By.ID, 'target')
-        transactions = BankTransaction.objects.first() #remove
-        trannor = trans_table.find_elements(By.TAG_NAME, 'tr')
-        print("transactions")
-        print(transactions)
-        print("trannor")
-        print(trannor)
-        #self.assertIn('edit\ndelete\n2021-12-22\n10 test dollars\n10.00\ntest cat\ntest group', [transaction.text for transaction in transactions])
-        nummy = 0
-        print("tranny@transactions")
-        #for tranny in transactions:
-        print(f"number {transactions} is {transactions.trans_category}")
-        #nummy = nummy + 1
-        # print("trannell@trannor")
-        for trannel in trannor:
-            print(f"number {nummy} is {trannel.text}")
-            nummy = nummy + 1
-        
-        pass    
+        self.assertIn(f'edit\ndelete\n{tdate}\n10 test dollars\n10.00\ntest cat\ntest group', [transaction.text for transaction in transactions])
+            
 #=============ASSORTED OPERATIONS:
 
         #self.browser.get('http://127.0.0.1:8000/')
