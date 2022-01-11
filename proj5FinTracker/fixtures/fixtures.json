@@ -1,0 +1,62 @@
+[
+
+{
+    "model": "proj5FinTracker.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$216000$fSj848iwWdBn$VxZi3earrwaTnMrBcwlXeT7Wfav2m7okJtNg0zK2tmg=",
+        "last_login": "2020-12-15T13:01:40.775Z",
+        "is_superuser": false,
+        "username": "testname",
+        "first_name": "",
+        "last_name": "",
+        "email": "dj@dj.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2020-12-15T13:01:40.638Z",
+        "amount": 100,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 1,
+    "fields": {
+        "trans_date": "2022-01-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 2,
+    "fields": {
+        "trans_date": "2022-01-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 3,
+    "fields": {
+        "trans_date": "2021-12-18",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+}
+]
+
+
