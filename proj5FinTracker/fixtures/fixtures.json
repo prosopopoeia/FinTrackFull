@@ -51,10 +51,10 @@
     "fields": {
         "trans_date": "2021-12-18",
         "trans_amt": "1.00",
-        "trans_msg": "bones",
-        "trans_category": "frowns",
+        "trans_msg": "dec test",
+        "trans_category": "dec cat",
         "trans_owner": 1,
-        "trans_group": "frown-bones"
+        "trans_group": "dec group"
     }
 }
 ]
