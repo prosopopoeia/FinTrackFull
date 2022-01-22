@@ -211,6 +211,32 @@ def jsvperiod(request):
         transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user)
     return JsonResponse([transact.serialize() for transact in transactions], safe=False)
 
+@csrf_exempt
+def jsvgetcount(request):
+    data = json.loads(request.body)
+    vdate = data["jsdate"]
+    vcat = data["jscat"]
+    
+    if vdate == 0: 
+        vyr = date.today().year
+        vmo = date.today().month
+    else:
+        vyr = int(vdate[0:4])
+        vmo = int(vdate[5:7])
+        vdy = int(vdate[8:10])
+    try:
+       this_user = get_user(request)
+    except:
+        return HttpResponseRedirect(reverse("vlogin"))    
+    
+    if data["jstype"] == Period.Month.value:
+        trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).count()
+    elif data["jstype"] == Period.Year.value:
+        trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).count()
+    else:
+        trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_category=vcat).count()
+    return JsonResponse({"agcount": trancount}) 
+        
 @login_required
 @csrf_exempt
 def jsvmonth(request):
@@ -397,7 +423,7 @@ def vupload(request):
     bf_str = StringIO()
     bf_open = request.FILES['file_name']
     
-    transactions_needing_classification = parse_csv(bf_open, request)        
+    transactions_needing_classification = parse_csv(bf_open, request)   
     
     dmp = dumps(transactions_needing_classification)
     ibsForm = InputBankStatementForm()
@@ -405,15 +431,14 @@ def vupload(request):
         'tform' : ibsForm,
         'dmp': dmp,
         #uncomment for diagnostic info
-        #'msg5' : count,
-        #'msg3': dmp,
-        #'msg6': transactions_needing_classification
+        'msg5' : bf_open.name.upper(),
+        'msg3': bf_str,
+        'msg6': bf_str.getvalue()#transactions_needing_classification
     })
         
 def get_user(request):
     return User.objects.get(username = request.session["current_user"])
-  
-
+      
 def parse_csv(csv_file, request):
     ######################################
     #CSV Headings: Transaction Date,Check Number,Description,Debit Amount,Credit Amount

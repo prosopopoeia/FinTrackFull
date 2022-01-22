@@ -20,5 +20,6 @@ urlpatterns = [
     path("jsvdelete", views.jsvdelete, name="jsvdelete"),
     path("jsvsave", views.jsvsave, name="jsvsave"),
     path("jsvrange", views.jsvrange, name="jsvrange"),
+    path("jsvgetcount", views.jsvgetcount, name="jsvgetcount"),
     path("edittransaction", views.edittransaction, name="edittransaction"),
 ]

@@ -188,7 +188,8 @@ function loadYear(passedDate = 0) {
 	
 	////////////////////////////////REMOVE////////////////////////
 	var cvbtn = document.querySelector('#chart-view-btn');
-	cvbtn.innerHTML = "Bar Graph";	
+	if (cvbtn)
+		cvbtn.innerHTML = "Bar Graph";	
 	var fullyr = passedDate;
 	console.log(`fullyr : ${fullyr} passedDate : ${passedDate}`)
 	if (!passedDate) {   			//passedDate format: xxxx-xx-xx
@@ -226,7 +227,7 @@ function loadEpoch() {
 	document.querySelector('#findby-form').style.display = 'none';	
 }
 
-function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE) {
+function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, creatingChart = true) {
 	
 	console.log(`loadTable ctype before ${ctype} period: ${period}`);
 	if (isNaN(ctype))
@@ -255,16 +256,17 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE) {
 		//console.log(transactions);
 		var transRows = document.querySelector('#target');
 	    transRows.innerHTML = "";
-		transactions.forEach(displayTrans);		
-		createChart(transactions, ctype);
+		transactions.forEach(displayTrans);	
+		if (creatingChart)
+			createChart(transactions, ctype);
 		var displayDate = document.querySelector('#date-span');
-		if (period == jperiod.YEAR) {			
+		if (displayDate && period == jperiod.YEAR) {			
 			displayDate.innerHTML = `${pdate.slice(0,4)} transactions`;
 		}
-		else if (period == jperiod.ALL) {
+		else if (displayDate && period == jperiod.ALL) {
 			displayDate.innerHTML = `All Transactions`;			
 		}
-		else
+		else if (displayDate)
 			displayDataDate(pdate);
 	});	
 	//catOrDate = cod.DATE;
@@ -353,9 +355,11 @@ function clearAllCharts() {
 	debitPie = document.querySelector('#debit-pie');
 	debitPie.innerHTML = "";
 	creditTable = document.querySelector('#credit-overview');
-	creditTable.innerHTML = "";
+	if (creditTable)
+		creditTable.innerHTML = "";
 	creditPie = document.querySelector('#credit-pie');
-	creditPie.innerHTML = "";
+	if (creditPie)
+		creditPie.innerHTML = "";
 }
 
 function setNavBar(navitem) {
@@ -874,8 +878,8 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 	var catCount = 0;
 	var catData = 0, grpData = 0;
 	var periodType = 0;
-	var viewButton = document.querySelector('#navyear');
-	var val = viewButton.getAttribute('class');			
+	//var viewButton = document.querySelector('#navyear');
+	//var val = viewButton.getAttribute('class');			
 	var catDate = document.querySelector('#date-span').innerHTML;		
 	var grpHeading = document.querySelector('#cat-grp');
 	grpHeading.style.display = 'block';

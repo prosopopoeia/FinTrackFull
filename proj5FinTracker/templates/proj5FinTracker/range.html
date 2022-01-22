@@ -19,12 +19,7 @@
 				<div class="form-group container-fluid" id="findby-form">
 					<label for="searchrange">Search Range</label>
 					<form id="search-range-form" name="searchrange" method="post">
-						{{ rangeform.as_p }}
-						<!-- <label for="begin-range">From</label>
-						<input type="date" id="bybeginrange" name="begin-range" />						
-						<br />
-						<label for="end-range">To   </label>
-						<input type="date" id="byendrange" name="end-range" /> -->
+						{{ rangeform.as_p }}						
 						<br /><br />
 						{% csrf_token %}
 					
