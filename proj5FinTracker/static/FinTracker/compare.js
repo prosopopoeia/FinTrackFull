@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	// form to get range
 	var yearCompare = document.querySelector('#compare-form');
-	yearCompare.addEventListener('submit', showCompare);
+	yearCompare.addEventListener('submit', loadCompareData);
 
 	//var yearCompare2 = document.querySelector('#compare-button');
 	//yearCompare2.addEventListener('click', comp);
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });//end addEventListener	
 	
 
-function compareCatData(pdate = 0, ucategory = "unknown", period = jperiod.MONTH) {
+function getDataCount(pdate = 0, ucategory = "unknown", period = jperiod.MONTH) {
 	//get number of trasactions for given category
 	console.log("called compareCatData");
 	var returnCount = 0;
@@ -47,35 +47,51 @@ async function showCompare(event) {
 	let strVal1 = v1.value.toString();
 	let strVal2 = v2.value.toString();		
 	
-	compareYear();
-	compareCatData(strVal1.concat("/11/11"), "grocery", jperiod.YEAR);	
+	loadCompareData("#target");
+	loadCompareData("#rTarget");
+	
+	
 }
 	
-function compareYear()	{
-	
+function loadCompareData(event) {
+	event.preventDefault();
 	console.log("compare year");
 	var v1 = document.querySelector('#value1')
 	var v2 = document.querySelector('#value2')
 	
+	let catType = "none";
 	let strVal1 = v1.value.toString();
 	let strVal2 = v2.value.toString();
+	let periodType = jperiod.ALL;
 	
-	console.log(strVal1.concat("/11/11"))
-	console.log(strVal2)
-	loadFlexTable(strVal1.concat("/11/11"),jperiod.YEAR, "#target");
-	loadFlexTable(strVal2.concat("/11/11"),jperiod.YEAR, "#rTarget");
-	//loadYear(strVal1);
-	//loadYear("2021");
-		//loadYear("2020");
-		//loadYear("2019");
+	if (strVal1.length == 4) { //compare year
+		periodType = jperiod.YEAR;
+		strVal1 = strVal1.concat("/11/11");
+		strVal2 = strVal2.concat("/11/11");
+	}
+	else if (strVal1.length == 7) {//compare month
+		periodType = jperiod.MONTH;
+		strVal1 = strVal1.concat("/11");
+		strVal2 = strVal2.concat("/11");
+	}
+	else if (strVal1.length == 10) {//compare month
+		periodType = jperiod.DAY;		
+	}
+	globalDisplayedDate = strVal1;
+	globalDisplayedDate2 = strVal2;
+	console.log(strVal1);
+	console.log(strVal2);
+	clearAllCharts();
+	getDataCount(strVal1.concat("/11/11"), "", periodType);
+	loadFlexTable(strVal1, periodType, "#target");
+	loadFlexTable(strVal2, periodType, "#rTarget");
 }
 
-
-
+//DUPLICATE//
 function loadFlexTable(pdate = 0, period = jperiod.MONTH, ctarget = "#target") {
 	
 	//console.log(`loadTable ctype before period: ${period}`);
-			
+	//globalDisplayedDate = pdate;	
 	fetch('jsvmonth', {
 		method: 'POST',
 		body: JSON.stringify({
@@ -107,6 +123,108 @@ function loadFlexTable(pdate = 0, period = jperiod.MONTH, ctarget = "#target") {
 	});		
 }
 
+//DUPLICATE//
+function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target") {
+	catOrDate = cod.CATGRP;
+	console.log(`catCView enter ColumnType: ${COLUMN_TYPE}`);
+	var catAmtTotal = 0;
+	var catCount = 0;
+	var catData = 0, grpData = 0;
+	var periodType = 0;		
+	console.log(`FULL global display date: ${globalDisplayedDate}`);
+	console.log(`global display date: ${globalDisplayedDate.substring(0,4)}`);
+	//console.log(`innder html: ${document.querySelector('#date-span').innerHTML}`);
+	
+	//TODO FIX BELOW TO GET CORRECT
+	var useDate = "December " + globalDisplayedDate.substring(0,4);
+	
+	
+	var catDate = (document.querySelector('#date-span')) ? document.querySelector('#date-span').innerHTML : useDate;
+	var grpHeading = document.querySelector('#cat-grp');
+	grpHeading.style.display = 'block';
+	var catType;	
+	
+	if (COLUMN_TYPE == column.CAT){
+		catData = data.trim();
+		grpData = 0;
+		catType = "category";
+	}
+	else {
+		grpData = data.trim();
+		catData = 0;
+		catType = "grouping";
+	}
+	//grpHeading.innerHTML = "Viewing: " + data +  " " + catType;
+	getDataCount(globalDisplayedDate, data, periodType);
+	console.log(`CATCVIEW:: catData: ${data}  categoryDAta: ${catData}, grpdata: ${grpData} date: ${catDate.match(/\d\d\d\d/)}`);
+	if (inYearView())
+		periodType = jperiod.YEAR;
+	else if (inEpochView())
+		periodType = jperiod.ALL
+	else
+		periodType = jperiod.MONTH
+	//console.log(`sending: ${catData}
+	fetch('jsvcat', {
+		method: 'POST',
+		body: JSON.stringify({
+			jscat: catData,
+			jsgrp: grpData,
+			jsdate: catDate,
+			jsperiod: periodType
+		})
+	})
+	.then(response => response.json())
+	.then(transactions => {
+		
+		
+		var amount = 0;
+		
+		//transactions.forEach(displayTrans);
+		var transRows = document.querySelector(ctarget);
+	    transRows.innerHTML = "";		
+		for (let tran of transactions) {			
+			displayCTrans(tran, ctarget)
+		}			
+		
+		if (document.querySelector('#add-form-group'))
+			document.querySelector('#add-form-group').style.display = 'none';	
+		if (document.querySelector('#findby-form'))
+			document.querySelector('#findby-form').style.display = 'none';			
+		
+		var debtot = 0;
+		if (document.querySelector('#tot-deb'))	{
+			var debitTotal = document.querySelector('#tot-deb');
+			debtot = parseFloat(debitTotal.innerHTML);
+		}
+		var credtot = 0;
+		if (document.querySelector('#tot-cred')) {
+			var creditTotal = document.querySelector('#tot-cred');
+			credtot = parseFloat(creditTotal.innerHTML);
+		}
+		console.log(`credtot: ${credtot} debtot ${debtot}`);
+		
+		//console.log(`transaction b4 leaving method: ${COLUMN_TYPE}`);
+		var ags = {
+			heading : data,
+			credTotal : credtot,
+			debTotal : debtot
+		};
+	    console.log(`heading ${ags.heading}, cred: ${ags.credTotal}, deb: ${ags.debTotal}`);
+		/* if (credtot > 0 || debtot > 0)
+		{
+			if (COLUMN_TYPE == column.CAT)
+				createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
+			else if (COLUMN_TYPE == column.GRP)
+				createChart(transactions);		
+				//createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
+			else
+				createChart(transactions);		
+		} */
+	});
+	//console.log("catCview end");
+}
+
+//DUPLICATE//
 function displayCTrans(transaction, ctarget) {
 	
 	//console.log(`displayTrans ${transaction} : ${transaction['trans_category']}`);
@@ -212,7 +330,7 @@ function displayCTrans(transaction, ctarget) {
 	div4.setAttributeNode(div4IdAttr);
 		
 	var div4ClickAttr = document.createAttribute('onClick');
-	var div4Function = `catView('${tran_cat_val}', column.CAT)`;
+	var div4Function = `catCView('${tran_cat_val}', column.CAT, '${ctarget}')`;
 	div4ClickAttr.value = div4Function;
 	div4.setAttributeNode(div4ClickAttr);
 
@@ -231,7 +349,7 @@ function displayCTrans(transaction, ctarget) {
 	div5.setAttributeNode(div5IdAttr);
 	
 	var div5ClickAttr = document.createAttribute('onClick');
-	var div5Function = `catView('${tran_group_val}', column.GRP)`;
+	var div5Function = `catCView('${tran_group_val}', column.GRP, '${ctarget}')`;
 	div5ClickAttr.value = div5Function;
 	div5.setAttributeNode(div5ClickAttr);
 
@@ -249,51 +367,3 @@ function displayCTrans(transaction, ctarget) {
 	let currentDate = new Date();
 	//console.log(currentDate);		
 }
-
-///////	//////////set up search function here////////////////////
-	/*
-	
-	findbyDateForm.addEventListener('submit', getTransactionsInRange);	
-	
-	
-	var navyearItem = document.querySelector('#navyear');
-	let yearFuncAttr = document.createAttribute('onClick');
-	yearFuncAttr.value = `loadYear()`;
-	navyearItem.setAttributeNode(yearFuncAttr); 
-	
-	var epochItem = document.querySelector('#navepoch');
-	epochItem.addEventListener('click', loadEpoch);
-	
-	var navmonth = document.querySelector('#navmonth');
-	var nmclass = document.createAttribute('class');
-	nmclass.value = `active`;
-	navmonth.setAttributeNode(nmclass);	
-	
-	var datespan = document.querySelector('#date-span');
-	datespan.style.display = 'none';
-	
-	var leftPanel = document.querySelector('#leftPanel');
-	leftPanel.style.display = 'none';
-	
-	var trantable = document.querySelector('#tran-table');
-	trantable.style.display = 'none';
-	
-	var detable = document.querySelector('#detail-table1');
-	detable.style.display = 'none';
-	
-	var affs = document.querySelector('#aggregates');
-	affs.style.display = 'none';
-	
-	var chartViewBtn = document.querySelector("#chart-view-btn");
-	chartViewBtn.addEventListener('click', changeChart);
-	chartViewBtn.innerHTML = "Bar Graph";
-	//console.log(`load chrtview: ${chartViewBtn.innerHTML}`);
-	let currentDate = new Date();
-	//console.log(currentDate);
-	//createDateMenu();
-	catOrDate = cod.DATE;
-	*/
-	
-	
-
-

@@ -5,7 +5,8 @@
 //*********Global Vars***************************************************************//
 
 var catOrDate;
-var globalDisplayedDate;
+var globalDisplayedDate;  // date currently being displayed
+var globalDisplayedDate2; // used in comparision operations
 
 
 const cod = {
@@ -230,6 +231,7 @@ function loadEpoch() {
 function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, creatingChart = true) {
 	
 	console.log(`loadTable ctype before ${ctype} period: ${period}`);
+	globalDisplayedDate = pdate;
 	if (isNaN(ctype))
 		ctype = chartType.PIE;
 		
@@ -273,9 +275,7 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, cre
 	var grpHeading = document.querySelector('#cat-grp');
 	grpHeading.style.display = 'none';	
 	var cfTable = document.querySelector('#bits');
-	cfTable.style.display = 'none';	
-	
-	
+	cfTable.style.display = 'none';		
 }
 
 function sortByColumn(transactions, sortBy, pdate, period) {
@@ -349,11 +349,13 @@ function sortByColumn(transactions, sortBy, pdate, period) {
 function clearAllCharts() {
 	//clear current views: table, summary table, pie chart
 	transTable = document.querySelector('#target');
-	transTable.innerHTML = "";
+	transTable.innerHTML = "";	
 	debitTable = document.querySelector('#debit-overview');
-	debitTable.innerHTML = "";
+	if (debitTable)
+		debitTable.innerHTML = "";
 	debitPie = document.querySelector('#debit-pie');
-	debitPie.innerHTML = "";
+	if (debitPie)
+		debitPie.innerHTML = "";
 	creditTable = document.querySelector('#credit-overview');
 	if (creditTable)
 		creditTable.innerHTML = "";
@@ -879,8 +881,11 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 	var catData = 0, grpData = 0;
 	var periodType = 0;
 	//var viewButton = document.querySelector('#navyear');
-	//var val = viewButton.getAttribute('class');			
-	var catDate = document.querySelector('#date-span').innerHTML;		
+	//var val = viewButton.getAttribute('class');	
+	console.log(`global display date: ${globalDisplayedDate.substring(0,4)}`);
+	//console.log(`innder html: ${document.querySelector('#date-span').innerHTML}`);
+	var useDate = "December " + globalDisplayedDate.substring(0,4);
+	var catDate = (document.querySelector('#date-span')) ? document.querySelector('#date-span').innerHTML : useDate;
 	var grpHeading = document.querySelector('#cat-grp');
 	grpHeading.style.display = 'block';
 	var catType;	
@@ -930,18 +935,23 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 		var amount = 0;
 		transRows.innerHTML = "";
 		transactions.forEach(displayTrans);	
-		document.querySelector('#add-form-group').style.display = 'none';	
-		document.querySelector('#findby-form').style.display = 'none';	
+		if (document.querySelector('#add-form-group'))
+			document.querySelector('#add-form-group').style.display = 'none';	
+		if (document.querySelector('#findby-form'))
+			document.querySelector('#findby-form').style.display = 'none';	
 		
 		//console.log(`rezzy credtotal cat response: ${rezzy.credtotal}`);
 		//console.log(`rezzy debotal cat response: ${rezzy.debtotal}`);
-		
-		var debitTotal = document.querySelector('#tot-deb');
-		var debtot = parseFloat(debitTotal.innerHTML);
-		
-		var creditTotal = document.querySelector('#tot-cred');
-		var credtot = parseFloat(creditTotal.innerHTML);
-		
+		var debtot = 0;
+		if (document.querySelector('#tot-deb'))	{
+			var debitTotal = document.querySelector('#tot-deb');
+			debtot = parseFloat(debitTotal.innerHTML);
+		}
+		var credtot = 0;
+		if (document.querySelector('#tot-cred')) {
+			var creditTotal = document.querySelector('#tot-cred');
+			credtot = parseFloat(creditTotal.innerHTML);
+		}
 		console.log(`credtot: ${credtot} debtot ${debtot}`);
 		
 		//console.log(`transaction b4 leaving method: ${COLUMN_TYPE}`);
@@ -951,13 +961,16 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 			debTotal : debtot
 		};
 	    console.log(`heading ${ags.heading}, cred: ${ags.credTotal}, deb: ${ags.debTotal}`);
-		if (COLUMN_TYPE == column.CAT)
-			createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
-		else if (COLUMN_TYPE == column.GRP)
-			createChart(transactions);		
-			//createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
-		else
-			createChart(transactions);		
+		if (credtot > 0 || debtot > 0)
+		{
+			if (COLUMN_TYPE == column.CAT)
+				createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
+			else if (COLUMN_TYPE == column.GRP)
+				createChart(transactions);		
+				//createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
+			else
+				createChart(transactions);		
+		}
 	});
 	//console.log("catview end");
 }

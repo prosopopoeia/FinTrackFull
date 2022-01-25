@@ -230,11 +230,21 @@ def jsvgetcount(request):
         return HttpResponseRedirect(reverse("vlogin"))    
     
     if data["jstype"] == Period.Month.value:
-        trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).count()
+        if vcat == "":
+            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).count()
+        else:
+            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).count()
+            
     elif data["jstype"] == Period.Year.value:
-        trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).count()
+        if vcat == "":
+            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr).count()
+        else:
+            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).count()
     else:
-        trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_category=vcat).count()
+        if vcat == "":
+            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user).count()
+        else:
+            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_category=vcat).count()
     return JsonResponse({"agcount": trancount}) 
         
 @login_required
@@ -315,7 +325,10 @@ def jsvcat(request):
     group = data["jsgrp"]
     mo_yr = data["jsdate"].strip()
     jperiod = data["jsperiod"];
+    #if mo_yr.index(' ') is not None:
     indy = mo_yr.index(' ')
+    #else:
+    #    indy = 0
     if jperiod == Period.Month.value:
         month = get_month_ordinal(mo_yr[0:indy])
     if jperiod == Period.Year.value:
