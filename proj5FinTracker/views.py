@@ -323,18 +323,18 @@ def jsvcat(request):
     data = json.loads(request.body)
     category = data["jscat"]
     group = data["jsgrp"]
-    mo_yr = data["jsdate"].strip()
+    mo_yr = data["jsdate"] #e.g. 2021-10-01
     jperiod = data["jsperiod"];
     #if mo_yr.index(' ') is not None:
-    indy = mo_yr.index(' ')
+    
     #else:
     #    indy = 0
     if jperiod == Period.Month.value:
-        month = get_month_ordinal(mo_yr[0:indy])
+        month = mo_yr[5:7] #get_month_ordinal(mo_yr[0:indy])
     if jperiod == Period.Year.value:
-        year = re.search("\d\d\d\d", mo_yr).group()
-    else:
-        year = mo_yr[indy:]
+        year = mo_yr[0:4] #re.search("\d\d\d\d", mo_yr).group()
+    #else:
+     #   year = mo_yr[0:4]
      
     try:
        this_user = get_user(request)

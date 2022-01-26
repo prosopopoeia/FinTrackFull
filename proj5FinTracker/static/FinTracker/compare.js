@@ -17,24 +17,29 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 });//end addEventListener	
 	
+var currentPeriodType = jperiod.MONTH;
 
-function getDataCount(pdate = 0, ucategory = "unknown", period = jperiod.MONTH) {
+function getDataCount(pdate = 0, ucategory = "", elem) {
 	//get number of trasactions for given category
-	console.log("called compareCatData");
+	//console.log("called compareCatData");
+	 
 	var returnCount = 0;
 	fetch('/jsvgetcount', {
 		method: 'POST',
 		body: JSON.stringify({
 			jsdate: pdate,
 			jscat: ucategory,
-			jstype: period
+			jstype: currentPeriodType
 		})
 	})
 	.then(response => response.json())
 	.then(result => {
 		console.log(`about to return from then: ${result['agcount']}`);
-		cspot = document.querySelector('#term1');
-		cspot.innerHTML = result['agcount'];
+		var message = (ucategory == "") ? 
+			`Total Entries: ${result['agcount']}` : 
+			`Number of ${ucategory} transactions: ${result['agcount']}`;
+		cspot = document.querySelector(elem);
+		cspot.innerHTML = message;
 	});
 	//console.log("end of compare catData")	
 }
@@ -62,33 +67,34 @@ function loadCompareData(event) {
 	let catType = "none";
 	let strVal1 = v1.value.toString();
 	let strVal2 = v2.value.toString();
-	let periodType = jperiod.ALL;
+	//let periodType = jperiod.ALL;
 	
 	if (strVal1.length == 4) { //compare year
-		periodType = jperiod.YEAR;
+		currentPeriodType = jperiod.YEAR;
 		strVal1 = strVal1.concat("/11/11");
 		strVal2 = strVal2.concat("/11/11");
 	}
 	else if (strVal1.length == 7) {//compare month
-		periodType = jperiod.MONTH;
+		currentPeriodType = jperiod.MONTH;
 		strVal1 = strVal1.concat("/11");
 		strVal2 = strVal2.concat("/11");
 	}
 	else if (strVal1.length == 10) {//compare month
-		periodType = jperiod.DAY;		
+		currentPeriodType = jperiod.DAY;		
 	}
 	globalDisplayedDate = strVal1;
 	globalDisplayedDate2 = strVal2;
 	console.log(strVal1);
 	console.log(strVal2);
 	clearAllCharts();
-	getDataCount(strVal1.concat("/11/11"), "", periodType);
-	loadFlexTable(strVal1, periodType, "#target");
-	loadFlexTable(strVal2, periodType, "#rTarget");
+	getDataCount(strVal1.concat("/11/11"), "", "#term1");
+	getDataCount(strVal2.concat("/11/11"), "", "#term2");
+	loadFlexTable(strVal1, "#target");
+	loadFlexTable(strVal2, "#rTarget");
 }
 
 //DUPLICATE//
-function loadFlexTable(pdate = 0, period = jperiod.MONTH, ctarget = "#target") {
+function loadFlexTable(pdate = 0, ctarget = "#target") {
 	
 	//console.log(`loadTable ctype before period: ${period}`);
 	//globalDisplayedDate = pdate;	
@@ -96,7 +102,7 @@ function loadFlexTable(pdate = 0, period = jperiod.MONTH, ctarget = "#target") {
 		method: 'POST',
 		body: JSON.stringify({
 			jsdate: pdate,
-			jstype: period
+			jstype: currentPeriodType
 		})			
 	})
 	.then(response => response.json())
@@ -105,13 +111,13 @@ function loadFlexTable(pdate = 0, period = jperiod.MONTH, ctarget = "#target") {
 		//console.log(transactions[0]['trans_category']);
 		
 		var edate = document.querySelector('#edit-date')
-		edate.addEventListener('click', () => sortByColumn(transactions, column.DATE, pdate, period));
+		edate.addEventListener('click', () => sortByColumn(transactions, column.DATE, pdate, currentPeriodType));
 		
 		var eamt = document.querySelector('#edit-amount')
-		eamt.addEventListener('click', () => sortByColumn(transactions, column.AMT, pdate, period));
+		eamt.addEventListener('click', () => sortByColumn(transactions, column.AMT, pdate, currentPeriodType));
 		
 		var ecat = document.querySelector('#edit-category')
-		ecat.addEventListener('click', () => sortByColumn(transactions, column.CAT, pdate, period));
+		ecat.addEventListener('click', () => sortByColumn(transactions, column.CAT, pdate, currentPeriodType));
 
 		//console.log(transactions);
 		var transRows = document.querySelector(ctarget);
@@ -123,14 +129,20 @@ function loadFlexTable(pdate = 0, period = jperiod.MONTH, ctarget = "#target") {
 	});		
 }
 
+function catCompare(data, COLUMN_TYPE, ctarget) {
+	catCView(data, COLUMN_TYPE, null, ctarget);
+	catCView(data, COLUMN_TYPE, null, ctarget);
+	//getDataCount(globalDisplayedDate, data, currentPeriodType, "#term1");
+	//getDataCount(globalDisplayedDate, data, currentPeriodType, "#term2");
+}
 //DUPLICATE//
 function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target") {
-	catOrDate = cod.CATGRP;
+	//catOrDate = cod.CATGRP;
 	console.log(`catCView enter ColumnType: ${COLUMN_TYPE}`);
-	var catAmtTotal = 0;
-	var catCount = 0;
+	//var catAmtTotal = 0;
+	//var catCount = 0;
 	var catData = 0, grpData = 0;
-	var periodType = 0;		
+	//var periodType = 0;		
 	console.log(`FULL global display date: ${globalDisplayedDate}`);
 	console.log(`global display date: ${globalDisplayedDate.substring(0,4)}`);
 	//console.log(`innder html: ${document.querySelector('#date-span').innerHTML}`);
@@ -155,14 +167,14 @@ function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target")
 		catType = "grouping";
 	}
 	//grpHeading.innerHTML = "Viewing: " + data +  " " + catType;
-	getDataCount(globalDisplayedDate, data, periodType);
+	//getDataCount(globalDisplayedDate, data, currentPeriodType);
 	console.log(`CATCVIEW:: catData: ${data}  categoryDAta: ${catData}, grpdata: ${grpData} date: ${catDate.match(/\d\d\d\d/)}`);
-	if (inYearView())
+	/* if (inYearView())
 		periodType = jperiod.YEAR;
 	else if (inEpochView())
 		periodType = jperiod.ALL
 	else
-		periodType = jperiod.MONTH
+		periodType = jperiod.MONTH */
 	//console.log(`sending: ${catData}
 	fetch('jsvcat', {
 		method: 'POST',
@@ -170,7 +182,7 @@ function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target")
 			jscat: catData,
 			jsgrp: grpData,
 			jsdate: catDate,
-			jsperiod: periodType
+			jsperiod: currentPeriodType
 		})
 	})
 	.then(response => response.json())
@@ -213,10 +225,10 @@ function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target")
 		/* if (credtot > 0 || debtot > 0)
 		{
 			if (COLUMN_TYPE == column.CAT)
-				createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
+				createCatbyMonthChart(transactions, currentPeriodType, ctype, ags, COLUMN_TYPE);
 			else if (COLUMN_TYPE == column.GRP)
 				createChart(transactions);		
-				//createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
+				//createCatbyMonthChart(transactions, currentPeriodType, ctype, ags, COLUMN_TYPE);
 			else
 				createChart(transactions);		
 		} */

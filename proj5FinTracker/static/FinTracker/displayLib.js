@@ -331,8 +331,8 @@ function sortByColumn(transactions, sortBy, pdate, period) {
 	//console.log(`Transnationalist0: ${transactions}`);
 	for (var i = 0; i < transactions.length; i++) {
 		displayTrans(transactions[i]); 
-		console.log(`Transnationalist1: ${transactions[i]['trans_amt']}`);		
-		console.log(`Transnationalist4: ${transactions[i].trans_category}`);
+		//console.log(`Transnationalist1: ${transactions[i]['trans_amt']}`);		
+		//console.log(`Transnationalist4: ${transactions[i].trans_category}`);
 	}
 	//createChart(transactions, ctype);
 	var displayDate = document.querySelector('#date-span');
@@ -876,16 +876,16 @@ function returnToDisplayView(tranID) {
 function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 	catOrDate = cod.CATGRP;
 	console.log(`catView enter ColumnType: ${COLUMN_TYPE}`);
-	var catAmtTotal = 0;
-	var catCount = 0;
+	//var catAmtTotal = 0;
+	//var catCount = 0;
 	var catData = 0, grpData = 0;
 	var periodType = 0;
 	//var viewButton = document.querySelector('#navyear');
 	//var val = viewButton.getAttribute('class');	
-	console.log(`global display date: ${globalDisplayedDate.substring(0,4)}`);
+	console.log(`global display date: ${globalDisplayedDate}`);
 	//console.log(`innder html: ${document.querySelector('#date-span').innerHTML}`);
-	var useDate = "December " + globalDisplayedDate.substring(0,4);
-	var catDate = (document.querySelector('#date-span')) ? document.querySelector('#date-span').innerHTML : useDate;
+	//var useDate = "December " + globalDisplayedDate.substring(0,4);
+	var catDateyr = globalDisplayedDate;//(document.querySelector('#date-span')) ? document.querySelector('#date-span').innerHTML : useDate;
 	var grpHeading = document.querySelector('#cat-grp');
 	grpHeading.style.display = 'block';
 	var catType;	
@@ -901,7 +901,7 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 		catType = "grouping";
 	}
 	grpHeading.innerHTML = "Viewing: " + data +  " " + catType;
-	console.log(`CATVIEW:: catData: ${data}  categoryDAta: ${catData}, grpdata: ${grpData} date: ${catDate.match(/\d\d\d\d/)}`);
+	console.log(`CATVIEW:: catData: ${data}  categoryDAta: ${catData}, grpdata: ${grpData} date: ${catDateyr}`);//.match(/\d\d\d\d/)}`);
 	if (inYearView())
 		periodType = jperiod.YEAR;
 	else if (inEpochView())
@@ -914,7 +914,7 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 		body: JSON.stringify({
 			jscat: catData,
 			jsgrp: grpData,
-			jsdate: catDate,
+			jsdate: catDateyr,
 			jsperiod: periodType
 		})
 	})
@@ -923,13 +923,13 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 		//console.log(transactions[catCount]['trans_amt']);
 		//console.log(transactions);
 		var edate = document.querySelector('#edit-date');		
-		edate.addEventListener('click', () => sortByColumn(transactions, column.DATE, catDate, periodType));
+		edate.addEventListener('click', () => sortByColumn(transactions, column.DATE, catDateyr, periodType));
 		
 		var eamt = document.querySelector('#edit-amount')
-		eamt.addEventListener('click', () => sortByColumn(transactions, column.AMT, catDate, periodType));
+		eamt.addEventListener('click', () => sortByColumn(transactions, column.AMT, catDateyr, periodType));
 		
 		var ecat = document.querySelector('#edit-category')
-		ecat.addEventListener('click', () => sortByColumn(transactions, column.CAT, catDate, periodType));
+		ecat.addEventListener('click', () => sortByColumn(transactions, column.CAT, catDateyr, periodType));
 
 		var transRows = document.querySelector('#target');
 		var amount = 0;
