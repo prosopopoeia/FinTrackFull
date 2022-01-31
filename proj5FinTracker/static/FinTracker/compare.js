@@ -49,7 +49,7 @@ function getDataCount(pdate = 0, ucategory = "", elem) {
 			` <br>Most expensive ${ucategory} transaction: ${result['agmin']}`;
 			
 			var message1d = (ucategory == "") ?
-			` <br>Total for period: ${result['agsum']}` : 
+			` <br>Total saved for period: ${result['agsum']}` : 
 			` <br>Total amount spent on ${ucategory}: ${result['agsum']}`;
 		
 		var msg = "";
