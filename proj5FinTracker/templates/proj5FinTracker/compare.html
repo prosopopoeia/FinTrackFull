@@ -17,7 +17,7 @@
 	<div class="row">
 		<div class="col-xs-6">
 				<div class="form-group container-fluid" id="findby-form">
-					<label for="searchrange">To compare, enter 2 terms in the boxes. (e.g. 2021, 10-2020, 23-02-2021).</label>
+					<label for="searchrange">To compare, enter 2 terms in the boxes. (e.g. 2021, 2020/10 (i.e. Oct,2020), 2021/10/10 (i.e. 10Oct,2021)).</label>
 					<form id="compare-form" name="searchrange" method="post">
 						{{ compareform.as_p }}
 												
@@ -52,7 +52,10 @@
 	<h3><div class="panel alert alert-info panel-primary" id='cat-grp'>Various What-Have-You's</div></h3>
 		
 		<div id="leftPanel" class="col-xs-5">
-		  <h3> <div class="panel alert alert-info panel-primary" id='term1'>  </div> </h3> 
+		  <div class="panel alert alert-info panel-primary" id='outer'>
+			<h5> <div id='term1a'>  </div> </h5> 
+			<h5> <div id='term1b'>  </div> </h5> 
+		  </div>
 		  <table class="table table-bordered table-striped" id="bits"></table>
 		  <table class="table table-bordered table-striped" id="tran-table">
 			  <thead>
@@ -70,7 +73,7 @@
 		  </table>
 		</div>
 		<div id="rightPanel" class="col-xs-5">
-			<h3><div class="panel alert alert-info panel-primary" id='term2'>Term2</div></h3>
+			<h3><div class="panel alert alert-info panel-primary" id='term2a'>Term2</div></h3>
 			<table class="table table-bordered table-striped" id="bits"></table>
 			<table class="table table-bordered table-striped" id="tran-table2">
 			  <thead>

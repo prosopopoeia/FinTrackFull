@@ -908,7 +908,7 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 		periodType = jperiod.ALL
 	else
 		periodType = jperiod.MONTH
-	//console.log(`sending: ${catData}
+	console.log(`sending: ${catData}, ${grpData}, date: ${catDateyr}, period, ${periodType}`);
 	fetch('jsvcat', {
 		method: 'POST',
 		body: JSON.stringify({

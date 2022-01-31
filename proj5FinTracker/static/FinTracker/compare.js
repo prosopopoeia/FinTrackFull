@@ -21,10 +21,10 @@ var currentPeriodType = jperiod.MONTH;
 
 function getDataCount(pdate = 0, ucategory = "", elem) {
 	//get number of trasactions for given category
-	//console.log("called compareCatData");
+	console.log(`called getDataCount: ${pdate}`);
 	 
 	var returnCount = 0;
-	fetch('/jsvgetcount', {
+	fetch('/jsvgetaggs', {
 		method: 'POST',
 		body: JSON.stringify({
 			jsdate: pdate,
@@ -34,12 +34,35 @@ function getDataCount(pdate = 0, ucategory = "", elem) {
 	})
 	.then(response => response.json())
 	.then(result => {
-		console.log(`about to return from then: ${result['agcount']}`);
-		var message = (ucategory == "") ? 
-			`Total Entries: ${result['agcount']}` : 
-			`Number of ${ucategory} transactions: ${result['agcount']}`;
+	console.log(`about to return from then: ${result['agcount']} also ${result['agavg']} and max: ${result['agmax']}`);
+		
+		var message1a = (ucategory == "") ? 
+			` Total Entries: ${result['agcount']}` : 
+			` Number of ${ucategory} transactions: ${result['agcount']}`;
+		
+		var message1b = (ucategory == "") ? 
+			` <br>Average amount of an entry: ${result['agavg']}` : 
+			` <br>Average amount of each ${ucategory} transaction: ${result['agavg']}`;
+		
+		var message1c = (ucategory == "") ?
+			` <br>Most expensive entry: ${result['agmin']}` : 
+			` <br>Most expensive ${ucategory} transaction: ${result['agmin']}`;
+			
+			var message1d = (ucategory == "") ?
+			` <br>Total for period: ${result['agsum']}` : 
+			` <br>Total amount spent on ${ucategory}: ${result['agsum']}`;
+		
+		var msg = "";
+		msg += message1a;
+		msg += message1b;
+		msg += message1c;
+		msg += message1d;
 		cspot = document.querySelector(elem);
-		cspot.innerHTML = message;
+		
+		//message1a += '\n';
+		//message1a = result['agmax'] != 0 ? message1a.concat(message1c) : message1a;
+		
+		cspot.innerHTML = msg;
 	});
 	//console.log("end of compare catData")	
 }
@@ -53,6 +76,7 @@ async function showCompare(event) {
 	let strVal2 = v2.value.toString();		
 	
 	loadCompareData("#target");
+	console.log(`Show compare strVal1 = ${strVal1} & strVal2 = ${strVal2}`);
 	loadCompareData("#rTarget");
 	
 	
@@ -68,7 +92,7 @@ function loadCompareData(event) {
 	let strVal1 = v1.value.toString();
 	let strVal2 = v2.value.toString();
 	//let periodType = jperiod.ALL;
-	
+	console.log(strVal1);
 	if (strVal1.length == 4) { //compare year
 		currentPeriodType = jperiod.YEAR;
 		strVal1 = strVal1.concat("/11/11");
@@ -79,16 +103,19 @@ function loadCompareData(event) {
 		strVal1 = strVal1.concat("/11");
 		strVal2 = strVal2.concat("/11");
 	}
-	else if (strVal1.length == 10) {//compare month
+	else if (strVal1.length == 10) {//compare day
 		currentPeriodType = jperiod.DAY;		
 	}
+	console.log("after");
+	console.log(strVal1);
 	globalDisplayedDate = strVal1;
 	globalDisplayedDate2 = strVal2;
 	console.log(strVal1);
 	console.log(strVal2);
 	clearAllCharts();
-	getDataCount(strVal1.concat("/11/11"), "", "#term1");
-	getDataCount(strVal2.concat("/11/11"), "", "#term2");
+	getDataCount(strVal1, "", "#term1a");
+	getDataCount(strVal2, "", "#term2a");
+	console.log(`after getDataCount: ${strVal1}`);
 	loadFlexTable(strVal1, "#target");
 	loadFlexTable(strVal2, "#rTarget");
 }
@@ -129,32 +156,27 @@ function loadFlexTable(pdate = 0, ctarget = "#target") {
 	});		
 }
 
-function catCompare(data, COLUMN_TYPE, ctarget) {
-	catCView(data, COLUMN_TYPE, null, ctarget);
-	catCView(data, COLUMN_TYPE, null, ctarget);
-	//getDataCount(globalDisplayedDate, data, currentPeriodType, "#term1");
-	//getDataCount(globalDisplayedDate, data, currentPeriodType, "#term2");
+function catCompare(data, COLUMN_TYPE) {
+	console.log("catcomp");
+	console.log(`catCompare ${data}`);
+	catCView(data, COLUMN_TYPE, null, "#target", globalDisplayedDate);
+	catCView(data, COLUMN_TYPE, null, "#rTarget", globalDisplayedDate2);
+	console.log(`data1: ${data}`)
+	getDataCount(globalDisplayedDate2, data, "#term2a");
+	getDataCount(globalDisplayedDate, data, "#term1a");
 }
 //DUPLICATE//
-function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target") {
-	//catOrDate = cod.CATGRP;
+function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target", catDate) {
+
 	console.log(`catCView enter ColumnType: ${COLUMN_TYPE}`);
-	//var catAmtTotal = 0;
-	//var catCount = 0;
-	var catData = 0, grpData = 0;
-	//var periodType = 0;		
-	console.log(`FULL global display date: ${globalDisplayedDate}`);
-	console.log(`global display date: ${globalDisplayedDate.substring(0,4)}`);
+
 	//console.log(`innder html: ${document.querySelector('#date-span').innerHTML}`);
-	
-	//TODO FIX BELOW TO GET CORRECT
-	var useDate = "December " + globalDisplayedDate.substring(0,4);
-	
-	
-	var catDate = (document.querySelector('#date-span')) ? document.querySelector('#date-span').innerHTML : useDate;
+		
 	var grpHeading = document.querySelector('#cat-grp');
 	grpHeading.style.display = 'block';
-	var catType;	
+	var catType;
+	var catData = 0;
+	var	grpData = 0;
 	
 	if (COLUMN_TYPE == column.CAT){
 		catData = data.trim();
@@ -166,15 +188,8 @@ function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target")
 		catData = 0;
 		catType = "grouping";
 	}
-	//grpHeading.innerHTML = "Viewing: " + data +  " " + catType;
-	//getDataCount(globalDisplayedDate, data, currentPeriodType);
 	console.log(`CATCVIEW:: catData: ${data}  categoryDAta: ${catData}, grpdata: ${grpData} date: ${catDate.match(/\d\d\d\d/)}`);
-	/* if (inYearView())
-		periodType = jperiod.YEAR;
-	else if (inEpochView())
-		periodType = jperiod.ALL
-	else
-		periodType = jperiod.MONTH */
+	
 	//console.log(`sending: ${catData}
 	fetch('jsvcat', {
 		method: 'POST',
@@ -213,7 +228,7 @@ function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target")
 			var creditTotal = document.querySelector('#tot-cred');
 			credtot = parseFloat(creditTotal.innerHTML);
 		}
-		console.log(`credtot: ${credtot} debtot ${debtot}`);
+		//console.log(`credtot: ${credtot} debtot ${debtot}`);
 		
 		//console.log(`transaction b4 leaving method: ${COLUMN_TYPE}`);
 		var ags = {
@@ -221,7 +236,7 @@ function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target")
 			credTotal : credtot,
 			debTotal : debtot
 		};
-	    console.log(`heading ${ags.heading}, cred: ${ags.credTotal}, deb: ${ags.debTotal}`);
+	    //console.log(`heading ${ags.heading}, cred: ${ags.credTotal}, deb: ${ags.debTotal}`);
 		/* if (credtot > 0 || debtot > 0)
 		{
 			if (COLUMN_TYPE == column.CAT)
@@ -342,7 +357,7 @@ function displayCTrans(transaction, ctarget) {
 	div4.setAttributeNode(div4IdAttr);
 		
 	var div4ClickAttr = document.createAttribute('onClick');
-	var div4Function = `catCView('${tran_cat_val}', column.CAT, '${ctarget}')`;
+	var div4Function = `catCompare('${tran_cat_val}', column.CAT)`;
 	div4ClickAttr.value = div4Function;
 	div4.setAttributeNode(div4ClickAttr);
 
@@ -361,7 +376,7 @@ function displayCTrans(transaction, ctarget) {
 	div5.setAttributeNode(div5IdAttr);
 	
 	var div5ClickAttr = document.createAttribute('onClick');
-	var div5Function = `catCView('${tran_group_val}', column.GRP, '${ctarget}')`;
+	var div5Function = `catCView('${tran_group_val}', column.GRP')`;
 	div5ClickAttr.value = div5Function;
 	div5.setAttributeNode(div5ClickAttr);
 
