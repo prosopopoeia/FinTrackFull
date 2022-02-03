@@ -240,36 +240,40 @@ def jsvgetaggs(request):
     transum = 0
     if data["jstype"] == Period.Month.value:
         if vcat == "":
-            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).count()
-            tranmin = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).aggregate(Sum('trans_amt'))
+            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).count()
+            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).aggregate(Min('trans_amt'))
+            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).aggregate(Sum('trans_amt'))
             
         else:
-            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).count()
-            tranavg = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Avg('trans_amt'))
-            tranmin = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Sum('trans_amt'))
+            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).count()
+            tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Avg('trans_amt'))
+            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Min('trans_amt'))
+            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Sum('trans_amt'))
             
     elif data["jstype"] == Period.Year.value:
         if vcat == "":
-            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr).count()            
-            tranmin = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Sum('trans_amt'))
+            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).count()            
+            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Min('trans_amt'))
+            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Sum('trans_amt'))
         else:
-            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).count()
-            tranavg = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Avg('trans_amt'))
-            tranmin = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Sum('trans_amt'))
+            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).count()
+            tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Avg('trans_amt'))
+            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Min('trans_amt'))
+            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Sum('trans_amt'))
     else:
         if vcat == "":
-            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user).count()
-            tranmin = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user).aggregate(Sum('trans_amt'))
+            trancount = BankTransaction.objects.filter(trans_owner=this_user).count()
+            tranmin = BankTransaction.objects.filter(trans_owner=this_user).aggregate(Min('trans_amt'))
+            transum = BankTransaction.objects.filter(trans_owner=this_user).aggregate(Sum('trans_amt'))
         else:
-            trancount = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_category=vcat).count()
-            tranavg = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_category=vcat).aggregate(Avg('trans_amt'))
-            tranmin = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_category=vcat).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_category=vcat).aggregate(Sum('trans_amt'))
+            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).count()
+            tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).aggregate(Avg('trans_amt'))
+            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).aggregate(Min('trans_amt'))
+            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).aggregate(Sum('trans_amt'))
+    
+    
+    mei1 = ""
+    mei2 = ""
     vtranavg = 0
     vtranmin = 0
     vtransum = 0
@@ -278,10 +282,24 @@ def jsvgetaggs(request):
         vtranavg = "{:.2f}".format(tranavg['trans_amt__avg'])
     if tranmin != 0 and tranmin['trans_amt__min'] is not None:
         vtranmin = "{:.2f}".format(tranmin['trans_amt__min'])
+        if vcat == "":
+            mei = BankTransaction.objects.filter(trans_owner=this_user, trans_amt=vtranmin)
+            mei1 = mei[0].trans_msg
+            mei2 = mei[0].trans_category
+            
+        else:
+            mei = BankTransaction.objects.filter(trans_owner=this_user, trans_amt=vtranmin, trans_category=vcat)
+            mei1 = mei[0].trans_msg
+            mei2 = mei.first().trans_date
     if transum != 0 and transum['trans_amt__sum'] is not None:
         vtransum = "{:.2f}".format(transum['trans_amt__sum'])
     
-    return JsonResponse({"agcount": trancount, "agavg": vtranavg, "agmin": vtranmin, "agsum": vtransum}) 
+    return JsonResponse({"agcount": trancount, 
+                    "agavg": vtranavg, 
+                    "agmin": vtranmin, 
+                    "agsum": vtransum,
+                    "mostExpensiveItem1": mei1,
+                    "mostExpensiveItem2": mei2}) 
         
 @login_required
 @csrf_exempt

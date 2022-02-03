@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 var currentPeriodType = jperiod.MONTH;
 
+//* 
+// TODO
+// SAVE/EDIT FUNCTION ARE NOT COMPATIBLE DUE TO CHART LOGIC
+
 function getDataCount(pdate = 0, ucategory = "", elem) {
 	//get number of trasactions for given category
 	console.log(`called getDataCount: ${pdate}`);
@@ -45,8 +49,8 @@ function getDataCount(pdate = 0, ucategory = "", elem) {
 			` <br>Average amount of each ${ucategory} transaction: ${result['agavg']}`;
 		
 		var message1c = (ucategory == "") ?
-			` <br>Most expensive entry: ${result['agmin']}` : 
-			` <br>Most expensive ${ucategory} transaction: ${result['agmin']}`;
+			` <br>Most expensive entry: ${result['agmin']} (${result['mostExpensiveItem1']}, ${result['mostExpensiveItem2']})` : 
+			` <br>Most expensive ${ucategory} transaction: ${result['agmin']} on ${result['mostExpensiveItem2']} (${result['mostExpensiveItem1']})`;
 			
 			var message1d = (ucategory == "") ?
 			` <br>Total saved for period: ${result['agsum']}` : 
