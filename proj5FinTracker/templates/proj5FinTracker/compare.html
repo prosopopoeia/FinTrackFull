@@ -34,10 +34,11 @@
 		<div class="col-xs-4">
 			<h2><strong> 
 				> Click <br /><br />
-				<span id="by-year"> > By Year </span><br />
-				<span id="by-month"> > By Month </span><br />
-				<span id="by-cat"> > By Category </span><br />
-			</strong></h2>						
+			</strong></h2>
+			<h4><strong>
+				<span id="previous"> > go back to previous view <</span><br />
+			</h4></strong>
+									
 		</div>
 	
 	</div>
@@ -48,16 +49,16 @@
     
 </div>
 
-<div class="container-fluid" >
-	<h3><div class="panel alert alert-info panel-primary" id='cat-grp'>Various What-Have-You's</div></h3>
+<div class="container-fluid" id="display-area">
+	<h3><div class="panel alert alert-info panel-primary" id='cat-grp'></div></h3>
 		
 		<div id="leftPanel" class="col-xs-5">
 		  <div class="panel alert alert-info panel-primary" id='outer'>
 			<h5> <div id='term1a'>  </div> </h5> 
-			<h5> <div id='term1b'>  </div> </h5> 
+			<!-- <h5> <div id='term1b'>  </div> </h5>  -->
 		  </div>
-		  <table class="table table-bordered table-striped" id="bits"></table>
-		  <table class="table table-bordered table-striped" id="tran-table">
+		  <table class="table table-bordered table-striped" id="bits1"></table>
+		  <table class="table table-bordered table-striped" id="tran-table1">
 			  <thead>
 				<tr>
 					<th id="edit-column">Edit</th>
@@ -73,8 +74,8 @@
 		  </table>
 		</div>
 		<div id="rightPanel" class="col-xs-5">
-			<h5><div class="panel alert alert-info panel-primary" id='term2a'>Term2</div></h5>
-			<table class="table table-bordered table-striped" id="bits"></table>
+			<h5><div class="panel alert alert-info panel-primary" id='term2a'></div></h5>
+			<table class="table table-bordered table-striped" id="bits2"></table>
 			<table class="table table-bordered table-striped" id="tran-table2">
 			  <thead>
 				<tr>

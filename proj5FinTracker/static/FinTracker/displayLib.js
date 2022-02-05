@@ -4,11 +4,11 @@
 
 //*********Global Vars***************************************************************//
 
-var catOrDate;
+var catOrDate;			  // the worst design choice in history - needs fix - TODO
 var globalDisplayedDate;  // date currently being displayed
 var globalDisplayedDate2; // used in comparision operations
 
-
+// needs fix -TODO
 const cod = {
 	CATGRP:  0,
 	DATE: 1	

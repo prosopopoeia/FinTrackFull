@@ -221,6 +221,7 @@ def jsvgetaggs(request):
     data = json.loads(request.body)
     vdate = data["jsdate"]
     vcat = data["jscat"]
+    vtype = data["jsctype"]
     
     if vdate == 0: 
         vyr = date.today().year
@@ -245,32 +246,47 @@ def jsvgetaggs(request):
             transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).aggregate(Sum('trans_amt'))
             
         else:
-            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).count()
-            tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Avg('trans_amt'))
-            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Sum('trans_amt'))
-            
+            if vtype == 1:
+                trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).count()
+                tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Avg('trans_amt'))
+                tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Min('trans_amt'))
+                transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Sum('trans_amt'))
+            else:
+                trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).count()
+                tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).aggregate(Avg('trans_amt'))
+                tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).aggregate(Min('trans_amt'))
+                transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).aggregate(Sum('trans_amt'))
+                
     elif data["jstype"] == Period.Year.value:
         if vcat == "":
             trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).count()            
             tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Min('trans_amt'))
             transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Sum('trans_amt'))
-        else:
+        elif vtype == 1:            
             trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).count()
             tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Avg('trans_amt'))
             tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Min('trans_amt'))
             transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Sum('trans_amt'))
+        else:
+            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_group=vcat).count()
+            tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_group=vcat).aggregate(Avg('trans_amt'))
+            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_group=vcat).aggregate(Min('trans_amt'))
+            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_group=vcat).aggregate(Sum('trans_amt'))
     else:
         if vcat == "":
             trancount = BankTransaction.objects.filter(trans_owner=this_user).count()
             tranmin = BankTransaction.objects.filter(trans_owner=this_user).aggregate(Min('trans_amt'))
             transum = BankTransaction.objects.filter(trans_owner=this_user).aggregate(Sum('trans_amt'))
-        else:
+        elif vtype == 1:
             trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).count()
             tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).aggregate(Avg('trans_amt'))
             tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).aggregate(Min('trans_amt'))
             transum = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).aggregate(Sum('trans_amt'))
-    
+        else:
+            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_group=vcat).count()
+            tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_group=vcat).aggregate(Avg('trans_amt'))
+            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_group=vcat).aggregate(Min('trans_amt'))
+            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_group=vcat).aggregate(Sum('trans_amt'))
     
     mei1 = ""
     mei2 = ""
@@ -287,9 +303,13 @@ def jsvgetaggs(request):
             mei1 = mei[0].trans_msg
             mei2 = mei[0].trans_category
             
-        else:
+        elif vtype == 1:
             mei = BankTransaction.objects.filter(trans_owner=this_user, trans_amt=vtranmin, trans_category=vcat)
             mei1 = mei[0].trans_msg
+            mei2 = mei.first().trans_date
+        else:
+            mei = BankTransaction.objects.filter(trans_owner=this_user, trans_amt=vtranmin, trans_group=vcat)
+            mei1 = mei[0].trans_category
             mei2 = mei.first().trans_date
     if transum != 0 and transum['trans_amt__sum'] is not None:
         vtransum = "{:.2f}".format(transum['trans_amt__sum'])

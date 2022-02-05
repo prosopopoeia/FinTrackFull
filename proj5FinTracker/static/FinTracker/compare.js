@@ -12,8 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
 	var yearCompare = document.querySelector('#compare-form');
 	yearCompare.addEventListener('submit', loadCompareData);
 
-	//var yearCompare2 = document.querySelector('#compare-button');
-	//yearCompare2.addEventListener('click', comp);
+	var backToCompareButton = document.querySelector('#previous');
+	backToCompareButton.style.display = 'none';
+	
+	var displayArea = document.querySelector('#display-area');
+	displayArea.style.display = 'none';
 	
 });//end addEventListener	
 	
@@ -23,7 +26,7 @@ var currentPeriodType = jperiod.MONTH;
 // TODO
 // SAVE/EDIT FUNCTION ARE NOT COMPATIBLE DUE TO CHART LOGIC
 
-function getDataCount(pdate = 0, ucategory = "", elem) {
+function getDataCount(elem, pdate = 0, ucategory = "", COLUMN_TYPE = column.CAT) {
 	//get number of trasactions for given category
 	console.log(`called getDataCount: ${pdate}`);
 	 
@@ -31,6 +34,7 @@ function getDataCount(pdate = 0, ucategory = "", elem) {
 	fetch('/jsvgetaggs', {
 		method: 'POST',
 		body: JSON.stringify({
+			jsctype: COLUMN_TYPE,
 			jsdate: pdate,
 			jscat: ucategory,
 			jstype: currentPeriodType
@@ -52,27 +56,35 @@ function getDataCount(pdate = 0, ucategory = "", elem) {
 			` <br>Most expensive entry: ${result['agmin']} (${result['mostExpensiveItem1']}, ${result['mostExpensiveItem2']})` : 
 			` <br>Most expensive ${ucategory} transaction: ${result['agmin']} on ${result['mostExpensiveItem2']} (${result['mostExpensiveItem1']})`;
 			
-			var message1d = (ucategory == "") ?
+		var message1d = (ucategory == "") ?
 			` <br>Total saved for period: ${result['agsum']}` : 
 			` <br>Total amount spent on ${ucategory}: ${result['agsum']}`;
+		var pavg = result['agsum'] / 12
+		var message1e = (ucategory == "" && currentPeriodType == jperiod.YEAR ) ?
+			` <br>Monthly Average: ${pavg.toFixed(2)}` : 
+			` <br>Average monthly amount spent on ${ucategory}: ${pavg.toFixed(2)}`;
 		
 		var msg = "";
 		msg += message1a;
 		msg += message1b;
 		msg += message1c;
 		msg += message1d;
+		msg += message1e;
 		cspot = document.querySelector(elem);
-		
-		//message1a += '\n';
-		//message1a = result['agmax'] != 0 ? message1a.concat(message1c) : message1a;
-		
 		cspot.innerHTML = msg;
 	});
 	//console.log("end of compare catData")	
 }
 
-async function showCompare(event) {
+/* async function showCompare(event) {
 	event.preventDefault();
+	
+	var displayArea = document.querySelector('#display-area');
+	displayArea.style.display = 'block';
+	
+	var backToCompareButton = document.querySelector('#previous');
+	backToCompareButton.style.display = 'none';
+	
 	var v1 = document.querySelector('#value1')
 	var v2 = document.querySelector('#value2')
 	
@@ -81,22 +93,26 @@ async function showCompare(event) {
 	
 	loadCompareData("#target");
 	console.log(`Show compare strVal1 = ${strVal1} & strVal2 = ${strVal2}`);
-	loadCompareData("#rTarget");
-	
-	
-}
+	loadCompareData("#rTarget");	
+} */
 	
 function loadCompareData(event) {
 	event.preventDefault();
-	console.log("compare year");
+	//console.log("compare year");
+	
+	var displayArea = document.querySelector('#display-area');
+	displayArea.style.display = 'block';
+	
+	var backToCompareButton = document.querySelector('#previous');
+	backToCompareButton.style.display = 'block';
+	
 	var v1 = document.querySelector('#value1')
 	var v2 = document.querySelector('#value2')
 	
 	let catType = "none";
 	let strVal1 = v1.value.toString();
 	let strVal2 = v2.value.toString();
-	//let periodType = jperiod.ALL;
-	console.log(strVal1);
+	//console.log(strVal1);
 	if (strVal1.length == 4) { //compare year
 		currentPeriodType = jperiod.YEAR;
 		strVal1 = strVal1.concat("/11/11");
@@ -110,16 +126,16 @@ function loadCompareData(event) {
 	else if (strVal1.length == 10) {//compare day
 		currentPeriodType = jperiod.DAY;		
 	}
-	console.log("after");
-	console.log(strVal1);
+	//console.log("after");
+	
 	globalDisplayedDate = strVal1;
 	globalDisplayedDate2 = strVal2;
-	console.log(strVal1);
-	console.log(strVal2);
+	//console.log(strVal1);
+	//console.log(strVal2);
 	clearAllCharts();
-	getDataCount(strVal1, "", "#term1a");
-	getDataCount(strVal2, "", "#term2a");
-	console.log(`after getDataCount: ${strVal1}`);
+	getDataCount("#term1a", strVal1, "" );
+	getDataCount("#term2a", strVal2, "");
+	//console.log(`after getDataCount: ${strVal1}`);
 	loadFlexTable(strVal1, "#target");
 	loadFlexTable(strVal2, "#rTarget");
 }
@@ -163,11 +179,16 @@ function loadFlexTable(pdate = 0, ctarget = "#target") {
 function catCompare(data, COLUMN_TYPE) {
 	console.log("catcomp");
 	console.log(`catCompare ${data}`);
+	
+	var backToCompareButton = document.querySelector('#previous');
+	backToCompareButton.style.display = 'block';
+	backToCompareButton.addEventListener('click', loadCompareData);
+	
 	catCView(data, COLUMN_TYPE, null, "#target", globalDisplayedDate);
 	catCView(data, COLUMN_TYPE, null, "#rTarget", globalDisplayedDate2);
 	console.log(`data1: ${data}`)
-	getDataCount(globalDisplayedDate2, data, "#term2a");
-	getDataCount(globalDisplayedDate, data, "#term1a");
+	getDataCount("#term2a", globalDisplayedDate2, data,  COLUMN_TYPE);
+	getDataCount("#term1a", globalDisplayedDate, data, COLUMN_TYPE);
 }
 //DUPLICATE//
 function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target", catDate) {
@@ -216,12 +237,7 @@ function catCView(data, COLUMN_TYPE, ctype = chartType.PIE, ctarget = "#target",
 		for (let tran of transactions) {			
 			displayCTrans(tran, ctarget)
 		}			
-		
-		if (document.querySelector('#add-form-group'))
-			document.querySelector('#add-form-group').style.display = 'none';	
-		if (document.querySelector('#findby-form'))
-			document.querySelector('#findby-form').style.display = 'none';			
-		
+				
 		var debtot = 0;
 		if (document.querySelector('#tot-deb'))	{
 			var debitTotal = document.querySelector('#tot-deb');
@@ -378,9 +394,9 @@ function displayCTrans(transaction, ctarget) {
 	var typeID5 = `group${transaction['id']}`;
 	div5IdAttr.value = typeID5;
 	div5.setAttributeNode(div5IdAttr);
-	
+	console.log(`group stuff: ${tran_group_val}`);
 	var div5ClickAttr = document.createAttribute('onClick');
-	var div5Function = `catCView('${tran_group_val}', column.GRP')`;
+	var div5Function = `catCompare('${tran_group_val}', column.GRP)`;
 	div5ClickAttr.value = div5Function;
 	div5.setAttributeNode(div5ClickAttr);
 
