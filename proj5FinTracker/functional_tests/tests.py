@@ -13,7 +13,7 @@ from proj5FinTracker.models import BankTransaction, User
 
 
 
-class VisitFinPageTest(StaticLiveServerTestCase): #unittest.TestCase):
+class VisitFinPageTest(StaticLiveServerTestCase):
     fixtures = ["fixtures.json"]
     
     def setUp(self):
@@ -42,8 +42,9 @@ class VisitFinPageTest(StaticLiveServerTestCase): #unittest.TestCase):
                 print("submitted")
                 break
             except (AssertionError, WebDriverException) as e:
-                print(f"horrorerror: {e}")
+                print(f"horrorerror: {e} - not a fail - trying again")
                 if (time.time() - lstart_time) > self.MAX_WAIT:
+                    print("definitive failure")
                     raise e
                 time.sleep(0.5)
                 
@@ -83,74 +84,77 @@ class VisitFinPageTest(StaticLiveServerTestCase): #unittest.TestCase):
         # transactions = trans_table.find_elements(By.TAG_NAME, 'tr')        
         # self.assertIn(f'2021-12-18', [transaction.text for transaction in transactions])
         
-    # def test_bank_transaction_fixture_isvalid(self):
-        # bt = BankTransaction.objects.get(pk=1)
-        # self.assertEqual(bt.trans_msg, "bones")
-        # print(f"bt: {bt.trans_msg}")
+    def test_bank_transaction_fixture_isvalid(self):
+        bt = BankTransaction.objects.get(pk=1)
+        self.assertEqual(bt.trans_msg, "bones")
+        print(f"bt: {bt.trans_msg}")
                 
-    # def test_user_is_logged_in(self):
-        # self.assertIn('Fantastic Fin-Tracker', self.browser.title, "mismatch title indicates wrong page")
+    def test_user_is_logged_in(self):
+        self.assertIn('Fantastic Fin-Tracker', self.browser.title, "mismatch title indicates wrong page")
     
-    # def test_delete_entry(self):
-        # time.sleep(1)
+    def test_delete_entry(self):
+        time.sleep(1)
         
-        # trans_table = self.browser.find_element(By.ID, 'target')        
-        # transactions = trans_table.find_elements(By.TAG_NAME, 'tr')    
-        # self.assertIn("bones", transactions[0].text)
+        trans_table = self.browser.find_element(By.ID, 'target')        
+        transactions = trans_table.find_elements(By.TAG_NAME, 'tr') 
+        print("trans:")
+        print(transactions)
+        self.assertIn("bones", transactions[0].text)
         
-        # time.sleep(1)
-        # deleteButton = self.browser.find_element(By.ID, 'deletebutton1')
-        # deleteButton.send_keys(Keys.ENTER)
-        # time.sleep(1)
-        # obj = self.browser.switch_to.alert
-        # obj.accept()
-        # time.sleep(1)
-        # transactions2 = trans_table.find_elements(By.TAG_NAME, 'tr') 
-        # self.assertNotIn("bones", transactions2[0].text)
+        time.sleep(10)
+        deleteButton = self.browser.find_element(By.ID, 'deletebutton1')
+        deleteButton.send_keys(Keys.ENTER)
+        time.sleep(1)
+        obj = self.browser.switch_to.alert
+        obj.accept()
+        time.sleep(1)
+        transactions2 = trans_table.find_elements(By.TAG_NAME, 'tr') 
+        self.assertNotIn("bones", transactions2[0].text)
        
     
-    # def test_add_new_transaction(self):
-        # #refactor out of here
-        # tyr = date.today().year
-        # if date.today().month < 10:
-            # tmo = f"0{date.today().month}"
-        # else:
-            # tmo = str(date.today().month)
-        # if date.today().day < 10:
-            # tdy = f"0{date.today().day}"
-        # else:
-            # tdy = str(date.today().day)
-        # tdate = f"{tyr}-{tmo}-{tdy}"
-        # #^refactor^
+    def test_add_new_transaction(self):
+        #refactor out of here
+        tyr = date.today().year
+        if date.today().month < 10:
+            tmo = f"0{date.today().month}"
+        else:
+            tmo = str(date.today().month)
+        if date.today().day < 10:
+            tdy = f"0{date.today().day}"
+        else:
+            tdy = str(date.today().day)
+        tdate = f"{tyr}-{tmo}-{tdy}"
+        #^refactor^
         
-        # #print(f'lexample: {tyr}')        
-        # lstart_time = time.time()
-        # while True:
-            # try:
-                # add_trans_button = self.browser.find_element(By.ID, 'add-trans-button')
-                # add_trans_button.send_keys(Keys.ENTER)
-                # add_transaction_amt = self.browser.find_element(By.ID, 'amt')
-                # add_transaction_msg = self.browser.find_element(By.ID, 'msg')
-                # add_transaction_cat = self.browser.find_element(By.ID, 'cat')
-                # add_transaction_grp = self.browser.find_element(By.ID, 'grp')
-                # add_transaction_button = self.browser.find_element(By.ID, 'add-btn')
+        #print(f'lexample: {tyr}')        
+        lstart_time = time.time()
+        while True:
+            try:
+                add_trans_button = self.browser.find_element(By.ID, 'add-trans-button')
+                add_trans_button.send_keys(Keys.ENTER)
+                add_transaction_amt = self.browser.find_element(By.ID, 'amt')
+                add_transaction_msg = self.browser.find_element(By.ID, 'msg')
+                add_transaction_cat = self.browser.find_element(By.ID, 'cat')
+                add_transaction_grp = self.browser.find_element(By.ID, 'grp')
+                add_transaction_button = self.browser.find_element(By.ID, 'add-btn')
                 
-                # add_transaction_amt.send_keys("10")
-                # add_transaction_msg.send_keys("10 test dollars")
-                # add_transaction_cat.send_keys("test cat")
-                # add_transaction_grp.send_keys("test group")
-                # add_transaction_button.click()#send_keys(Keys.ENTER)
+                add_transaction_amt.send_keys("10")
+                add_transaction_msg.send_keys("10 test dollars")
+                add_transaction_cat.send_keys("test cat")
+                add_transaction_grp.send_keys("test group")
+                add_transaction_button.click()#send_keys(Keys.ENTER)
         
-                # break
-            # except (AssertionError, WebDriverException) as e:
-                # print(f"another error: {lstart_time} :: \n{e}: ")
-                # if (time.time() - lstart_time) > self.MAX_WAIT:
-                    # raise e
-                # time.sleep(0.5)
-        # # get displayed transactions
-        # trans_table = self.browser.find_element(By.ID, 'target')        
-        # transactions = trans_table.find_elements(By.TAG_NAME, 'tr')        
-        # self.assertIn(f'edit\ndelete\n2022-01-01\ntestmsg1\n10.00\ntestcat1\ntestgroup1', [transaction.text for transaction in transactions])
+                break
+            except (AssertionError, WebDriverException) as e:
+                print(f"another error: {lstart_time} :: \n{e}: ")
+                if (time.time() - lstart_time) > self.MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
+        # get displayed transactions
+        trans_table = self.browser.find_element(By.ID, 'target')        
+        transactions = trans_table.find_elements(By.TAG_NAME, 'tr')
+        date_is = str(date.today())[0:7] + "-01"
+        self.assertIn(f'edit\ndelete\n{date_is}\ntestmsg1\n10.00\ntestcat1\ntestgroup1', [transaction.text for transaction in transactions])
             
 #=============ASSORTED OPERATIONS:
 

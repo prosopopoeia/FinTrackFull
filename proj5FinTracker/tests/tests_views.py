@@ -23,7 +23,7 @@ class inputStatementTests(TestCase):
     
     @staticmethod
     def get_valid_month(self):
-        month = date.today().month        
+        month = date.today().month
         if (month == 12):
             month = 1
         elif (month == 1):
@@ -166,13 +166,19 @@ class inputStatementTests(TestCase):
         self.assertIn("tulette", str(response.content))
 
     def test_jsvmonth_today_month(self):
-        Month = 2        
+        Month = 2 
+        #print(str(date.today())[0:7] + "-01")
+        today_is = str(date.today())[0:7]
+        
+        today_is += "-01"
+        #print(today_is)
+                
         date_data = {"jsdate": 0, "jstype": Month}
         response = self.client.post('/jsvmonth', content_type='application/json', data=date_data, follow=True)        
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content,[
             {"id": 1, 
-            "trans_date": "2021-12-01", 
+            "trans_date": today_is, 
             "trans_amt": "10.00", 
             "trans_msg": "todays transaction",
             "trans_group": "todays group", 
@@ -219,7 +225,7 @@ class inputStatementTests(TestCase):
 
     def test_jsvcat_yr(self):
         Year = 3
-        transaction_date = "August 2020"        
+        transaction_date = "2020-08-01"
         
         yrgrp_data = {"jscat": 0, "jsgrp": "t5", "jsperiod": Year, "jsdate": transaction_date}        
         response1 = self.client.post(reverse('jsvcat'), content_type='application/json', data=yrgrp_data, follow=True)
@@ -233,7 +239,7 @@ class inputStatementTests(TestCase):
 
     def test_jsvcat_mo(self):
         Month = 2        
-        transaction_date = "August 2020"
+        transaction_date = "2020-08-01"
         
         mogrp_data = {"jscat": 0, "jsgrp": "t5", "jsperiod": Month, "jsdate": transaction_date}        
         response1 = self.client.post(reverse('jsvcat'), content_type='application/json', data=mogrp_data, follow=True)

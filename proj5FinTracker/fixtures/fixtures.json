@@ -44,10 +44,281 @@
         "trans_group": "testgroup1"
     }
 },
-
 {
     "model": "proj5FinTracker.banktransaction",
     "pk": 3,
+    "fields": {
+        "trans_date": "2022-02-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 4,
+    "fields": {
+        "trans_date": "2022-02-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 5,
+    "fields": {
+        "trans_date": "2022-03-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 6,
+    "fields": {
+        "trans_date": "2022-03-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 7,
+    "fields": {
+        "trans_date": "2022-04-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 8,
+    "fields": {
+        "trans_date": "2022-04-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 9,
+    "fields": {
+        "trans_date": "2022-05-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 10,
+    "fields": {
+        "trans_date": "2022-05-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 11,
+    "fields": {
+        "trans_date": "2022-06-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 12,
+    "fields": {
+        "trans_date": "2022-06-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 13,
+    "fields": {
+        "trans_date": "2022-07-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 14,
+    "fields": {
+        "trans_date": "2022-07-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 15,
+    "fields": {
+        "trans_date": "2022-08-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 16,
+    "fields": {
+        "trans_date": "2022-08-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 17,
+    "fields": {
+        "trans_date": "2022-09-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 18,
+    "fields": {
+        "trans_date": "2022-09-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 19,
+    "fields": {
+        "trans_date": "2022-10-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 20,
+    "fields": {
+        "trans_date": "2022-10-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 21,
+    "fields": {
+        "trans_date": "2022-11-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 22,
+    "fields": {
+        "trans_date": "2022-11-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 23,
+    "fields": {
+        "trans_date": "2022-12-08",
+        "trans_amt": "1.00",
+        "trans_msg": "bones",
+        "trans_category": "frowns",
+        "trans_owner": 1,
+        "trans_group": "frown-bones"
+    }
+},
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 24,
+    "fields": {
+        "trans_date": "2022-12-01",
+        "trans_amt": "10.00",
+        "trans_msg": "testmsg1",
+        "trans_category": "testcat1",
+        "trans_owner": 1,
+        "trans_group": "testgroup1"
+    }
+},
+
+{
+    "model": "proj5FinTracker.banktransaction",
+    "pk": 25,
     "fields": {
         "trans_date": "2021-12-18",
         "trans_amt": "1.00",
