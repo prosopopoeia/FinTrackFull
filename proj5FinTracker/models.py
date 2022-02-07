@@ -23,7 +23,7 @@ class BankTransaction(models.Model):
             "trans_date": self.trans_date,
             "trans_amt": self.trans_amt,
             "trans_msg": self.trans_msg,
-            #"trans_owner": self.trans_owner.username,            
+            "trans_owner": self.trans_owner.username,            
             "trans_group": self.trans_group,
             "trans_category": self.trans_category        
         }

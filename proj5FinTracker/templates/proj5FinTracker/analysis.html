@@ -1,0 +1,20 @@
+{% extends "proj5FinTracker/layout.html" %}
+{% load static %}
+
+
+
+
+{% block body %}
+<div  class="container">
+	<h3>Analysis of Data Up To This Point</h3>	
+	
+	<div class="container" id='section1'>Section 1</div>	
+	<div class="container" id='section2'>Section 2</div>
+	<div class="container" id='section3'>Section 3</div>
+	
+{% endblock %}
+
+{% block script %}
+	<script src="{% static 'FinTracker/displayLib.js' %}"></script> 
+	 <script src="{% static 'FinTracker/analysis.js' %}"></script>	 
+{% endblock %}

@@ -231,6 +231,7 @@ function loadEpoch() {
 function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, creatingChart = true) {
 	
 	console.log(`loadTable ctype before ${ctype} period: ${period}`);
+	
 	globalDisplayedDate = pdate;
 	if (isNaN(ctype))
 		ctype = chartType.PIE;
@@ -244,15 +245,24 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, cre
 	})
 	.then(response => response.json())
 	.then(transactions => {	
-		console.log("loadTable: transactions: ");
+		//console.log(`Top loadTable`);
 		
-		var edate = document.querySelector('#edit-date')
+		if(transactions[0]) {
+			name = transactions[0].trans_owner;
+			console.log(name);
+			var userHeader = document.querySelector('#userID');
+			userHeader.innerHTML = `Welcome ${name}`;
+		}
+		
+		
+		
+		var edate = document.querySelector('#edit-date');
 		edate.addEventListener('click', () => sortByColumn(transactions, column.DATE, pdate, period));
 		
-		var eamt = document.querySelector('#edit-amount')
+		var eamt = document.querySelector('#edit-amount');
 		eamt.addEventListener('click', () => sortByColumn(transactions, column.AMT, pdate, period));
 		
-		var ecat = document.querySelector('#edit-category')
+		var ecat = document.querySelector('#edit-category');
 		ecat.addEventListener('click', () => sortByColumn(transactions, column.CAT, pdate, period));
 
 		//console.log(transactions);
@@ -321,20 +331,11 @@ function sortByColumn(transactions, sortBy, pdate, period) {
 	new_tbody.setAttributeNode(ntb_attr);
 	tTable = document.querySelector('#tran-table');
 	tTable.append(new_tbody);
-	
-	/*
-	var trIDAttr = document.createAttribute('id');
-	trIDAttr.value = `row${transaction['id']}`;
-	tr1.setAttributeNode(trIDAttr);	
-	*/
-	
-	//console.log(`Transnationalist0: ${transactions}`);
+		
 	for (var i = 0; i < transactions.length; i++) {
 		displayTrans(transactions[i]); 
-		//console.log(`Transnationalist1: ${transactions[i]['trans_amt']}`);		
-		//console.log(`Transnationalist4: ${transactions[i].trans_category}`);
 	}
-	//createChart(transactions, ctype);
+		
 	var displayDate = document.querySelector('#date-span');
 	if (period == jperiod.YEAR) {			
 		displayDate.innerHTML = `${pdate.slice(0,4)} transactions`;
@@ -1103,7 +1104,7 @@ function createChart(transactions, ctype = chartType.PIE) {
 	var debitMap = new Object();
 	var dtotal = 0;
 	var ctotal = 0;
-	var tranCount = 0
+	var tranCount = 0;
 	
 	//build summary table
 	while (tran = transactions[tranCount++]) {		
@@ -1213,7 +1214,7 @@ function populateSummaryTable(tranMap, summaryElement) {
 
 // Draw the chart and set the chart values
 function drawChart(tranMap, outerElement, tcount, ctype = chartType.PIE) {
-	kk = Object.keys(tranMap);
+			//kk = Object.keys(tranMap);
 			//console.log("drawChart call");
 			//console.log(`map: ${kk}, tcount ${tcount}`);
 	var chartData = buildList(tranMap);

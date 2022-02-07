@@ -3,7 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.vmonth, name="vimonth"),  #this needs to be renamed
+    path("", views.vmonth, name="vimonth"),
     path("login", views.vlogin, name="vlogin"),
     path("logout", views.vlogout, name="vlogout"),
     path("register", views.vregister, name="vregister"),
@@ -14,6 +14,7 @@ urlpatterns = [
     path("vyear", views.vyear, name="vyear"),
     path("vrange", views.vrange, name="vrange"),
     path("vcompare", views.vcompare, name="vcompare"),
+    path("vanalysis", views.vanalysis, name="vanalysis"),
     path("jsvperiod", views.jsvperiod, name="jsvperiod"),
     path("jsvmonth", views.jsvmonth, name="jsvmonth"),
     path("jsvcat", views.jsvcat, name="jsvcat"),

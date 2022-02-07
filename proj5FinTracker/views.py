@@ -360,6 +360,12 @@ def vcompare(request):
         'compareform' : cmpform
     })
 
+def vanalysis(request):
+    cmpform = CompareForm()
+    return render(request, "proj5FinTracker/analysis.html", {
+        #'compareform' : cmpform
+    })
+
 @login_required
 @csrf_exempt
 def jsvrange(request):    
@@ -399,16 +405,10 @@ def jsvcat(request):
     group = data["jsgrp"]
     mo_yr = data["jsdate"] #e.g. 2021-10-01
     jperiod = data["jsperiod"];
-    #if mo_yr.index(' ') is not None:
     
-    #else:
-    #    indy = 0
-    #if jperiod == Period.Month.value:
-    month = mo_yr[5:7] #get_month_ordinal(mo_yr[0:indy])
-    #if jperiod == Period.Year.value:
-    year = mo_yr[0:4] #re.search("\d\d\d\d", mo_yr).group()
-   # else:
-    #    year = mo_yr[0:4]
+    if jperiod != Period.All.value:
+        month = mo_yr[5:7]    
+        year = mo_yr[0:4] 
      
     try:
        this_user = get_user(request)
