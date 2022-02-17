@@ -5,16 +5,25 @@
 
 
 {% block body %}
-<div  class="container">
-	<h3>Analysis of Data Up To This Point</h3>	
-	
-	<div class="container" id='section1'>Section 1</div>	
-	<div class="container" id='section2'>Section 2</div>
-	<div class="container" id='section3'>Section 3</div>
-	
+	<div class="container text-center bg-success">
+	<h3><span id='top-heading'>top heading</span></h3>	
+	</div>
+	<span class="container" id='section1'></span>	
+	<span class="container" id='section2'></span>
+	<div class="container text-center bg-primary text-white" id='section3'></div>
+	<span class="container" id='section4'></span>
+	<span class="container" id='section5'></span>
+	<span class="container" id='section6'></span>
+	<div class="container" id='displayDiv'>
+	   <table class="container" id='displayTable'>
+		  <tbody id='displayBody'>
+		  </tbody>
+	   </table>
+	</div>
 {% endblock %}
 
 {% block script %}
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script src="{% static 'FinTracker/displayLib.js' %}"></script> 
 	 <script src="{% static 'FinTracker/analysis.js' %}"></script>	 
 {% endblock %}

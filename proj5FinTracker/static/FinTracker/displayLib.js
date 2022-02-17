@@ -1275,9 +1275,9 @@ function changeChart() {
 	clearAllCharts();
 	//using cat_grp div to indicate if we are looking at a category view or by month view
 	//this will tell us which function to use to populate our graphic
-	console.log(`${catOrDate} below is type of display`);
-	console.log(`${cat_grpDiv.style.display} :: ${cat_grpDiv.innerHTML}`);
-	console.log(`catOrDate == ${catOrDate}`);
+	//console.log(`${catOrDate} below is type of display`);
+	//console.log(`${cat_grpDiv.style.display} :: ${cat_grpDiv.innerHTML}`);
+	//console.log(`catOrDate == ${catOrDate}`);
 	if (catOrDate) {
 		//not displayed -> in non-category view
 		console.log("in catOrDate");
@@ -1293,7 +1293,7 @@ function changeChart() {
 		else if (inEpochView()) {
 			console.log(`in category view && in epochview`);
 			loadTable(0, jperiod.ALL, ctype);
-			console.log(`load Table from inEpochView ${ctype}`);
+			//console.log(`load Table from inEpochView ${ctype}`);
 		}
 		else {
 			var dateOrDefaultToZero = 0;
@@ -1301,13 +1301,13 @@ function changeChart() {
 			//see if a value is in transaction input text box (i.e. user-input)
 			
 			dateOrDefaultToZero = globalDisplayedDate;
-			console.log(`global disp date: ${globalDisplayedDate}`);
+			//console.log(`global disp date: ${globalDisplayedDate}`);
 			
 			if (dateElem = document.querySelector('#bydate').value) {
 				var tdate1 = dateElem;
 				console.log(`in date view (I guess) -tdate1: ${tdate1} `);								
 				dateOrDefaultToZero = dateElem.replace(/-/g, "/");				
-				console.log(`dateOrDefaultToZero: ${dateOrDefaultToZero} ++ ${dateElem}`);
+				//console.log(`dateOrDefaultToZero: ${dateOrDefaultToZero} ++ ${dateElem}`);
 			}
 			//else if (dateElem = cat_grpDiv.innerHTML) {
 				//dateOrDefaultToZero = dateElem;
@@ -1321,9 +1321,9 @@ function changeChart() {
 	else {
 		console.log(`msg0: ${msgs[0]}, msg1: ${msgs[1].trim()} vs ${msgs[1]}`);
 		catView(msgs[0], (msgs[1].trim() == "group" || msgs[1].trim() == "grouping") ? column.GRP : column.CAT, ctype);
-		console.log(`catview ${ctype} - gets here if cat_grp has cat `);
+		//console.log(`catview ${ctype} - gets here if cat_grp has cat `);
 	}
-	console.log("endof changeChart");
+	//console.log("endof changeChart");
 	
 }
 
