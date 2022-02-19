@@ -13,7 +13,7 @@ from datetime import datetime, date
 from json import dumps
 
 from .models import User, BankTransaction
-from .forms import InputBankStatementForm, FindByDateForm, TransactionForm, FindByRangeForm, CompareForm
+from .forms import InputBankStatementForm, FindByDateForm, TransactionForm, FindByRangeForm, CompareForm, GetYearForm
 
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
@@ -361,9 +361,9 @@ def vcompare(request):
     })
 
 def vanalysis(request):
-    cmpform = CompareForm()
+    gyfform = GetYearForm()
     return render(request, "proj5FinTracker/analysis.html", {
-        #'compareform' : cmpform
+        'gyfform' : gyfform
     })
 
 @login_required

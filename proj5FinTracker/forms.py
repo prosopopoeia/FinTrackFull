@@ -6,7 +6,12 @@ class InputBankStatementForm(forms.Form):
    
 class FindByDateForm(forms.Form):
     month_year = forms.DateField(initial=datetime.date.today() - datetime.timedelta(-3),
-                                          widget= forms.TextInput(attrs={'id':'bydate'}))
+                                          widget= forms.TextInput(attrs={'id':'fyear'}))
+
+class GetYearForm(forms.Form):
+        nButto = forms.CharField(
+        max_length=6,
+        widget = forms.TextInput(attrs={'id':'gyf-year'}))
 
 class TransactionForm(forms.Form):
     trans_date = forms.DateField(

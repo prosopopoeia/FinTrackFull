@@ -5,8 +5,19 @@
 
 
 {% block body %}
-	<div class="container text-center bg-success">
-	<h3><span id='top-heading'>top heading</span></h3>	
+<div id='left-div'> 
+		<form id="graph-by-year" method="post">
+		{{gyfform}}</div>
+		
+		{% csrf_token %}
+		</form>
+		>Butto<button type="submit" id="analyze-year" form="graph-by-year" class="btn btn-primary" value="Submit">>View-By-Year</button>
+<div class="container text-center bg-success">	
+	
+		<h4><span id='left-heading'>>View-By-Year</span></h4>
+		<h3><span id='top-heading'> *top heading* </span></h3>
+		<span id='right-heading'>View-All-Data</span>
+		
 	</div>
 	<span class="container" id='section1'></span>	
 	<span class="container" id='section2'></span>

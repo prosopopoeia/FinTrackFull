@@ -14,10 +14,9 @@ function scanDocument() {
 	
 	var index = 0;
 	var dmpvar = document.querySelector('#unfound'); //a transaction that matches nothing in db -> need to categorize
-	if (!!dmpvar) {
-		//dmpvar = document.querySelector('#unfoundcsv');
+	/* if (!!dmpvar) {		
 		console.log (`if path of dmpvar: ${dmpvar}`);
-	}
+	} */
 	var transacts = JSON.parse(dmpvar.value);
 	console.log(transacts);
 	if (typeof transacts != 'undefined')

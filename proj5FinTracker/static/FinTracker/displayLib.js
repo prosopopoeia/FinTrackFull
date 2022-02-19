@@ -420,6 +420,16 @@ function addTransaction(event) {
 	});
 }	
 
+function formatTodaysDate() {
+	var today = new Date();
+		var mm = ((today.getMonth() + 1) < 10) ? "0" + (today.getMonth() + 1) : today.getMonth() + 1; //January is 0 
+		var yyyy = today.getFullYear();
+		//console.log("in 2nd check");
+		//console.log(`mm: ${mm}, yyyy: ${yyyy}`);
+		dateValue = "" + yyyy + "-" + mm;
+		
+}
+
 function displayDataDate (dateValue) {
 	//get date from text box - we are doing a search by date
 	console.log("displayDataDate");
@@ -433,12 +443,7 @@ function displayDataDate (dateValue) {
 	var mm = 0;
 	//nothing passed in, nothing in text box, we are just doing a default date (today)
 	if (!dateValue) {
-		var today = new Date();
-		mm = ((today.getMonth() + 1) < 10) ? "0" + (today.getMonth() + 1) : today.getMonth() + 1; //January is 0 
-		yyyy = today.getFullYear();
-		//console.log("in 2nd check");
-		//console.log(`mm: ${mm}, yyyy: ${yyyy}`);
-		dateValue = "" + yyyy + "-" + mm;
+		dateValue = generateTodaysDate();
 	}
 	else {
 		mm = dateValue.slice(5,7);

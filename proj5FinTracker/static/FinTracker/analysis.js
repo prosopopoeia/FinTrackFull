@@ -3,30 +3,32 @@ document.addEventListener('DOMContentLoaded', function() {
 	google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(getAllData);
 	var topHeading = document.querySelector('#top-heading');
-	topHeading.innerHTML = "Budget Over Time";
-	
-	//getAllData();	
-			
+	topHeading.innerHTML = "Budget Over Time";			
 });//end addEventListener
 
 
-function getAllData(period) {
-	
+function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
+	console.log(`get all data: ${jsperiod}, ${date}`);
 	// Get all transactions for current user
 	fetch('jsvmonth', {
 		method: 'POST',
 		body: JSON.stringify({
-			jsdate: "2018-12-01",
-			jstype: jperiod.ALL
+			jsdate: date,
+			jstype: jsperiod
 		})			
 	})
 	.then(response => response.json())
 	.then(transactions => {			
-		calculateDict(transactions, 'trans_date', 3500, 600);		
+		calculateDict(transactions, 'trans_date', 3500, 600, jperiod.ALL);
+		var jsyear = document.querySelector('#gyf-year');
+		var tdClickAttr = document.createAttribute('onClick');
+		tdClickAttr.value = `getAllData(${jperiod.YEAR}, ${jsyear.text})`;
+		jsyear.setAttributeNode(tdClickAttr);
+		
 	});	
 }
 
-function getCatData(cat, group, date, period) {
+function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
 	//console.log(`getCatDAta: cat ${cat} group ${group}`);
 	// Get all transactions for current user
 	fetch('jsvcat', {
@@ -34,16 +36,25 @@ function getCatData(cat, group, date, period) {
 		body: JSON.stringify({
 			jscat: cat,
 			jsgrp: group,
-			jsdate: "2018-12-01",
-			jsperiod: jperiod.ALL
+			jsdate: date,
+			jsperiod: jsperiod
 			
 		})			
 	})
 	.then(response => response.json())
 	.then(transactions => {	
-		calculateDict(transactions, 'trans_date', 2500, 600);
+		calculateDict(transactions, 'trans_date', 2500, 600, jsperiod);
 		let transactionDisplayElement = document.querySelector('#top-heading');
 		transactionDisplayElement.innerHTML = (cat) ? `${cat}` : `${group}`;
+		var jsyear = document.querySelector('#gyf-year');
+		var tdClickAttr = document.createAttribute('onClick');
+		console.log(`jsyear.text, ${jsyear.text}, ${jsyear.value} innerText`);
+		date = jsyear.value + "-01-01";
+		console.log (date);
+		console.log ('date aboveget cat data');
+		tdClickAttr.value = `getCatData(cat, group, date, ${jperiod.YEAR})`;
+		jsyear.setAttributeNode(tdClickAttr);
+	
 		
 	});	
 }
@@ -56,7 +67,7 @@ function getCurrentAvg(numberOfEntries, currentAvg, entryToAdd) {
 	return returnValue / ++numberOfEntries;
 }
 
-function calculateDict(transactions, dbFieldName, width, height) {
+function calculateDict(transactions, dbFieldName, width, height, jsperiod) {
 	
 	//console.log('dict bein calced');
 	unifiedExpenseMap = new Object();
@@ -78,7 +89,7 @@ function calculateDict(transactions, dbFieldName, width, height) {
 		tElem = tran[`${dbFieldName}`];
 		
 		//don't need this with changes - TODO#1 confirm
-		if (tElem.match(regexDateFormat)) {
+		if (tElem.match(regexDateFormat) && jsperiod == jperiod.ALL) {
 			tElem = tElem.match(regexDateFormat);			
 		}				
 		
@@ -89,7 +100,7 @@ function calculateDict(transactions, dbFieldName, width, height) {
 			expenseCatTableElems.push(tran['trans_category']);
 			
 			if (Boolean(expenseGroupNames.indexOf(tran['trans_group']) == -1)) {
-				console.log(`Inner TWO appended: ${tran['trans_group']}`);
+				//console.log(`Inner TWO appended: ${tran['trans_group']}`);
 				expenseGroupNames.push(tran['trans_group']);
 			}
 			//console.log(`Inner TWO appended: ${tran['trans_category']}, innner bool: ${elemNotInList}, ${expenseCatTableElems.indexOf(tran['trans_category']) == -1}`	);
@@ -152,9 +163,20 @@ function calculateDict(transactions, dbFieldName, width, height) {
 	
 	
 	let transactionDisplayElement2 = document.querySelector('#displayBody');
-	showGroupAndCatList(expenseCatTableElems, expenseGroupNames, transactionDisplayElement2);			
-	
+	showGroupAndCatList(expenseCatTableElems, expenseGroupNames, transactionDisplayElement2);
 }
+
+/*function setUpYearSearch() {
+	var today = formatTodaysDate();
+	
+	//var leftHeading = document.querySelector('#left-heading');
+	
+	var jsyear = document.querySelector('#gyf-year');
+	var tdClickAttr = document.createAttribute('onClick');
+	tdClickAttr.value = `getAllData(${jperiod.YEAR}, ${jsyear.text})`;
+	jsyear.setAttributeNode(tdClickAttr);
+	
+}*/
 
 function showTotal(total, totalDisplayElement) {
 	//totalDisplayElement.append(total);
@@ -180,7 +202,7 @@ function showTotal(total, totalDisplayElement) {
 
 function displayGraph(dataMap, elem, ctitle, cwidth, cheight) {
 	
-	console.log(`displayGraph: ${elem}`)
+	//console.log(`displayGraph: ${elem}`)
 	currElem = document.getElementById(elem)
     //currElem.innerHTML = '';	
 	
