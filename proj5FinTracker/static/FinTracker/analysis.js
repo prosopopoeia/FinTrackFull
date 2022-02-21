@@ -19,7 +19,7 @@ function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
 	})
 	.then(response => response.json())
 	.then(transactions => {			
-		calculateDict(transactions, 'trans_date', 3500, 600, jperiod.ALL);
+		calculateDict(transactions, 'trans_date', 3500, 600, jperiod.ALL, false);
 		var jsyear = document.querySelector('#gyf-year');
 		var tdClickAttr = document.createAttribute('onClick');
 		tdClickAttr.value = `getAllData(${jperiod.YEAR}, ${jsyear.text})`;
@@ -43,12 +43,12 @@ function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
 	})
 	.then(response => response.json())
 	.then(transactions => {	
-		calculateDict(transactions, 'trans_date', 2500, 600, jsperiod);
+		calculateDict(transactions, 'trans_date', 2500, 600, jsperiod, group);
 		let transactionDisplayElement = document.querySelector('#top-heading');
 		transactionDisplayElement.innerHTML = (cat) ? `${cat}` : `${group}`;
 		var jsyear = document.querySelector('#gyf-year');
 		var tdClickAttr = document.createAttribute('onClick');
-		console.log(`jsyear.text, ${jsyear.text}, ${jsyear.value} innerText`);
+		console.log(`jsyear.text, ${jsyear.value} innerText`);
 		date = jsyear.value + "-01-01";
 		console.log (date);
 		console.log ('date aboveget cat data');
@@ -60,21 +60,21 @@ function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
 }
 
 ////UNUSED 2/13/////////
-function getCurrentAvg(numberOfEntries, currentAvg, entryToAdd) {
+/* function getCurrentAvg(numberOfEntries, currentAvg, entryToAdd) {
 	
 	var returnValue = currentAvg * --numberOfEntries;
 	returnValue += entryToAdd;
 	return returnValue / ++numberOfEntries;
-}
+} */
 
-function calculateDict(transactions, dbFieldName, width, height, jsperiod) {
+function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGroup = false) {
 	
-	//console.log('dict bein calced');
+	//console.log(`is group: ${isGroup}`);
 	unifiedExpenseMap = new Object();
 	expenseCountMap = new Object()
 	var expenseCatTableElems = [];
 	var expenseGroupNames = [];
-	unifiedIncomeMap = new Object();
+	multiPurposeMap = new Object();
 	incomeCountMap = new Object();
 	var tCount = 0;
 	var runningTally = 0;
@@ -84,11 +84,11 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod) {
 	var hasExpenseData = false;	
 	
 	while (tran = transactions[tCount++]) {
-		//++itemCount;
-		tAmount = parseFloat(tran['trans_amt']);
-		tElem = tran[`${dbFieldName}`];
 		
-		//don't need this with changes - TODO#1 confirm
+		tAmount = parseFloat(tran['trans_amt']);
+		tElem = tran[`${dbFieldName}`];		// if always using date... then don't need this
+		
+		//don't need this with changes - TODO#1 confirm TODO TODO TODO TODO
 		if (tElem.match(regexDateFormat) && jsperiod == jperiod.ALL) {
 			tElem = tElem.match(regexDateFormat);			
 		}				
@@ -105,13 +105,11 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod) {
 			}
 			//console.log(`Inner TWO appended: ${tran['trans_category']}, innner bool: ${elemNotInList}, ${expenseCatTableElems.indexOf(tran['trans_category']) == -1}`	);
 		}
-				
 		
 		if (tAmount < 0) {
 			hasExpenseData = true;
 			if(unifiedExpenseMap[tElem])
-			{	
-				
+			{					
 				unifiedExpenseMap[tElem] += Math.abs(tAmount);
 				++expenseCountMap[tElem];	
 				//console.log(`total: ${runningTally} (${tAmount} -> ${tran['trans_category']}`);
@@ -120,8 +118,7 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod) {
 				unifiedExpenseMap[tElem] = Math.abs(tAmount);
 				expenseCountMap[tElem] = 1;
 				
-				//console.log(`****Before total: ${runningTally} (${tAmount} -> ${tran['trans_category']}`);
-				
+				//console.log(`****Before total: ${runningTally} (${tAmount} -> ${tran['trans_category']}`);				
 				//console.log(`-----After total: ${runningTally} (${tAmount} -> ${tran['trans_category']}`);
 				//console.log(`2: count: ${expensesByDateMap[tdate]} amt: expensesByDateMap[tdate]`);
 			}	
@@ -129,15 +126,24 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod) {
 		}
 		else {
 			hasIncomeData = true;
-			if (unifiedIncomeMap[tElem]) {
-				unifiedIncomeMap[tElem] += tAmount;								
+			if (multiPurposeMap[tElem]) {
+				multiPurposeMap[tElem] += tAmount;								
 			}
 			else {
-				unifiedIncomeMap[tElem] = tAmount;				
+				multiPurposeMap[tElem] = tAmount;				
 			}
 			incomeTally += tAmount;
 		}
-	}
+		if (isGroup) {
+			if (multiPurposeMap[tran['trans_category']]) {
+				multiPurposeMap[tran['trans_category']] += Math.abs(tAmount);								
+			}
+			else {
+				multiPurposeMap[tran['trans_category']] = Math.abs(tAmount);				
+			}	
+			console.log(`group: trangroup: ${tran['trans_category']}`);
+		}
+	} //END while(transactions)
 	
 	
 	
@@ -146,17 +152,25 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod) {
 	
 	let transactionDisplayElement = document.querySelector('#section2');
 	if (hasIncomeData && !hasExpenseData) {
-		displayGraph(formatDataForChart(unifiedIncomeMap), 'section1' , 'Monthly Income', width, height);		
+		console.log(`hasExpenseData && !hasIncomeData`);
+		displayGraph(formatDataForChart(multiPurposeMap), 'section1' , 'Monthly Income', width, height);		
 		transactionDisplayElement.style.display = 'none';	
 		showTotal(incomeTally.toFixed(2), 'section3');
 	}	
+	else if (hasExpenseData && !hasIncomeData && isGroup) {
+		console.log(`hasExpenseData && !hasIncomeData && isGroup`);
+		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Monthly Cumulative Expense Total', width, height);	
+		displayGraph(formatDataForChart(multiPurposeMap), 'section2', 'Breakdown by Category', width, height);	
+		showTotal(runningTally.toFixed(2), 'section3');
+	}
 	else if (hasExpenseData && !hasIncomeData) {
+		console.log(`hasExpenseData && !hasIncomeData`);
 		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Monthly Cumulative Expense Total', width, height);	
 		transactionDisplayElement.style.display = 'none';		
 		showTotal(runningTally.toFixed(2), 'section3');
 	}
 	else {
-		displayGraph(formatDataForChart(unifiedIncomeMap), 'section1' , 'Monthly Income', width, height);
+		displayGraph(formatDataForChart(multiPurposeMap), 'section1' , 'Monthly Income', width, height);
 		displayGraph(formatDataForChart(unifiedExpenseMap), 'section2', 'Monthly Cumulative Expense Total', width, height);	
 		showTotal(runningTally.toFixed(2), 'section3');
 	}
@@ -230,14 +244,22 @@ function showGroupAndCatList(list1, list2, transactionDisplayElement) {
 	
 	//tdElem.append(tran['trans_category']);
 	//
+	transactionDisplayElement.innerHTML = "";
+	
+	var heading2 = document.createElement('h2');
+	heading2.append("cli>ck to displya")
+	var tableHeading = document.querySelector("#table_heading");
+	tableHeading.innerHTML = "";
+	tableHeading.append(heading2);
 	
 	for (let i = 0; i < list1.length - 1; i++) {
 		var trElem = document.createElement('tr');
 		var tdElem1 = document.createElement('td');
 		var tdElem2 = document.createElement('td');
 		tdElem1.append(list1[i]);
-		tdElem2.append(list2[i]);
-		
+		if (list2[i])		
+			tdElem2.append(list2[i]);
+			
 		var tdClickAttr = document.createAttribute('onClick');
 		var tdClickFunction = `getCatData('${list1[i]}', 0, 0, ${jperiod.ALL})`;
 		tdClickAttr.value = tdClickFunction;
@@ -249,8 +271,7 @@ function showGroupAndCatList(list1, list2, transactionDisplayElement) {
 		tdElem2.setAttributeNode(tdClickAttr2);
 		
 		trElem.append(tdElem1);
-		trElem.append(tdElem2);
-		
+		trElem.append(tdElem2);		
 		transactionDisplayElement.append(trElem);
 	}	
 }

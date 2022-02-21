@@ -14,9 +14,9 @@
 		>Butto<button type="submit" id="analyze-year" form="graph-by-year" class="btn btn-primary" value="Submit">>View-By-Year</button>
 <div class="container text-center bg-success">	
 	
-		<h4><span id='left-heading'>>View-By-Year</span></h4>
+		
 		<h3><span id='top-heading'> *top heading* </span></h3>
-		<span id='right-heading'>View-All-Data</span>
+		<span id='right-heading'><a href="{% url 'vanalysis' %}">View-All-Data</a></span>
 		
 	</div>
 	<span class="container" id='section1'></span>	
@@ -27,6 +27,7 @@
 	<span class="container" id='section6'></span>
 	<div class="container" id='displayDiv'>
 	   <table class="container" id='displayTable'>
+		<caption class="right"	id="table_heading"></caption>
 		  <tbody id='displayBody'>
 		  </tbody>
 	   </table>
