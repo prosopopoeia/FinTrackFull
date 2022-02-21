@@ -5,26 +5,26 @@
 
 
 {% block body %}
-<div id='left-div'> 
-		<form id="graph-by-year" method="post">
-		{{gyfform}}</div>
-		
-		{% csrf_token %}
-		</form>
-		>Butto<button type="submit" id="analyze-year" form="graph-by-year" class="btn btn-primary" value="Submit">>View-By-Year</button>
-<div class="container text-center bg-success">	
+	<div id='left-div'> 
+		<input type="text" id="gyf-year">>nButtO</input>
+		<br />
+		<button type="submit" id="analyze-year" form="graph-by-year" class="btn btn-primary" value="Submit">>View-By-Year</button>
+	</div>
+	<div class="container text-center bg-success">	
 	
 		
 		<h3><span id='top-heading'> *top heading* </span></h3>
-		<span id='right-heading'><a href="{% url 'vanalysis' %}">View-All-Data</a></span>
+		<span id='bottom-heading'><a href="{% url 'vanalysis' %}">View-All-Data</a></span>
 		
 	</div>
 	<span class="container" id='section1'></span>	
+	<div class="container text-center bg-primary text-white" id='sub1'></div>
 	<span class="container" id='section2'></span>
-	<div class="container text-center bg-primary text-white" id='section3'></div>
+	<div class="container text-center bg-primary text-white" id='sub2'></div>
 	<span class="container" id='section4'></span>
 	<span class="container" id='section5'></span>
 	<span class="container" id='section6'></span>
+	
 	<div class="container" id='displayDiv'>
 	   <table class="container" id='displayTable'>
 		<caption class="right"	id="table_heading"></caption>
@@ -32,6 +32,7 @@
 		  </tbody>
 	   </table>
 	</div>
+
 {% endblock %}
 
 {% block script %}

@@ -3,13 +3,16 @@ document.addEventListener('DOMContentLoaded', function() {
 	google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(getAllData);
 	var topHeading = document.querySelector('#top-heading');
-	topHeading.innerHTML = "Budget Over Time";			
+	topHeading.innerHTML = "Budget Over Time";
+	var bottomHeading = document.querySelector('#bottom-heading');
+	bottomHeading.style.display = 'none';			
 });//end addEventListener
 
 
 function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
 	console.log(`get all data: ${jsperiod}, ${date}`);
 	// Get all transactions for current user
+	
 	fetch('jsvmonth', {
 		method: 'POST',
 		body: JSON.stringify({
@@ -18,14 +21,33 @@ function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
 		})			
 	})
 	.then(response => response.json())
-	.then(transactions => {			
+	.then(transactions => {	
+		
 		calculateDict(transactions, 'trans_date', 3500, 600, jperiod.ALL, false);
-		var jsyear = document.querySelector('#gyf-year');
+		var jsyear = document.querySelector('#analyze-year');		
 		var tdClickAttr = document.createAttribute('onClick');
-		tdClickAttr.value = `getAllData(${jperiod.YEAR}, ${jsyear.text})`;
+		tdClickAttr.value = `byYearClicked()`;
+		//console.log(`jsyear.text, ${jsyear.value} innerText`);
 		jsyear.setAttributeNode(tdClickAttr);
 		
 	});	
+}
+
+function byYearClicked(type = 0, ctype = column.CAT ) {
+	var jsyearBox = document.querySelector('#gyf-year');
+	date = jsyearBox.value + '-01-01';
+	console.log(`byYearClicked: ${type}, ${ctype}`);
+	if (type) {
+		if (column.CAT) {
+			getCatDAta(type, 0, date, jperiod.YEAR);
+		}
+		else {
+			getCatDAta(0, type, date, jperiod.YEAR);
+		}
+	}
+	else {
+		getAllData(jperiod.YEAR, date);
+	}
 }
 
 function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
@@ -43,15 +65,18 @@ function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
 	})
 	.then(response => response.json())
 	.then(transactions => {	
+		var bottomHeading = document.querySelector('#bottom-heading');
+		bottomHeading.style.display = 'block';
+		console.log(`group: ${group}`);
 		calculateDict(transactions, 'trans_date', 2500, 600, jsperiod, group);
 		let transactionDisplayElement = document.querySelector('#top-heading');
 		transactionDisplayElement.innerHTML = (cat) ? `${cat}` : `${group}`;
-		var jsyear = document.querySelector('#gyf-year');
+		var jsyear = document.querySelector('#analyze-year');
 		var tdClickAttr = document.createAttribute('onClick');
 		console.log(`jsyear.text, ${jsyear.value} innerText`);
 		date = jsyear.value + "-01-01";
-		console.log (date);
-		console.log ('date aboveget cat data');
+		//console.log (date);
+		//console.log ('date aboveget cat data');
 		tdClickAttr.value = `getCatData(cat, group, date, ${jperiod.YEAR})`;
 		jsyear.setAttributeNode(tdClickAttr);
 	
@@ -69,7 +94,7 @@ function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
 
 function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGroup = false) {
 	
-	//console.log(`is group: ${isGroup}`);
+	console.log(`is group: ${isGroup}`);
 	unifiedExpenseMap = new Object();
 	expenseCountMap = new Object()
 	var expenseCatTableElems = [];
@@ -150,34 +175,39 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 	//var expenseAvgMap = convertMapTotalToAvg(unifiedExpenseMap, expenseCountMap);	
 	
 	
-	let transactionDisplayElement = document.querySelector('#section2');
+	let transactionDisplayElement = document.querySelector('#sub1');
+	let transactionDisplayElement2 = document.querySelector('#section2');
+	
 	if (hasIncomeData && !hasExpenseData) {
 		console.log(`hasExpenseData && !hasIncomeData`);
 		displayGraph(formatDataForChart(multiPurposeMap), 'section1' , 'Monthly Income', width, height);		
 		transactionDisplayElement.style.display = 'none';	
-		showTotal(incomeTally.toFixed(2), 'section3');
+		showTotal(incomeTally.toFixed(2), 'sub2');
 	}	
 	else if (hasExpenseData && !hasIncomeData && isGroup) {
 		console.log(`hasExpenseData && !hasIncomeData && isGroup`);
-		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Monthly Cumulative Expense Total', width, height);	
+		transactionDisplayElement.style.display = 'none';	
+		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Monthly Cumulative Expense Total', width, height);			
 		displayGraph(formatDataForChart(multiPurposeMap), 'section2', 'Breakdown by Category', width, height);	
-		showTotal(runningTally.toFixed(2), 'section3');
+		showTotal(runningTally.toFixed(2), 'sub2');
 	}
 	else if (hasExpenseData && !hasIncomeData) {
 		console.log(`hasExpenseData && !hasIncomeData`);
 		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Monthly Cumulative Expense Total', width, height);	
-		transactionDisplayElement.style.display = 'none';		
-		showTotal(runningTally.toFixed(2), 'section3');
+		transactionDisplayElement.style.display = 'none';
+		transactionDisplayElement2.style.display = 'none';
+		showTotal(runningTally.toFixed(2), 'sub2');
 	}
 	else {
 		displayGraph(formatDataForChart(multiPurposeMap), 'section1' , 'Monthly Income', width, height);
+		showTotal(incomeTally.toFixed(2), 'sub1');
 		displayGraph(formatDataForChart(unifiedExpenseMap), 'section2', 'Monthly Cumulative Expense Total', width, height);	
-		showTotal(runningTally.toFixed(2), 'section3');
+		showTotal(runningTally.toFixed(2), 'sub2');
 	}
 	
 	
-	let transactionDisplayElement2 = document.querySelector('#displayBody');
-	showGroupAndCatList(expenseCatTableElems, expenseGroupNames, transactionDisplayElement2);
+	let transactionDisplayElement3 = document.querySelector('#displayBody');
+	showGroupAndCatList(expenseCatTableElems, expenseGroupNames, transactionDisplayElement3);
 }
 
 /*function setUpYearSearch() {
@@ -192,26 +222,29 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 	
 }*/
 
-function showTotal(total, totalDisplayElement) {
+function showTotal(total, totalDisplayElement, isGroup = false) {
 	//totalDisplayElement.append(total);
 	
 	elem = document.querySelector(`#${totalDisplayElement}`);
 	elem.innerHTML = '';
 	var h3elem = document.createElement('h3');
 	//var divelem = document.createElement('div');
-	
-	const dollars = new Intl.NumberFormat(`en-US`, {
-		currency: `USD`,
-		style: 'currency',
-	}).format(total);
-	
-	h3elem.append(dollars);
+		
+	h3elem.append(formatToUSDollar(total));
 	//divelem.append(h3elem);
 	
 	//var posAttr = document.createAttribute('
 	
 	elem.append(h3elem);
 	
+}
+
+function formatToUSDollar(value) {
+	const dollars = new Intl.NumberFormat(`en-US`, {
+		currency: `USD`,
+		style: 'currency',
+	}).format(value);
+	return dollars;
 }
 
 function displayGraph(dataMap, elem, ctitle, cwidth, cheight) {
