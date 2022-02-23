@@ -5,14 +5,20 @@ document.addEventListener('DOMContentLoaded', function() {
 	var topHeading = document.querySelector('#top-heading');
 	topHeading.innerHTML = "Budget Over Time";
 	var bottomHeading = document.querySelector('#bottom-heading');
-	bottomHeading.style.display = 'none';			
+	bottomHeading.style.display = 'none';	
+	expenseCatTableElems = [];
+	expenseGroupNames = [];
+	currentPeriod = jperiod.ALL;
 });//end addEventListener
 
+var expenseCatTableElems;
+var expenseGroupNames;
+var currentPeriod;
 
 function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
 	console.log(`get all data: ${jsperiod}, ${date}`);
 	// Get all transactions for current user
-	
+	currentPeriod = jsperiod;
 	fetch('jsvmonth', {
 		method: 'POST',
 		body: JSON.stringify({
@@ -36,6 +42,8 @@ function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
 function byYearClicked(type = 0, ctype = column.CAT ) {
 	var jsyearBox = document.querySelector('#gyf-year');
 	date = jsyearBox.value + '-01-01';
+	globalDisplayedDate = date;
+	currentPeriod = jperiod.YEAR;
 	console.log(`byYearClicked: ${type}, ${ctype}`);
 	if (type) {
 		if (column.CAT) {
@@ -53,6 +61,7 @@ function byYearClicked(type = 0, ctype = column.CAT ) {
 function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
 	//console.log(`getCatDAta: cat ${cat} group ${group}`);
 	// Get all transactions for current user
+	currentPeriod = jsperiod;
 	fetch('jsvcat', {
 		method: 'POST',
 		body: JSON.stringify({
@@ -73,34 +82,25 @@ function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
 		transactionDisplayElement.innerHTML = (cat) ? `${cat}` : `${group}`;
 		var jsyear = document.querySelector('#analyze-year');
 		var tdClickAttr = document.createAttribute('onClick');
-		console.log(`jsyear.text, ${jsyear.value} innerText`);
+		//console.log(`jsyear.text, ${jsyear.value} innerText`);
 		date = jsyear.value + "-01-01";
 		//console.log (date);
 		//console.log ('date aboveget cat data');
 		tdClickAttr.value = `getCatData(cat, group, date, ${jperiod.YEAR})`;
 		jsyear.setAttributeNode(tdClickAttr);
-	
-		
 	});	
 }
 
-////UNUSED 2/13/////////
-/* function getCurrentAvg(numberOfEntries, currentAvg, entryToAdd) {
-	
-	var returnValue = currentAvg * --numberOfEntries;
-	returnValue += entryToAdd;
-	return returnValue / ++numberOfEntries;
-} */
-
 function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGroup = false) {
 	
-	console.log(`is group: ${isGroup}`);
+	//console.log(`is group: ${isGroup}`);
 	unifiedExpenseMap = new Object();
-	expenseCountMap = new Object()
-	var expenseCatTableElems = [];
-	var expenseGroupNames = [];
-	multiPurposeMap = new Object();
-	incomeCountMap = new Object();
+	expenseCountMap = new Object()	
+	incomeMap = new Object();
+	incomeCount = new Object();
+	groupMap = new Object();
+	groupCount = new Object();
+	
 	var tCount = 0;
 	var runningTally = 0;
 	var incomeTally = 0;
@@ -151,65 +151,75 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 		}
 		else {
 			hasIncomeData = true;
-			if (multiPurposeMap[tElem]) {
-				multiPurposeMap[tElem] += tAmount;								
+			if (incomeMap[tElem]) {
+				incomeMap[tElem] += tAmount;
+				incomeCount[tElem] += 1;
 			}
 			else {
-				multiPurposeMap[tElem] = tAmount;				
+				incomeMap[tElem] = tAmount;	
+				incomecount[tElem] = 1;
 			}
 			incomeTally += tAmount;
 		}
 		if (isGroup) {
-			if (multiPurposeMap[tran['trans_category']]) {
-				multiPurposeMap[tran['trans_category']] += Math.abs(tAmount);								
+			//console.log(`tran[amt]: ${tran['trans_category']}`); 
+			if (groupMap[tran['trans_category']]) {
+				//console.log(`tran[cat]: ${tran['trans_amt']}`); 
+				groupMap[tran['trans_category']] += Math.abs(tAmount);								
+				groupCount[tElem] += 1;
 			}
 			else {
-				multiPurposeMap[tran['trans_category']] = Math.abs(tAmount);				
+				//console.log(`tran[amt]: ${tran['trans_amt']}`); 
+				groupMap[tran['trans_category']] = Math.abs(tAmount);
+				groupCount[tElem] = 1;
 			}	
-			console.log(`group: trangroup: ${tran['trans_category']}`);
+			//console.log(`group: trangroup: ${tran['trans_category']}`);
 		}
 	} //END while(transactions)
-	
-	
-	
-	//var expenseAvgMap = convertMapTotalToAvg(unifiedExpenseMap, expenseCountMap);	
-	
-	
+		
 	let transactionDisplayElement = document.querySelector('#sub1');
 	let transactionDisplayElement2 = document.querySelector('#section2');
 	
 	if (hasIncomeData && !hasExpenseData) {
-		console.log(`hasExpenseData && !hasIncomeData`);
-		displayGraph(formatDataForChart(multiPurposeMap), 'section1' , 'Monthly Income', width, height);		
+		//console.log(`hasExpenseData && !hasIncomeData`);
+		displayGraph(formatDataForChart(incomeMap), 'section1' , 'Monthly Income', width, height);		
 		transactionDisplayElement.style.display = 'none';	
 		showTotal(incomeTally.toFixed(2), 'sub2');
 	}	
 	else if (hasExpenseData && !hasIncomeData && isGroup) {
-		console.log(`hasExpenseData && !hasIncomeData && isGroup`);
+		//console.log(`hasExpenseData && !hasIncomeData && isGroup`);
 		transactionDisplayElement.style.display = 'none';	
-		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Monthly Cumulative Expense Total', width, height);			
-		displayGraph(formatDataForChart(multiPurposeMap), 'section2', 'Breakdown by Category', width, height);	
+		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Expenses by Group', width, height);			
+		displayGraph(formatDataForChart(groupMap), 'section2', 'Breakdown by Category', width, height);	
 		showTotal(runningTally.toFixed(2), 'sub2');
 	}
-	else if (hasExpenseData && !hasIncomeData) {
-		console.log(`hasExpenseData && !hasIncomeData`);
-		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Monthly Cumulative Expense Total', width, height);	
+	else if (hasExpenseData && !hasIncomeData) { //this is the case when showing a category//
+		//console.log(`hasExpenseData && !hasIncomeData`);
+		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Category Expenses', width, height);	
 		transactionDisplayElement.style.display = 'none';
 		transactionDisplayElement2.style.display = 'none';
 		showTotal(runningTally.toFixed(2), 'sub2');
 	}
 	else {
-		displayGraph(formatDataForChart(multiPurposeMap), 'section1' , 'Monthly Income', width, height);
+		displayGraph(formatDataForChart(incomeMap), 'section1' , 'Monthly Income', width, height);
 		showTotal(incomeTally.toFixed(2), 'sub1');
 		displayGraph(formatDataForChart(unifiedExpenseMap), 'section2', 'Monthly Cumulative Expense Total', width, height);	
 		showTotal(runningTally.toFixed(2), 'sub2');
 	}
 	
-	
 	let transactionDisplayElement3 = document.querySelector('#displayBody');
+	//console.log(`expenseCatElements: ${expenseCatTableElems}, ${expenseGroupNames}`);
 	showGroupAndCatList(expenseCatTableElems, expenseGroupNames, transactionDisplayElement3);
 }
 
+function getCurrentAvg(numberOfEntries, currentAvg, entryToAdd) {
+	
+	var returnValue = currentAvg * --numberOfEntries;
+	returnValue += entryToAdd;
+	return returnValue / ++numberOfEntries;
+}
+
+///TODO UNUSED////
 /*function setUpYearSearch() {
 	var today = formatTodaysDate();
 	
@@ -235,8 +245,7 @@ function showTotal(total, totalDisplayElement, isGroup = false) {
 	
 	//var posAttr = document.createAttribute('
 	
-	elem.append(h3elem);
-	
+	elem.append(h3elem);	
 }
 
 function formatToUSDollar(value) {
@@ -294,12 +303,12 @@ function showGroupAndCatList(list1, list2, transactionDisplayElement) {
 			tdElem2.append(list2[i]);
 			
 		var tdClickAttr = document.createAttribute('onClick');
-		var tdClickFunction = `getCatData('${list1[i]}', 0, 0, ${jperiod.ALL})`;
+		var tdClickFunction = `getCatData('${list1[i]}', 0, globalDisplayedDate, ${currentPeriod})`;
 		tdClickAttr.value = tdClickFunction;
 		tdElem1.setAttributeNode(tdClickAttr);
 		
 		var tdClickAttr2 = document.createAttribute('onClick');
-		var tdClickFunction2 = `getCatData(0, '${list2[i]}', 0, ${jperiod.ALL})`;
+		var tdClickFunction2 = `getCatData(0, '${list2[i]}', globalDisplayedDate, ${currentPeriod})`;
 		tdClickAttr2.value = tdClickFunction2;
 		tdElem2.setAttributeNode(tdClickAttr2);
 		
@@ -325,8 +334,6 @@ function convertMapTotalToAvg(dataMap, dataCounts) {
 			current = (current + dataCounts[k]) / 2;
 		
 		}
-		
-		
 		unifiedAvgMap[k] = current;
 		//console.log(`current for ${k}: ${current}, unifiedAvgMapValue: ${unifiedAvgMap[k]}`);
 		
@@ -345,4 +352,55 @@ function formatDataForChart(imap) {
 	}	
 	return google.visualization.arrayToDataTable(returnList);
 }
+
+/* TO BE MOVED TO ITS OWN FILE WHEN FINISHED */
+
+function createStats () {
+	
+}
+
+const CatStats = {
+	name : "",
+	desc: "",
+	count: 0,
+	total: 0,
+	avg: 0,
+	largest: 0,
+	smallest: 0,
+	dateStart: "",
+	dateEnd: "",
+	
+	createCatStats: function(name, desc, count, total) {
+		this.name = name;
+		this.desc = desc;
+		this.count = count;
+		this.total = total;
+		
+	},
+	
+	setDates: function(start = "", end = "") {
+		this.dateStart = start;
+		this.dateEnd = end;
+	}
+	
+	
+};
+
+const StatMethods = {
+	figureavg = function (tot, count) {
+		return tot / count;
+	},
+	
+	
+	
+		
+};
+
+
+/*
+	average over time
+	whether it has risen/declined over time
+	highest peak/lowest valley
+	comparison of cats within same group
+*/
 

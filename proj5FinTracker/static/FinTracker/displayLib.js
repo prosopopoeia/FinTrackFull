@@ -420,8 +420,10 @@ function addTransaction(event) {
 	});
 }	
 
+
+////////UNUSED TODO/////////////////
 function formatTodaysDate() {
-	var today = new Date();
+		var today = new Date();
 		var mm = ((today.getMonth() + 1) < 10) ? "0" + (today.getMonth() + 1) : today.getMonth() + 1; //January is 0 
 		var yyyy = today.getFullYear();
 		//console.log("in 2nd check");
