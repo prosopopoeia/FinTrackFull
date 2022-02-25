@@ -428,7 +428,8 @@ function formatTodaysDate() {
 		var yyyy = today.getFullYear();
 		//console.log("in 2nd check");
 		//console.log(`mm: ${mm}, yyyy: ${yyyy}`);
-		dateValue = "" + yyyy + "-" + mm;
+		var jsdateValue = "" + yyyy + "-" + mm;
+		return jsdateValue;
 		
 }
 
@@ -445,7 +446,7 @@ function displayDataDate (dateValue) {
 	var mm = 0;
 	//nothing passed in, nothing in text box, we are just doing a default date (today)
 	if (!dateValue) {
-		dateValue = generateTodaysDate();
+		dateValue = formatTodaysDate();
 	}
 	else {
 		mm = dateValue.slice(5,7);
