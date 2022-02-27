@@ -109,6 +109,7 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 	var hasExpenseData = false;	
 	var lowestValuePair = new Map();
 	var highestValuePair = new Map();
+	var statList = [];
 	
 	while (tran = transactions[tCount++]) {
 		
@@ -170,7 +171,7 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 			if (groupMap[transactionCategory]) {
 				//console.log(`tran[cat]: ${tran['trans_amt']}`); 
 				groupMap[tran['trans_category']] += tAmount;								
-				groupCount['trans_category'] += 1;
+				groupCount[tran.trans_category] += 1;
 				
 				// if there is a highest/lowest value for the category, and it is greater/less than
 				// the existing value, then it becomes the new value				
@@ -184,12 +185,12 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 				{
 					lowestValuePair.set(tran.trans_category, tAmount); 
 				}
-				console.log(`groupmap: ${tran.trans_category} :: ${groupCount.trans_category}`);
+				//console.log(`groupmap: ${tran.trans_category} :: ${groupCount.trans_category}`);
 			}
 			else {
 				//console.log(`tran[amt]: ${tran['trans_amt']}`); 
 				groupMap[tran['trans_category']] = tAmount;
-				groupCount['trans_category'] = 1;
+				groupCount[tran.trans_category] = 1;
 				highestValuePair.set(tran.trans_category, tAmount);
 				lowestValuePair.set(tran.trans_category, tAmount);
 				
@@ -213,7 +214,7 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Expenses by Group', width, height);			
 		displayGraph(formatDataForChart(groupMap), 'section2', 'Breakdown by Category', width, height);	
 		showTotal(runningTally.toFixed(2), 'sub2');
-		showGroupStats(groupMap, groupCount, runningTally, expenseCountMap, highestValuePair, lowestValuePair);
+		statList = buildStatList(groupMap, groupCount, runningTally, expenseCountMap, highestValuePair, lowestValuePair);
 		
 	}
 	else if (hasExpenseData && !hasIncomeData) { //this is the case when showing a category//
@@ -232,10 +233,96 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 	
 	let transactionDisplayElement3 = document.querySelector('#displayBody');
 	//console.log(`expenseCatElements: ${expenseCatTableElems}, ${expenseGroupNames}`);
+	clearTable();
+	statList.forEach(showStats);
 	showGroupAndCatList(expenseCatTableElems, expenseGroupNames, transactionDisplayElement3);
 }
 
-function showGroupStats(groupMap, groupCount, runningTally, expenseCountMap, highMap, lowMap) {
+function clearTable() {
+	var htmlTarget = document.querySelector('#sub2b');
+	htmlTarget.innerHTML = "";
+}
+function showStats(stat) {
+	
+	var statTable = document.createElement('table');
+	var statTableAttr = document.createAttribute('class');
+	statTableAttr.value = 'table table-bordered table-striped';
+	statTable.setAttributeNode(statTableAttr);
+	
+	/* var statCaption = document.createElement('caption');
+	statCaption.innerHTML = stat.name;
+	statTable.append(statCaption); */
+	
+	var statNameTR = document.createElement('tr');
+	var statNameTD = document.createElement('td');
+	var snh3 = document.createElement('h3');
+	snh3.innerHTML = "Category: " + stat.name;
+	statNameTD.append(snh3);
+	statNameTR.append(statNameTD);
+	statTable.append(statNameTR);
+	
+	var statCountTR = document.createElement('tr');
+	var statCountTD = document.createElement('td');
+	
+	var sch5 = document.createElement('b');
+	sch5.innerHTML = `Count: ${stat.count}`; 
+	statCountTD.append(sch5);
+	statCountTR.append(statCountTD);
+	statTable.append(statCountTR);
+	
+	
+	var statTotalTR = document.createElement('tr');
+	var statTotalTD = document.createElement('td');
+	
+	var sth5 = document.createElement('b');
+	sth5.innerHTML = "Total: " + formatToUSDollar(stat.total);
+	statTotalTD.append(sth5);
+	statTotalTR.append(statTotalTD);
+	statTable.append(statTotalTR);
+	
+	
+	var statAvgTR = document.createElement('tr');
+	var statAvgTD = document.createElement('td');
+	
+	var ab = document.createElement('b');
+	ab.innerHTML = "Average: " + formatToUSDollar(stat.avg);
+	statAvgTD.append(ab);
+	statAvgTR.append(statAvgTD);
+	statTable.append(statAvgTR);
+	
+	
+	var statHighTR = document.createElement('tr');
+	var statHighTD = document.createElement('td');
+	
+	var highb = document.createElement('b');
+	highb.innerHTML = "highest: " + formatToUSDollar(stat.highest);
+	statHighTD.append(highb);
+	statHighTR.append(statHighTD);
+	statTable.append(statHighTR);
+	
+	var statLowTR = document.createElement('tr');
+	var statLowTD = document.createElement('td');
+	
+	var lowb = document.createElement('b');
+	lowb.innerHTML = "Lowest: " + formatToUSDollar(stat.lowest);
+	statLowTD.append(lowb);
+	statLowTR.append(statLowTD);
+	statTable.append(statLowTR);
+	
+	
+	var htmlTarget = document.querySelector('#sub2b');
+	htmlTarget.append(statTable);
+	
+	
+	/* querySelector('#sub2b-target');
+	
+	var stH3 = document.createElement('h3');
+	stH3.innerHTML = stat.name;
+	statCaption.append(stH3);
+	 */
+}
+
+function buildStatList(groupMap, groupCount, runningTally, expenseCountMap, highMap, lowMap) {
 	/*groupCount:      count for number of members of category*/
 	/*expenseCountMap: count of total number of transactions for given date*/
 	var groupMapKeys = Object.keys(groupMap);
@@ -244,22 +331,19 @@ function showGroupStats(groupMap, groupCount, runningTally, expenseCountMap, hig
 	
 	for (k of groupMapKeys) {		
 		let catstat = {};
-		
-	console.log(`k: ${k}, v: ${groupMap[k]}, count: ${groupCount[k]}`);
 		catstat.name = k;
 		catstat.desc = "";
 		catstat.count = groupCount[k];
 		catstat.total = groupMap[k];
-		
 		catstat.avg = catstat.total / catstat.count;
-		
 		catstat.highest = highMap.get(k);		
 		catstat.lowest = lowMap.get(k);
 		
+		//console.log(`k: ${k}, v: ${groupMap[k]}, count: ${groupCount[k]}`);
 		catStatList.push(catstat);
 		
 	}	
-	console.log(catStatList);
+	//console.log(catStatList);
 	return catStatList
 }
 

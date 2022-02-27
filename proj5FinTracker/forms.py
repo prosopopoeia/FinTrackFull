@@ -9,7 +9,7 @@ class FindByDateForm(forms.Form):
                                           widget= forms.TextInput(attrs={'id':'fyear'}))
 
 class GetYearForm(forms.Form):
-        nButto = forms.CharField(
+        nButton = forms.CharField(
         max_length=6,
         widget = forms.TextInput(attrs={'id':'gyf-year'}))
 
