@@ -9,11 +9,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	expenseCatTableElems = [];
 	expenseGroupNames = [];
 	currentPeriod = jperiod.ALL;
+	currentType = column.NONE;
 });//end addEventListener
 
 var expenseCatTableElems;
 var expenseGroupNames;
-var currentPeriod;
+var currentPeriod;	// is this a year, month, or epoch view?
+var currentType; 	// is this a category or group view?
 
 function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
 	console.log(`get all data: ${jsperiod}, ${date}`);
@@ -29,7 +31,7 @@ function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
 	.then(response => response.json())
 	.then(transactions => {	
 		
-		calculateDict(transactions, 'trans_date', 3500, 600, jperiod.ALL, false);
+		calculateDict(transactions, 'trans_date', 3500, 600, jperiod.ALL, false, false);
 		var jsyear = document.querySelector('#analyze-year');		
 		var tdClickAttr = document.createAttribute('onClick');
 		tdClickAttr.value = `byYearClicked()`;
@@ -77,7 +79,7 @@ function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
 		var bottomHeading = document.querySelector('#bottom-heading');
 		bottomHeading.style.display = 'block';
 		console.log(`group: ${group}`);
-		calculateDict(transactions, 'trans_date', 2500, 600, jsperiod, group);
+		calculateDict(transactions, 'trans_date', 2500, 600, jsperiod, group, cat);
 		let transactionDisplayElement = document.querySelector('#top-heading');
 		transactionDisplayElement.innerHTML = (cat) ? `${cat}` : `${group}`;
 		var jsyear = document.querySelector('#analyze-year');
@@ -91,15 +93,18 @@ function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
 	});	
 }
 
-function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGroup = false) {
+function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGroup = false, isCat = false) {
 	
 	//console.log(`is group: ${isGroup}`);
 	unifiedExpenseMap = new Object();
 	expenseCountMap = new Object()	
 	incomeMap = new Object();
 	incomeCount = new Object();
+	
 	groupMap = new Object();
 	groupCount = new Object();
+	catMap = new Object();
+	catCount = new Object();
 	
 	var tCount = 0;
 	var runningTally = 0;
@@ -107,8 +112,11 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 	const regexDateFormat = /\d\d\d\d-\d\d/; ///Remove with TODO#1
 	var hasIncomeData = false;
 	var hasExpenseData = false;	
-	var lowestValuePair = new Map();
-	var highestValuePair = new Map();
+	var lowestValuePairGroup = new Map();
+	var highestValuePairGroup = new Map();
+	var lowestValuePairCat = new Map();
+	var highestValuePairCat = new Map();
+	
 	var statList = [];
 	
 	while (tran = transactions[tCount++]) {
@@ -131,7 +139,7 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 				//console.log(`Inner TWO appended: ${tran['trans_group']}`);
 				expenseGroupNames.push(tran['trans_group']);
 			}
-			//console.log(`Inner TWO appended: ${tran['trans_category']}, innner bool: ${elemNotInList}, ${expenseCatTableElems.indexOf(tran['trans_category']) == -1}`	);
+			console.log(`Inner TWO appended: ${tran['trans_category']}, innner bool: ${elemNotInList}, ${expenseCatTableElems.indexOf(tran['trans_category']) == -1}`	);
 		}
 		
 		if (tAmount < 0) {
@@ -154,7 +162,7 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 			runningTally += tAmount;
 		}
 		else {
-			hasIncomeData = true;
+			hasIncomeData = true; //TODO -> If there is a positive value, even if not income, this will be set true and destroy display
 			if (incomeMap[tElem]) {
 				incomeMap[tElem] += tAmount;
 				incomeCount[tElem] += 1;
@@ -166,7 +174,7 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 			incomeTally += tAmount;
 		}
 		if (isGroup) {
-			//console.log(`tran[amt]: ${tran['trans_category']}`); 
+			console.log(`tran[amt]: ${tran['trans_category']}`); 
 			let transactionCategory = tran.trans_category;
 			if (groupMap[transactionCategory]) {
 				//console.log(`tran[cat]: ${tran['trans_amt']}`); 
@@ -175,27 +183,36 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 				
 				// if there is a highest/lowest value for the category, and it is greater/less than
 				// the existing value, then it becomes the new value				
-				if(highestValuePair.get(tran.trans_category)
-				&& highestValuePair.get(tran.trans_category) < tAmount)
+				if(highestValuePairGroup.get(tran.trans_category)
+				&& highestValuePairGroup.get(tran.trans_category) < tAmount)
 				{
-					highestValuePair.set(tran.trans_category, tAmount); 
+					highestValuePairGroup.set(tran.trans_category, tAmount); 
 				}
-				if(lowestValuePair.get(tran.trans_category) 
-				&& lowestValuePair.get(tran.trans_category) > tAmount)
+				if(lowestValuePairGroup.get(tran.trans_category) 
+				&& lowestValuePairGroup.get(tran.trans_category) > tAmount)
 				{
-					lowestValuePair.set(tran.trans_category, tAmount); 
+					lowestValuePairGroup.set(tran.trans_category, tAmount); 
 				}
 				//console.log(`groupmap: ${tran.trans_category} :: ${groupCount.trans_category}`);
-			}
+			}			
 			else {
 				//console.log(`tran[amt]: ${tran['trans_amt']}`); 
 				groupMap[tran['trans_category']] = tAmount;
 				groupCount[tran.trans_category] = 1;
-				highestValuePair.set(tran.trans_category, tAmount);
-				lowestValuePair.set(tran.trans_category, tAmount);
+				highestValuePairGroup.set(tran.trans_category, tAmount);
+				lowestValuePairGroup.set(tran.trans_category, tAmount);
 				
 			}	
-			//console.log(`group: lowest: ${highestValuePair.get(tran.trans_category)} ${tran['trans_category']}`);
+			//console.log(`group: lowest: ${highestValuePairGroup.get(tran.trans_category)} ${tran['trans_category']}`);
+		}
+		else if (isCat) {
+				if(catMap[tran.trans_date]) {
+					
+				}
+				else {
+					
+				}
+				
 		}
 	} //END while(transactions)
 		
@@ -214,7 +231,7 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Expenses by Group', width, height);			
 		displayGraph(formatDataForChart(groupMap), 'section2', 'Breakdown by Category', width, height);	
 		showTotal(runningTally.toFixed(2), 'sub2');
-		statList = buildStatList(groupMap, groupCount, runningTally, expenseCountMap, highestValuePair, lowestValuePair);
+		statList = buildStatList(groupMap, groupCount, runningTally, expenseCountMap, highestValuePairGroup, lowestValuePairGroup);
 		
 	}
 	else if (hasExpenseData && !hasIncomeData) { //this is the case when showing a category//

@@ -4,7 +4,7 @@
 
 //*********Global Vars***************************************************************//
 
-var catOrDate;			  // the worst design choice in history - needs fix - TODO
+var catOrDate;			  // the worst design choice in history - needs fix - TODO used at 1287
 var globalDisplayedDate;  // date currently being displayed
 var globalDisplayedDate2; // used in comparision operations
 
@@ -281,7 +281,7 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, cre
 		else if (displayDate)
 			displayDataDate(pdate);
 	});	
-	//catOrDate = cod.DATE;
+	
 	var grpHeading = document.querySelector('#cat-grp');
 	grpHeading.style.display = 'none';	
 	var cfTable = document.querySelector('#bits');
@@ -1283,12 +1283,10 @@ function changeChart() {
 	clearAllCharts();
 	//using cat_grp div to indicate if we are looking at a category view or by month view
 	//this will tell us which function to use to populate our graphic
-	//console.log(`${catOrDate} below is type of display`);
-	//console.log(`${cat_grpDiv.style.display} :: ${cat_grpDiv.innerHTML}`);
-	//console.log(`catOrDate == ${catOrDate}`);
+	
 	if (catOrDate) {
 		//not displayed -> in non-category view
-		console.log("in catOrDate");
+		
 		if(inYearView()) {	
 			console.log(`in non-category view && in yearview`);
 			var displayDate = document.querySelector('#date-span');
