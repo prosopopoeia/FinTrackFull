@@ -25,6 +25,7 @@ import re
 
 from io import StringIO
 
+###TODO REMOVE NOT CALLED###
 def index(request):
     if request.user.is_authenticated:
         return render(request, "proj5FinTracker/singlePageTransactions.html")

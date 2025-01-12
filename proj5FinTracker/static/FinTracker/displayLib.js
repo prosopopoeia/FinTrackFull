@@ -15,6 +15,7 @@ const cod = {
 }
 
 const column = {
+	NONE: 0,
 	CAT: 1,
 	GRP: 2,
 	AMT: 3,
@@ -377,6 +378,7 @@ function setNavBar(navitem) {
 function showAddTransaction() {
 	var addTransDiv = document.querySelector("#add-trans");
 	var addTransButton  = document.querySelector('#add-trans-button');
+	// TODO REMOVE UNUSED VARIABLES BELOW
 	var saveTram = document.querySelector('#add-btn');
 	var saveForm = document.querySelector('#add-trans-form');
 	
@@ -700,7 +702,7 @@ function displayTrans(transaction) {
 }
 
 function editTran(tranID) {
-	console.log("editTran begin");
+	//console.log("editTran begin");
 	document.querySelector(`#editbutton${tranID}`).style.display = 'none';
 
 	var saveButton = document.createElement('button');
