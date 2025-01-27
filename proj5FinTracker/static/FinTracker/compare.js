@@ -42,31 +42,45 @@ function getDataCount(elem, pdate = 0, ucategory = "", COLUMN_TYPE = column.CAT)
 	})
 	.then(response => response.json())
 	.then(result => {
-	console.log(`about to return from then: ${result['agcount']} also ${result['agavg']} and max: ${result['agmax']}`);
-		
+		console.log(`about to return from then:agcount ${result['agcount']} also agavg${result['agavg']}`);
+		console.log(`result object: ${result}`);
+	
+		let USDollar = new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'USD',
+		});
+		var cIncome = USDollar.format(result['agsumPos']);
+		var mostExpensiveEntry = USDollar.format(Math.abs(result['agmin']));
+		var totalSavings = USDollar.format(Math.abs(result['agsum']));		
+					
+		var pavg = result['agsum'] / 12;
+		var avgSpent = USDollar.format(Math.abs(pavg));
+
 		var message1a = (ucategory == "") ? 
 			` Total Entries: ${result['agcount']}` : 
 			` Number of ${ucategory} transactions: ${result['agcount']}`;
 		
-		var message1b = (ucategory == "") ? 
-			` <br>Average amount of an entry: ${result['agavg']}` : 
-			` <br>Average amount of each ${ucategory} transaction: ${result['agavg']}`;
+		
+		var message1b = ` <br>Income for this period: ${cIncome}`;		
 		
 		var message1c = (ucategory == "") ?
-			` <br>Most expensive entry: ${result['agmin']} (${result['mostExpensiveItem1']}, ${result['mostExpensiveItem2']})` : 
-			` <br>Most expensive ${ucategory} transaction: ${result['agmin']} on ${result['mostExpensiveItem2']} (${result['mostExpensiveItem1']})`;
+			` <br>Most expensive entry: ${mostExpensiveEntry} (${result['mostExpensiveItem1']}, ${result['mostExpensiveItem2']})` : 
+			` <br>Most expensive ${ucategory} transaction: ${mostExpensiveEntry} on ${result['mostExpensiveItem2']} (${result['mostExpensiveItem1']})`;
 			
 		var message1d = (ucategory == "") ?
-			` <br>Total saved for period: ${result['agsum']}` : 
-			` <br>Total amount spent on ${ucategory}: ${result['agsum']}`;
-		var pavg = result['agsum'] / 12
-		var message1e = (ucategory == "" && currentPeriodType == jperiod.YEAR ) ?
-			` <br>Monthly Average: ${pavg.toFixed(2)}` : 
-			` <br>Average monthly amount spent on ${ucategory}: ${pavg.toFixed(2)}`;
+			` <br>Total saved for this period: ${totalSavings}` : 
+			` <br>Total amount spent on ${ucategory}: ${totalSavings}`;
+
+		var message1e = (ucategory == "") ?
+			` <br> - `:  
+			` <br>Average monthly amount spent on ${ucategory}(s): ${avgSpent}`;
+		
+		
 		
 		var msg = "";
 		msg += message1a;
 		msg += message1b;
+		//msg += message1f;
 		msg += message1c;
 		msg += message1d;
 		msg += message1e;
@@ -297,7 +311,7 @@ function displayCTrans(transaction, ctarget) {
 	editButton.setAttributeNode(ebuttonIDAttr);
 	
 	var ebuttonClassAttr = document.createAttribute('class');
-	ebuttonClassAttr.value = `btn bdrbtn btn-xs`;
+	ebuttonClassAttr.value = `btn btn-info btn-sm w-100`;
 	editButton.setAttributeNode(ebuttonClassAttr);
 	
 	var editClickAttr = document.createAttribute('onClick');
@@ -313,7 +327,7 @@ function displayCTrans(transaction, ctarget) {
 	deleteButton.setAttributeNode(dbuttonIDAttr);
 	
 	var dbuttonClassAttr = document.createAttribute('class');
-	dbuttonClassAttr.value = `btn bdrbtn btn-xs`;
+	dbuttonClassAttr.value = `btn btn-danger btn-sm btn-block w-100`;
 	deleteButton.setAttributeNode(dbuttonClassAttr);
 	
 	var deleteClickAttr = document.createAttribute('onClick');
@@ -394,7 +408,7 @@ function displayCTrans(transaction, ctarget) {
 	var typeID5 = `group${transaction['id']}`;
 	div5IdAttr.value = typeID5;
 	div5.setAttributeNode(div5IdAttr);
-	console.log(`group stuff: ${tran_group_val}`);
+	//console.log(`group stuff: ${tran_group_val}`);
 	var div5ClickAttr = document.createAttribute('onClick');
 	var div5Function = `catCompare('${tran_group_val}', column.GRP)`;
 	div5ClickAttr.value = div5Function;

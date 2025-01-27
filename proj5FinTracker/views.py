@@ -240,18 +240,21 @@ def jsvgetaggs(request):
     vtranavg = 0
     tranmin = 0
     transum = 0
+    transumPositives = 0
+    
     if data["jstype"] == Period.Month.value:
+        transumPositives = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_amt__gt=0).aggregate(Sum('trans_amt'))
         if vcat == "":
             trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).count()
             tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).aggregate(Min('trans_amt'))
             transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).aggregate(Sum('trans_amt'))
-            
         else:
             if vtype == 1:
                 trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).count()
                 tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Avg('trans_amt'))
                 tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Min('trans_amt'))
                 transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Sum('trans_amt'))
+               
             else:
                 trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).count()
                 tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).aggregate(Avg('trans_amt'))
@@ -259,6 +262,7 @@ def jsvgetaggs(request):
                 transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).aggregate(Sum('trans_amt'))
                 
     elif data["jstype"] == Period.Year.value:
+        transumPositives = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_amt__gt=0).aggregate(Sum('trans_amt'))
         if vcat == "":
             trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).count()            
             tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Min('trans_amt'))
@@ -274,6 +278,7 @@ def jsvgetaggs(request):
             tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_group=vcat).aggregate(Min('trans_amt'))
             transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_group=vcat).aggregate(Sum('trans_amt'))
     else:
+        transumPositives = BankTransaction.objects.filter(trans_owner=this_user, trans_amt__gt=0).aggregate(Sum('trans_amt'))
         if vcat == "":
             trancount = BankTransaction.objects.filter(trans_owner=this_user).count()
             tranmin = BankTransaction.objects.filter(trans_owner=this_user).aggregate(Min('trans_amt'))
@@ -294,9 +299,11 @@ def jsvgetaggs(request):
     vtranavg = 0
     vtranmin = 0
     vtransum = 0
+    vtransumPos = 0
     
     if tranavg != 0 and tranavg['trans_amt__avg'] is not None:
         vtranavg = "{:.2f}".format(tranavg['trans_amt__avg'])
+        
     if tranmin != 0 and tranmin['trans_amt__min'] is not None:
         vtranmin = "{:.2f}".format(tranmin['trans_amt__min'])
         if vcat == "":
@@ -312,13 +319,19 @@ def jsvgetaggs(request):
             mei = BankTransaction.objects.filter(trans_owner=this_user, trans_amt=vtranmin, trans_group=vcat)
             mei1 = mei[0].trans_category
             mei2 = mei.first().trans_date
+            
     if transum != 0 and transum['trans_amt__sum'] is not None:
         vtransum = "{:.2f}".format(transum['trans_amt__sum'])
+        
+    if transumPositives != 0 and transumPositives['trans_amt__sum'] is not None:
+        vtransumPos = "{:.2f}".format(transumPositives['trans_amt__sum'])
+    
     
     return JsonResponse({"agcount": trancount, 
                     "agavg": vtranavg, 
                     "agmin": vtranmin, 
                     "agsum": vtransum,
+                    "agsumPos": vtransumPos,
                     "mostExpensiveItem1": mei1,
                     "mostExpensiveItem2": mei2}) 
         

@@ -3,8 +3,8 @@
 
 {% block whiteli %}	
 	
-	<li id='navyear'><a href="#">Year View</a></li>	
-	<li id='navepoch'><a href="#">Epoch View</a></li>
+	<li id='navyear'><a class="nav-link" href="#"><h4>Year View</h4></a></li>	
+	<li id='navepoch'><a class="nav-link" href="#"><h4>Epoch View</h4></a></li>
 	
 
 {% endblock %}
@@ -15,7 +15,7 @@
 <div class="container-fluid">
 	
 	<div class="row">
-		<div class="col-xs-6">
+		<div class="col-md-6">
 				<div class="form-group container-fluid" id="findby-form">
 					<form id="search-bymonth-form" method="post">
 						<label for="month_year">Transaction Period</label>
@@ -24,17 +24,17 @@
 						{% csrf_token %}
 					
 					</form>
-					<button type="submit" id="search-bymonth-button" form="search-bymonth-form" class="btn btn-primary" value="Submit">Submit</button>
+					<button type="submit" id="search-bymonth-button" form="search-bymonth-form" class="btn btn-outline-info text-black" value="Submit">Submit</button>
 				</div>	
 				
 				<div class="form-group" id="add-form-group">
-					<button type="submit" id="add-trans-button" class="btn btn-primary" value="Add">Add Transaction</button>
+					<button type="submit" id="add-trans-button" class="btn btn-outline-primary text-black" value="Add">Add Transaction</button>
 					
 					<div id="add-trans">
 						<form id="add-trans-form" method="post">
 						{{ trans_form.as_p }}
 						{% csrf_token %}
-						<input type="submit" value="Add" id="add-btn" class="btn btn-primary"/>
+						<input type="submit" value="Add" id="add-btn" class="btn btn-outline-primary"/>
 						</form>
 					</div>
 					
@@ -42,7 +42,7 @@
 				
 		</div>
 		
-		<div class="col-xs-4">
+		<div class="col-md-6">
 			<h2><strong> <span id="date-span"> {{ vdate_info }} </span></strong></h2>
 			<h3><strong> <span> >Clicks </span></strong></h3>
 			<h4>
@@ -62,8 +62,8 @@
 
 <div class="container-fluid">
 	
-		
-		<div id="leftPanel" class="col-xs-6">
+		<div class="row">
+		<div id="leftPanel" class="col-md-6">
 		  <h3><div class="panel alert alert-info panel-primary" id='cat-grp'></div></h3>
 		  <table class="table table-bordered table-striped" id="bits">
 			
@@ -83,7 +83,7 @@
 			  </tbody>
 		  </table>
 		</div>
-		<div id="aggregates" class="col-xs-4">
+		<div id="aggregates" class="col-md-6">
 			<h4><div class="panel alert alert-info panel-primary" id='amt-saved'></div></h4>
 			<div id="detail-table1">
 				<table class="table table-bordered">
@@ -112,7 +112,7 @@
 			<div id="credit-pie"></div>
 			<div id="char-view-div"><button id="chart-view-btn"></button></div>
 		</div>
-	
+	</div>
 </div>
 
 {% endblock %}
