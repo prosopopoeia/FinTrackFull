@@ -56,9 +56,11 @@ function getDataCount(elem, pdate = 0, ucategory = "", COLUMN_TYPE = column.CAT)
 		var pavg = result['agsum'] / 12;
 		var avgSpent = USDollar.format(Math.abs(pavg));
 
+		var messagePeriod = `pdate`; //(currentPeriodType == jperiod.YEAR) ?
+			
 		var message1a = (ucategory == "") ? 
-			` Total Entries: ${result['agcount']}` : 
-			` Number of ${ucategory} transactions: ${result['agcount']}`;
+			` <br>Total Entries: ${result['agcount']}` : 
+			` <br>Number of ${ucategory} transactions: ${result['agcount']}`;
 		
 		
 		var message1b = ` <br>Income for this period: ${cIncome}`;		
@@ -78,6 +80,7 @@ function getDataCount(elem, pdate = 0, ucategory = "", COLUMN_TYPE = column.CAT)
 		
 		
 		var msg = "";
+		msg += pdate;
 		msg += message1a;
 		msg += message1b;
 		//msg += message1f;
@@ -89,26 +92,6 @@ function getDataCount(elem, pdate = 0, ucategory = "", COLUMN_TYPE = column.CAT)
 	});
 	//console.log("end of compare catData")	
 }
-
-/* async function showCompare(event) {
-	event.preventDefault();
-	
-	var displayArea = document.querySelector('#display-area');
-	displayArea.style.display = 'block';
-	
-	var backToCompareButton = document.querySelector('#previous');
-	backToCompareButton.style.display = 'none';
-	
-	var v1 = document.querySelector('#value1')
-	var v2 = document.querySelector('#value2')
-	
-	let strVal1 = v1.value.toString();
-	let strVal2 = v2.value.toString();		
-	
-	loadCompareData("#target");
-	console.log(`Show compare strVal1 = ${strVal1} & strVal2 = ${strVal2}`);
-	loadCompareData("#rTarget");	
-} */
 	
 function loadCompareData(event) {
 	event.preventDefault();

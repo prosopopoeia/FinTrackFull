@@ -1,0 +1,149 @@
+{% extends "proj5FinTracker/layout.html" %}
+{% load static %}
+
+{% block whiteli %}	
+	
+	<li id='navyear'><a class="nav-link" href="#"><h4>Year View</h4></a></li>	
+	<li id='navepoch'><a class="nav-link" href="#"><h4>Epoch View</h4></a></li>
+	
+
+{% endblock %}
+
+{% block body %}
+
+<br />
+<div class="container-fluid">
+	
+	<div class="row">
+		<div class="col-md-6">
+				<div class="form-group container-fluid" id="findby-form">
+					<label for="searchrange">To compare, enter 2 terms in the boxes. (e.g. 2021, 2020/10 (i.e. Oct,2020), 2021/10/10 (i.e. 10Oct,2021)).</label>
+					<form id="compare-form" name="searchrange" method="post">
+						{{ rfform.as_p }}
+												
+						{% csrf_token %}
+					
+					</form>
+					<button type="submit" id="compare-button" form="compare-form" class="btn btn-primary" value="Compare!">Compare!</button>
+				</div>	
+				
+				
+				
+		</div>
+		
+		<div class="col-md-6">
+			<h2><strong> 
+				> Click <br /><br />
+			</strong></h2>
+			<h4><strong>
+				<span id="previous"> > go back to previous view <</span><br />
+			</h4></strong>
+				<span id="prevly"> <strong>ente>r value below to remove from calculation</strong></span><br />
+				<div class="form-group container-fluid" id="removal-form">
+					<form id="remove-from-factoids-form" name="remove" method="post">
+						{{ rfrform.as_p }}
+												
+						{% csrf_token %}
+					
+					</form>
+					<button type="submit" id="remove-button" form="remove-from-factoids-form" class="btn btn-primary" value="Remove">Vamos!</button>
+					<button type="submit" id="restart-button" form="compare-form" class="btn btn-primary" value="Restart">Start Over</button>
+				<div>
+				
+			
+									
+		</div>
+	
+	</div>
+		
+</div>
+<br />
+<!-- <div class="container-fluid" > -->
+    
+<!-- </div> -->
+
+<div class="container-fluid" id="display-area">
+	<div class="row">
+	<!-- This is the row that goes across the top above the fact section -->
+	<h3><div class="panel alert alert-info panel-primary" id='cat-grp'></div></h3>
+		
+		<div id="leftPanel" class="col-md-6">
+		
+		<!-- this is the left fact panel -->
+		
+		
+		  <div class="panel alert alert-info panel-primary" id='outer'>
+			<h5> <div id='term1a'>  </div> </h5> 
+			<!-- <h5> <div id='term1b'>  </div> </h5>  -->
+		  </div>
+		  
+		  
+		  <!-- <table class="table table-bordered table-striped" id="bits1"></table> -->
+		  <!-- <table class="table table-bordered table-striped" id="bits2"></table> -->
+		  <table class="table table-bordered table-striped" id="tran-table1">
+					   <thead>
+						<tr>
+							<th id="lcat">Category</th>
+							<th id="ltotal">Total Spent</th>
+							<th id="lpoincome">percent of income spent on this</th>
+							<th id="lpospent">percent of expenses spent on this</th>
+							<th id="ldifference">difference in amount from other time period</th>
+							<th id="lpoother">percentage difference from compared time period</th>
+						</tr>
+					  </thead>
+					  <tbody id='target'>
+					  </tbody>
+				  </table>
+		</div>
+		<div id="rightPanel" class="col-md-6">
+			
+			
+			<div class="panel alert alert-info panel-primary" id='outer'>
+				<h5> <div id='term2a'>  </div> </h5>
+			</div>
+			
+			
+			<table class="table table-bordered table-striped" id="tran-table1">
+					   <thead>
+						<tr>
+							<th id="rcat">Category</th>
+							<th id="rtotal">Total Spent</th>
+							<th id="rpoincome">percent of income spent on this type</th>
+							<th id="rpospent">percent of expenses spent on this</th>
+							<th id="rdifference">difference in amount from other time period</th>
+							<th id="rpoother">percentage difference from compared time period</th>
+						</tr>
+					  </thead>
+					  <tbody id='rtarget'>
+					  </tbody>
+				  </table>
+			<!-- <table class="table table-bordered table-striped" id="tran-table2"> -->
+			 
+			  <!-- <tbody id='rTarget'> -->
+			  <!-- </tbody> -->
+		  <!-- </table> -->
+			
+			<div id="debit-pie"></div>
+		</div>
+		<div id="full-block"><b>YOU</b> will see data here in a moment.</div>
+	 </div>
+	  <!-- <div class="row"> -->
+	 <!-- <table class="table table-bordered table-striped" id="tran-table1"> -->
+			  
+			  <!-- <tbody id='target'> -->
+			  <!-- </tbody> -->
+		  <!-- </table> -->
+	 <!-- </div> -->
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>	
+	
+	<script src="{% static 'FinTracker/displayLib.js' %}"></script> 
+	<script src="{% static 'FinTracker/randomFactoid.js' %}"></script> 
+		
+	
+{% endblock %}

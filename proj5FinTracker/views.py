@@ -3,7 +3,7 @@ import enum
 from django.contrib.auth import authenticate, login, logout
 from django.core.files import File
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Sum, Count, Avg, Max, Min  
@@ -13,7 +13,7 @@ from datetime import datetime, date
 from json import dumps
 
 from .models import User, BankTransaction
-from .forms import InputBankStatementForm, FindByDateForm, TransactionForm, FindByRangeForm, CompareForm, GetYearForm
+from .forms import InputBankStatementForm, FindByDateForm, TransactionForm, FindByRangeForm, CompareForm, GetYearForm, RandomFactoidForm, RemoveFromFactoidsForm
 
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
@@ -22,6 +22,7 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfparser import PDFParser
 import re
+
 
 from io import StringIO
 
@@ -148,13 +149,19 @@ def get_month_ordinal(month_str):
                 "November",
                 "December"]
     return (months.index(month_str) + 1)
-
  
 class Period(enum.Enum):
    Day = 1
    Month = 2
    Year = 3 
    All = 4
+
+class Type(enum.Enum):
+    No_type = 0
+    Cat = 1
+    Group = 2
+    Amount = 3 
+   
     
 
 @login_required
@@ -223,6 +230,7 @@ def jsvgetaggs(request):
     vdate = data["jsdate"]
     vcat = data["jscat"]
     vtype = data["jsctype"]
+    vexclusion = data["jsexclusion"]
     
     if vdate == 0: 
         vyr = date.today().year
@@ -241,15 +249,59 @@ def jsvgetaggs(request):
     tranmin = 0
     transum = 0
     transumPositives = 0
-    
+    transumSpent=0    
+
+    # if we want month data
     if data["jstype"] == Period.Month.value:
-        transumPositives = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_amt__gt=0).aggregate(Sum('trans_amt'))
-        if vcat == "":
-            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).count()
-            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo).aggregate(Sum('trans_amt'))
+        transumPositives = BankTransaction.objects.filter(
+            trans_owner=this_user,
+            trans_date__year=vyr,
+            trans_date__month=vmo, 
+            trans_amt__gt=0).aggregate(Sum('trans_amt'))
+        # do we have anything we want to exclude from the aggregate?
+        if vexclusion == "":
+             transumSpent = BankTransaction.objects.filter(
+                trans_owner=this_user, 
+                trans_date__year=vyr, 
+                trans_date__month=vmo, 
+                trans_amt__lt=0).aggregate(Sum('trans_amt'))
         else:
-            if vtype == 1:
+            transumSpent = BankTransaction.objects.filter(
+            trans_owner=this_user,
+            trans_date__year=vyr, 
+            trans_date__month=vmo, 
+            trans_amt__lt=0).exclude(trans_group__in=vexclusion).exclude(trans_category__in=vexclusion ).aggregate(Sum('trans_amt'))
+            
+        # we are just grabbing data by the year
+        if vcat == "":            
+            trancount = BankTransaction.objects.filter(
+            trans_owner=this_user, 
+            trans_date__year=vyr,
+            trans_date__month=vmo).count()
+            if vexclusion != "":
+                print(vexclusion)
+                trancount -= len(vexclusion)
+                tranmin = BankTransaction.objects.filter(
+                trans_owner=this_user, 
+                trans_date__year=vyr,
+                trans_date__month=vmo).exclude(trans_group__in=vexclusion).exclude(trans_category__in=vexclusion ).aggregate(Min('trans_amt'))
+                
+                transum = BankTransaction.objects.filter(
+                trans_owner=this_user, trans_date__year=vyr, 
+                trans_date__month=vmo).exclude(trans_group__in=vexclusion).exclude(trans_category__in=vexclusion ).aggregate(Sum('trans_amt'))
+            else:
+                tranmin = BankTransaction.objects.filter(
+                    trans_owner=this_user, 
+                    trans_date__year=vyr, 
+                    trans_date__month=vmo).aggregate(Min('trans_amt'))
+                    
+                transum = BankTransaction.objects.filter(
+                    trans_owner=this_user, 
+                    trans_date__year=vyr, 
+                    trans_date__month=vmo).aggregate(Sum('trans_amt'))
+         # we are gragging data for a specific category
+        else:
+            if vtype == Type.Cat:
                 trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).count()
                 tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Avg('trans_amt'))
                 tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_category=vcat).aggregate(Min('trans_amt'))
@@ -260,14 +312,24 @@ def jsvgetaggs(request):
                 tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).aggregate(Avg('trans_amt'))
                 tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).aggregate(Min('trans_amt'))
                 transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_date__month=vmo, trans_group=vcat).aggregate(Sum('trans_amt'))
-                
+     # get data for a specified year           
     elif data["jstype"] == Period.Year.value:
         transumPositives = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_amt__gt=0).aggregate(Sum('trans_amt'))
+        if vexclusion != "":
+            print(vexclusion)
+            transumSpent = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_amt__lt=0).exclude(trans_group__in=vexclusion).exclude(trans_category__in=vexclusion ).aggregate(Sum('trans_amt'))
+        else:
+            transumSpent = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_amt__lt=0).aggregate(Sum('trans_amt'))
         if vcat == "":
-            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).count()            
-            tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Sum('trans_amt'))
-        elif vtype == 1:            
+            trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).count()
+            if vexclusion != "":                
+                trancount -= len(vexclusion);
+                tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).exclude(trans_category__in=vexclusion ).exclude(trans_group__in=vexclusion).aggregate(Min('trans_amt'))
+                transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).exclude(trans_category__in=vexclusion ).exclude(trans_group__in=vexclusion).aggregate(Sum('trans_amt'))
+            else:
+                tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Min('trans_amt'))
+                transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr).aggregate(Sum('trans_amt'))
+        elif vtype == Type.Cat:            
             trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).count()
             tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Avg('trans_amt'))
             tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_category=vcat).aggregate(Min('trans_amt'))
@@ -277,13 +339,25 @@ def jsvgetaggs(request):
             tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_group=vcat).aggregate(Avg('trans_amt'))
             tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_group=vcat).aggregate(Min('trans_amt'))
             transum = BankTransaction.objects.filter(trans_owner=this_user, trans_date__year=vyr, trans_group=vcat).aggregate(Sum('trans_amt'))
+    # get all data
     else:
         transumPositives = BankTransaction.objects.filter(trans_owner=this_user, trans_amt__gt=0).aggregate(Sum('trans_amt'))
+        transumSpent = BankTransaction.objects.filter(trans_owner=this_user, trans_amt__lt=0).aggregate(Sum('trans_amt'))
+        # if vexclusion == "":        
+            # transumSpent = BankTransaction.objects.filter(trans_owner=this_user, trans_amt__lt=0).aggregate(Sum('trans_amt'))
+        # else:
+            # transumSpent = BankTransaction.objects.filter(trans_owner=this_user, trans_amt__lt=0).exclude(trans_category__in=vexclusion ).aggregate(Sum('trans_amt'))
         if vcat == "":
             trancount = BankTransaction.objects.filter(trans_owner=this_user).count()
-            tranmin = BankTransaction.objects.filter(trans_owner=this_user).aggregate(Min('trans_amt'))
-            transum = BankTransaction.objects.filter(trans_owner=this_user).aggregate(Sum('trans_amt'))
-        elif vtype == 1:
+            tranmin = BankTransaction.objects.filter(trans_owner=this_user).exclude(trans_group__in=vexclusion).exclude(trans_category__in=vexclusion ).aggregate(Min('trans_amt'))
+            transum = BankTransaction.objects.filter(trans_owner=this_user).exclude(trans_group__in=vexclusion).exclude(trans_category__in=vexclusion ).aggregate(Sum('trans_amt'))
+            # if vexclusion == "":
+                # tranmin = BankTransaction.objects.filter(trans_owner=this_user).exclude(trans_category__in=vexclusion ).aggregate(Min('trans_amt'))
+                # transum = BankTransaction.objects.filter(trans_owner=this_user).exclude(trans_category__in=vexclusion ).aggregate(Sum('trans_amt'))
+            # else:
+                # tranmin = BankTransaction.objects.filter(trans_owner=this_user).aggregate(Min('trans_amt'))
+                # transum = BankTransaction.objects.filter(trans_owner=this_user).aggregate(Sum('trans_amt'))
+        elif vtype == Type.Cat:
             trancount = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).count()
             tranavg = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).aggregate(Avg('trans_amt'))
             tranmin = BankTransaction.objects.filter(trans_owner=this_user, trans_category=vcat).aggregate(Min('trans_amt'))
@@ -326,6 +400,10 @@ def jsvgetaggs(request):
     if transumPositives != 0 and transumPositives['trans_amt__sum'] is not None:
         vtransumPos = "{:.2f}".format(transumPositives['trans_amt__sum'])
     
+    if transumSpent != 0 and transumSpent['trans_amt__sum'] is not None:
+        vtransumSpent = "{:.2f}".format(transumSpent['trans_amt__sum'])
+    else:
+        vtransumSpent = 0
     
     return JsonResponse({"agcount": trancount, 
                     "agavg": vtranavg, 
@@ -333,7 +411,69 @@ def jsvgetaggs(request):
                     "agsum": vtransum,
                     "agsumPos": vtransumPos,
                     "mostExpensiveItem1": mei1,
-                    "mostExpensiveItem2": mei2}) 
+                    "mostExpensiveItem2": mei2,
+                    "totalSpent" : vtransumSpent}) 
+
+
+"""###
+import json
+
+def json_response(something):
+    return HttpResponse(
+        json.dumps(something),
+        content_type = 'application/javascript; charset=utf8'
+    )
+    ###
+    """
+    
+#from django.core.serializers.json import DjangoJSONEncoder
+from decimal import Decimal
+
+@csrf_exempt    
+def jsvreturnbyyear(request):
+    data = json.loads(request.body)
+    try:
+        this_user = get_user(request)
+    except:
+        return HttpResponseRedirect(reverse("vlogin"))    
+    earliest_transaction_date = BankTransaction.objects.earliest('trans_date').trans_date
+    # format: 2017-06-23
+    year_of_transaction = earliest_transaction_date.year
+    current_year =  datetime.now().date().year
+    
+    #print(year_of_transaction)
+   
+    
+    transo = {}
+    listo = []
+    while  year_of_transaction <= current_year:  
+        listo = list(BankTransaction.objects.filter(trans_owner=this_user, trans_category=data['jscat'], trans_date__year=year_of_transaction).aggregate(Sum('trans_amt')))
+      # print(year_of_transaction)
+        year_of_transaction += 1
+     #   print(transo)
+        transo[year_of_transaction]  =  json.dumps(listo)
+        #print('--------------------------------------------')
+        print(transo[year_of_transaction])
+        
+    
+    print(type(transo))
+    # for k, v in transo.items():
+         # json.dumps(v)
+    # return JsonResponse({"agcount": trancount, 
+                    # "agavg": vtranavg, 
+                    # "agmin": vtranmin, 
+                    # "agsum": vtransum,
+                    # "agsumPos": vtransumPos,
+                    # "mostExpensiveItem1": mei1,
+                    # "mostExpensiveItem2": mei2,
+                    # "totalSpent" : vtransumSpent}) 
+    tunky = {}
+    for k,v in transo.items():
+        tunky[json.dumps(k)] = json.dumps(v)
+    return  JsonResponse(tunky)#[json.dumps(transact), json.dumps(vansact) for transact, vansact in transo.items()], safe=False)#{"items": json.dumps(transo)})
+
+    
+    
         
 @login_required
 @csrf_exempt
@@ -380,6 +520,14 @@ def vanalysis(request):
         'gyfform' : gyfform
     })
 
+def vanrando(request):
+    rfform = RandomFactoidForm()
+    rfrform = RemoveFromFactoidsForm()
+    return render(request, "proj5FinTracker/randomFactoid.html", {
+        'rfform' : rfform,
+        'rfrform' : rfrform    
+    })
+  
 @login_required
 @csrf_exempt
 def jsvrange(request):    
@@ -446,6 +594,44 @@ def jsvcat(request):
     
     return JsonResponse([transact.serialize() for transact in transactions], safe=False)
 
+@login_required
+@csrf_exempt
+def jsvcatfact(request):    
+    data = json.loads(request.body)
+   
+    category = data["jscat"]
+    group = data["jsgrp"]
+    mo_yr = data["jsdate"] #e.g. 2021-10-01
+    jperiod = data["jsperiod"];
+    
+    if jperiod != Period.All.value:
+        month = mo_yr[5:7]    
+        year = mo_yr[0:4] 
+     
+    try:
+       this_user = get_user(request)
+    except:
+        return HttpResponseRedirect(reverse("vlogin"))
+    
+    if jperiod == Period.Year.value:
+        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=year, trans_group=group)    
+    elif jperiod == Period.Month.value:
+        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__month=month, trans_date__year=year, trans_group=group)    
+    else:
+        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_group=group)
+    
+   
+    
+    #to_get_the_grouping = BankTransaction.objects.filter(trans_owner=this_user, trans_category=category).first()
+    print("loggign")
+    if jperiod == Period.Year.value:
+        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__year=year, trans_group=group)    
+    elif jperiod == Period.Month.value:
+        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_date__month=month, trans_date__year=year, trans_group=group)    
+    else:
+        transactions = BankTransaction.objects.order_by("-trans_date").filter(trans_owner=this_user, trans_group=group)
+    return JsonResponse([transact.serialize() for transact in transactions], safe=False)
+    
 @login_required
 @csrf_exempt
 def jsvsave(request):

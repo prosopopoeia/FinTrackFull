@@ -1,0 +1,109 @@
+{% extends "proj5FinTracker/layout.html" %}
+{% load static %}
+
+{% block whiteli %}	
+	
+	<li id='navyear'><a class="nav-link" href="#">Year View</a></li>	
+	<li id='navepoch'><a class="nav-link" href="#">Epoch View</a></li>
+	
+
+{% endblock %}
+
+{% block body %}
+
+<br />
+<div class="container-fluid">
+	
+	<div class="row">
+		<div class="col-xs-6">
+				<div class="form-group container-fluid" id="findby-form">
+					<label for="searchrange">To compare, enter 2 terms in the boxes. (e.g. 2021, 2020/10 (i.e. Oct,2020), 2021/10/10 (i.e. 10Oct,2021)).</label>
+					<form id="compare-form" name="searchrange" method="post">
+						{{ compareform.as_p }}
+												
+						{% csrf_token %}
+					
+					</form>
+					<button type="submit" id="compare-button" form="compare-form" class="btn btn-primary" value="Compare!">Compare!</button>
+				</div>	
+				
+				
+				
+		</div>
+		
+		<div class="col-xs-4">
+			<h2><strong> 
+				> Click <br /><br />
+			</strong></h2>
+			<h4><strong>
+				<span id="previous"> > go back to previous view <</span><br />
+			</h4></strong>
+									
+		</div>
+	
+	</div>
+		
+</div>
+<br />
+<div class="container-fluid" >
+    
+</div>
+
+<div class="container-fluid" id="display-area">
+	<h3><div class="panel alert alert-info panel-primary" id='cat-grp'></div></h3>
+		
+		<div id="leftPanel" class="col-xs-5">
+		  <div class="panel alert alert-info panel-primary" id='outer'>
+			<h5> <div id='term1a'>  </div> </h5> 
+			<!-- <h5> <div id='term1b'>  </div> </h5>  -->
+		  </div>
+		  <table class="table table-bordered table-striped" id="bits1"></table>
+		  <table class="table table-bordered table-striped" id="tran-table1">
+			  <thead>
+				<tr>
+					<th id="edit-column">Edit</th>
+					<th id="edit-date">Date</th>
+					<th id="edit-description">Description</th>
+					<th id="edit-amount">Amount</th>
+					<th id="edit-category">Category</th>
+					<th id="edit-group">Group</th>
+				</tr>
+			  </thead>
+			  <tbody id='target'>
+			  </tbody>
+		  </table>
+		</div>
+		<div id="rightPanel" class="col-xs-5">
+			<h5><div class="panel alert alert-info panel-primary" id='term2a'></div></h5>
+			<table class="table table-bordered table-striped" id="bits2"></table>
+			<table class="table table-bordered table-striped" id="tran-table2">
+			  <thead>
+				<tr>
+					<th id="edit-column">Edit</th>
+					<th id="edit-date">Date</th>
+					<th id="edit-description">Description</th>
+					<th id="edit-amount">Amount</th>
+					<th id="edit-category">Category</th>
+					<th id="edit-group">Group</th>
+				</tr>
+			  </thead>
+			  <tbody id='rTarget'>
+			  </tbody>
+		  </table>
+			
+			<div id="debit-pie"></div>
+		</div>
+	 
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>	
+	
+	<script src="{% static 'FinTracker/displayLib.js' %}"></script> 
+	<script src="{% static 'FinTracker/compare.js' %}"></script> 
+		
+	
+{% endblock %}

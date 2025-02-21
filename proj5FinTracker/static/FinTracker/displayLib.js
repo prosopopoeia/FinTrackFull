@@ -14,6 +14,7 @@ var periodSavedTotal = 0;
 
 
 //used to determine if we are looking at category data (i.e. a category of expenses) or combo data (i.e. all the data)
+//TODO get rid of this
 const cod = {
 	CATGRP:  0,
 	DATE: 1	
@@ -24,7 +25,8 @@ const column = {
 	CAT: 1,
 	GRP: 2,
 	AMT: 3,
-	DATE: 4
+	DATE: 4,
+	EXC: 5
 };
 
 const jperiod = {
@@ -62,7 +64,7 @@ function getTextMonth(month_ord) {
 ///////////////////////PLACE IN COUPLED DISPLAY FILE//////////////////////
                       ///////////////////////////////					   
 function createDateMenu(/*string*/ anchorDate = 0, thisPeriod = jperiod.MONTH) {
-	//console.log(`createDateMenu: perDebTotes = ${periodDebitTotal},  percredtot = ${periodCreditTotal} `);
+	console.log(`createDateMenu: perDebTotes = ${periodDebitTotal},  percredtot = ${periodCreditTotal} `);
 		
 	var navMenu = document.querySelector('#neighborMonth');
 	//console.log(`the current navMenu: ${navMenu.innerHTML}`)
@@ -103,7 +105,7 @@ function createDateMenu(/*string*/ anchorDate = 0, thisPeriod = jperiod.MONTH) {
 		var cMonth =  (!anchorDate) ? new Date().getMonth() + 1 : anchorDate.substring(5,7);					
 		let yrAdjust = 0;
 		
-		console.log(`CMonth is ${cMonth}`);
+		//console.log(`CMonth is ${cMonth}`);
 		var parsedMonth = parseInt(cMonth);
 		//console.log(`parsedMonth is ${parsedMonth}`);
 		//this for loop gets the adjacent months to the month currently being displayed. e.g. the month displayed is march, will create -> January | February | March | April | May
@@ -200,14 +202,14 @@ function loadYear(passedDate = 0) {
 	if (cvbtn)
 		cvbtn.innerHTML = "Bar Graph";	
 	var fullyr = passedDate;
-	console.log(`fullyr : ${fullyr} passedDate : ${passedDate}`)
+	//console.log(`fullyr : ${fullyr} passedDate : ${passedDate}`)
 	if (!passedDate) {   			//passedDate format: xxxx-xx-xx
 		let rgex = /\d\d\d\d/;
 		var displayDate = document.querySelector('#date-span');
 		var dd = displayDate.innerHTML;
 		var yr = dd.substring(dd.search(rgex));
 		fullyr = yr.concat("-11-11");
-		console.log(`full year: ${fullyr}`);
+		//console.log(`full year: ${fullyr}`);
 	}
 	createDateMenu(fullyr, jperiod.YEAR);
 	setNavBar(document.querySelector('#navyear'));	
@@ -238,12 +240,12 @@ function loadEpoch() {
 
 function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, creatingChart = true) {
 	
-	console.log(`it is ${creatingChart} that we will create a chart and if ${ctype} == ${chartType.PIE} is true, then we are requesting a pie chart,  period: ${period}`);
+	//console.log(`it is ${creatingChart} that we will create a chart and if ${ctype} == ${chartType.PIE} is true, then we are requesting a pie chart,  period: ${period}`);
 	
 	globalDisplayedDate = pdate;
 	if (isNaN(ctype))
 		ctype = chartType.PIE;
-	console.log(`pdate within first call is: ${pdate}`);
+	//console.log(`pdate within first call is: ${pdate}`);
 	fetch('jsvmonth', {
 		method: 'POST',
 		body: JSON.stringify({
@@ -253,16 +255,16 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, cre
 	})
 	.then(response => response.json())
 	.then(transactions => {	
-		console.log(`after getting but before checking for, tranactions: pdate ${pdate}`);
+		//console.log(`after getting but before checking for, tranactions: pdate ${pdate}`);
 		if(transactions[0]) {
 			handleTransactions(transactions, ctype, creatingChart, period, pdate);
 		}
 		else {
 			//console.log(`there were not tranactions jackson`);
 			//no transactions so set up the date to something that will return some data
-			console.log(`confirmed, no tranactions: pdate ${pdate}`);
+			//console.log(`confirmed, no tranactions: pdate ${pdate}`);
 			if (pdate == 0) {
-				console.log(`confirmed, no tranactions and no -> pdate ${pdate}`);
+				//console.log(`confirmed, no tranactions and no -> pdate ${pdate}`);
 				var todate = formatTodaysDate();
 				var pyr = todate.substring(0,4);
 				var pmon = todate.substring(5,7);
@@ -280,7 +282,7 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, cre
 				pdate = pyr + pmon + pday;
 			}
 			else {
-				console.log(`subtract a year confirmed, no tranactions: pdate ${pdate}`);
+				//console.log(`subtract a year confirmed, no tranactions: pdate ${pdate}`);
 				let pmon = pdate.substring(5,7);
 				let newYear = 0;
 				if (period == jperiod.YEAR)
@@ -306,7 +308,7 @@ function loadTable(pdate = 0, period = jperiod.MONTH, ctype = chartType.PIE, cre
 			})
 			.then(response => response.json())
 			.then(transactions => {	
-			console.log(`after year subtracted: pdate ${pdate}`);
+			//console.log(`after year subtracted: pdate ${pdate}`);
 				handleTransactions(transactions, ctype, creatingChart, period, pdate);
 			});
 			
@@ -322,7 +324,7 @@ function handleTransactions(transactions, ctype, creatingChart, period, pdate) {
 		
 		if(transactions[0]) {
 			name = transactions[0].trans_owner;
-			console.log(`name of owner ${name}`);
+			//console.log(`name of owner ${name}`);
 			var userHeader = document.querySelector('#userID');
 			userHeader.innerHTML = `Welcome ${name}`;
 		}
@@ -343,7 +345,8 @@ function handleTransactions(transactions, ctype, creatingChart, period, pdate) {
 		var transRows = document.querySelector('#target');
 	    transRows.innerHTML = "";
 		transactions.forEach(displayTrans);
-		
+		console.log(`just prior to adding period transactions, this should not move when doing category: ${periodDebitTotal}`)
+		periodDebitTotal = 0;
 		transactions.forEach((transaction) => {
 			if (parseFloat(transaction['trans_amt']) < 0){
 				// if the transaction is a debit, it will be negative, change it to positive before saving
@@ -352,9 +355,9 @@ function handleTransactions(transactions, ctype, creatingChart, period, pdate) {
 			}
 			periodSavedTotal += parseFloat(transaction['trans_amt']);
 		});
-		//console.log(`just after being set: perDebTotes = ${periodDebitTotal},  percredtot = ${periodCreditTotal} `);
+		console.log(`just after being set: perDebTotes = ${periodDebitTotal},  percredtot = ${periodCreditTotal} `);
 		if (creatingChart) {
-			console.log(`it is ${creatingChart} that we will create a chart and if ${ctype} == ${chartType.PIE} then pie`);
+			//console.log(`it is ${creatingChart} that we will create a chart and if ${ctype} == ${chartType.PIE} then pie`);
 			createChart(transactions, 0, ctype);
 		}
 		var displayDate = document.querySelector('#date-span');
@@ -374,7 +377,7 @@ function handleTransactions(transactions, ctype, creatingChart, period, pdate) {
 }
 
 function sortByColumn(transactions, sortBy, pdate, period, pdate) {
- 	console.log(`sort by column, pdate: ${pdate}, period: ${period}`);
+ 	//console.log(`sort by column, pdate: ${pdate}, period: ${period}`);
 	//console.log(transactions);
 	switch(sortBy) {
 		case column.CAT:
@@ -525,7 +528,7 @@ function formatTodaysDate() {
 // this will get the date of the currently displayed data
 function displayDataDate (dateValue) {
 	//get date from text box - we are doing a search by date
-	console.log("displayDataDate");
+	//console.log("displayDataDate");
 	//dataViewType = cod.DATE;
 	if (!dateValue) {
 		dateValue = globalDisplayedDate;
@@ -548,16 +551,16 @@ function displayDataDate (dateValue) {
 	//console.log(`datevalue: ${dateValue}`);
 	var ds = document.querySelector('#date-span');
 	
-	console.log(`() month section setting year: ${yyyy} 1st`);
+	//console.log(`() month section setting year: ${yyyy} 1st`);
 	monthText = getTextMonth(mm);
 	
 	dsDate = (inYearView()) ? `All ${yyyy} transactions` : (inEpochView()) ? "Since the beginning of Time" : `${monthText} ${yyyy}`;
-	console.log(`dsDate is: ${dsDate}`);
+	//console.log(`dsDate is: ${dsDate}`);
 	ds.innerHTML = dsDate;
 	var grpHeading = document.querySelector('#cat-grp');
 	grpHeading.innerHTML = dsDate;
 	grpHeading.style.display = 'block';
-	console.log(`end: ${dateValue}`);
+	//console.log(`end: ${dateValue}`);
 }
 
 function findTransactionsByDate(event) {
@@ -579,10 +582,10 @@ function findTransactionsByDate(event) {
 
 function getDateData(iDate) {
 	displayDataDate(iDate);	
-	console.log(`globalDisplayedDate: ${globalDisplayedDate}, globalDisplayedDate2: ${globalDisplayedDate2}`);
+	//console.log(`globalDisplayedDate: ${globalDisplayedDate}, globalDisplayedDate2: ${globalDisplayedDate2}`);
 	
 	var tem = typeof iDate;
-	console.log(`tem: ${iDate}`);
+	//console.log(`tem: ${iDate}`);
 	if (tem == "number")
 		iDate =  iDate.toString();
 	//var tem = typeof iDate;
@@ -590,17 +593,17 @@ function getDateData(iDate) {
 	
 	//* set Global date *//
 	globalDisplayedDate = iDate; 
-	console.log(`global disp date: ${globalDisplayedDate}`);
+	//console.log(`global disp date: ${globalDisplayedDate}`);
 	let currtype = (inYearView()) ? jperiod.YEAR : (inEpochView()) ? jperiod.ALL : jperiod.MONTH;
-	console.log(`currtype is : ${currtype}, dateVaule is ${iDate}`);
-	console.log("getDate data");
+	//console.log(`currtype is : ${currtype}, dateVaule is ${iDate}`);
+	//console.log("getDate data");
 	loadTable(iDate, currtype);
 	createDateMenu(iDate, currtype);	
 }
 
-function putDateInTransactionPeriodTextBox(date) {
+// function putDateInTransactionPeriodTextBox(date) {
 	
-}
+// }
 
 function deleteTran(tranID) {
 	if (confirm('are you sure you want to delete transaction?'))
@@ -873,11 +876,11 @@ function editTran(tranID) {
 	groupColumn.innerHTML = '';
 	groupColumn.append(groupTextBox);
 
-	console.log("editTran end");
+	//console.log("editTran end");
 }
 
 function saveEdit(tranID) {	
-	console.log("saveEdit BEGIN");
+	//console.log("saveEdit BEGIN");
 	document.querySelector(`#editbutton${tranID}`).style.display = 'block';
 	tdate = document.querySelector(`#date${tranID} > textarea`).value;
 	tamt = document.querySelector(`#amt${tranID} > textarea`).value;
@@ -901,11 +904,11 @@ function saveEdit(tranID) {
 		if (result['reload_necessary']) { //reload if amount/category change to allow pie display to update
 			const submitEvent = new SubmitEvent("submit");			
 			changeChart();			
-			console.log("saveEdit: reload path");
+			//console.log("saveEdit: reload path");
 		}
 		else {
 			returnToDisplayView(tranID);
-			console.log("saveEdit: no reload path");
+			//console.log("saveEdit: no reload path");
 		}
 	});
 	//console.log("saveEdit end");
@@ -959,7 +962,7 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 	var periodType = 0;
 	//var viewButton = document.querySelector('#navyear');
 	//var val = viewButton.getAttribute('class');	
-	console.log(`global display date: ${globalDisplayedDate}`);
+	//console.log(`global display date: ${globalDisplayedDate}`);
 	//console.log(`innder html: ${document.querySelector('#date-span').innerHTML}`);
 	//var useDate = "December " + globalDisplayedDate.substring(0,4);
 	var catDateyr = globalDisplayedDate;//(document.querySelector('#date-span')) ? document.querySelector('#date-span').innerHTML : useDate;
@@ -986,7 +989,7 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 	else
 		periodType = jperiod.MONTH
 	//console.log(`sending: ${catData}, ${grpData}, date: ${catDateyr}, period, ${periodType}`);
-	console.log(`credtot: ${periodCreditTotal} debtot ${periodDebitTotal}`);
+	console.log(`periodCredTot: ${periodCreditTotal} periodDebitTotal ${periodDebitTotal}`);
 	fetch('jsvcat', {
 		method: 'POST',
 		body: JSON.stringify({
@@ -1043,18 +1046,18 @@ function catView(data, COLUMN_TYPE, ctype = chartType.PIE ) {
 	    console.log(`heading ${ags.heading}, args.cred: ${ags.credTotal}, args.deb: ${ags.debTotal}`);
 		if (credtot > 0 || debtot > 0)
 		{
-			console.log(`in`);
+			//console.log(`in`);
 			if (COLUMN_TYPE == column.CAT) {
-				console.log(`first`);
+				//console.log(`first`);
 				createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
 			}
 			else if (COLUMN_TYPE == column.GRP) {
-				console.log(`second`);
+				//console.log(`second`);
 				createChart(transactions, ags);		
 				//createCatbyMonthChart(transactions, periodType, ctype, ags, COLUMN_TYPE);
 			}				
 			else {
-				console.log(`third`);
+				//console.log(`third`);
 				createChart(transactions);		
 			}
 		}
@@ -1100,13 +1103,14 @@ function createCatbyMonthChart(transactions, periodType=0, ctype = chartType.PIE
 				dtotal += Math.abs(tAmount);
 			}		
 		}
-		
+		console.log(`JUST TOTALED CRED/DEBS: credtot: ${periodCreditTotal} debtot ${periodDebitTotal}`);
 		if(dataViewType == cod.DATE)
 			if (tAmount > 0)
 				periodDebitTotal = dtotal;
 			else
 				periodCreditTotal = ctotal;
 		//set global var to track debit amount 		
+		console.log(`after: ${periodCreditTotal} debtot ${periodDebitTotal}`);
 	} 
 	else {
 		
@@ -1138,8 +1142,10 @@ function createCatbyMonthChart(transactions, periodType=0, ctype = chartType.PIE
 				dtotal += Math.abs(tAmount);
 			}		
 		}
+		console.log(`(DATE) B4 credtot: ${periodCreditTotal} debtot ${periodDebitTotal}`);
 		if(dataViewType == cod.DATE)
 			periodDebitTotal = dtotal;
+		console.log(`(DATE) AFTER credtot: ${periodCreditTotal} debtot ${periodDebitTotal}`);
 	}
 			
 	populateCharts(debitMap, creditMap, dtotal, ctotal, ctype);
@@ -1206,7 +1212,7 @@ function createCatFactTable(catTotal, ags, isDebits) {
 function createChart(transactions, ags = 0, ctype = chartType.PIE) {
 	
 	////TODO ADD GROUP FUNCTIONALITY////
-	console.log(`create chart: if ${ctype} == ${chartType.PIE}, then making pie`);
+	//console.log(`create chart: if ${ctype} == ${chartType.PIE}, then making pie`);
 	var creditMap = new Object();
 	var debitMap = new Object();
 	var dtotal = 0;
@@ -1242,15 +1248,18 @@ function createChart(transactions, ags = 0, ctype = chartType.PIE) {
 			dtotal += Math.abs(tAmount);
 		}		
 	}
+	console.log(`B4 credtot: ${periodCreditTotal} debtot ${periodDebitTotal}`);
 	if (dataViewType == cod.DATE) {
 		if(tAmount > 0)
 			periodCreditTotal = ctotal;
 		else
 			periodDebitTotal = dtotal;
 	}
+	console.log(`AFTER credtot: ${periodCreditTotal} debtot ${periodDebitTotal}`);
 	var savingsDiv = document.querySelector('#amt-saved');
 	savingsDiv.style.display = 'block';
 	var overallTotal = 0;
+	console.log(`B4credtot: ${periodCreditTotal} debtot ${periodDebitTotal}`);
 	if (dtotal != 0) {
 		overallTotal = dtotal;
 		if (dataViewType == cod.DATE)
@@ -1261,6 +1270,7 @@ function createChart(transactions, ags = 0, ctype = chartType.PIE) {
 		if (dataViewType == cod.DATE)
 			periodCreditTotal = ctotal
 	}
+	console.log(`AFTER credtot: ${periodCreditTotal} debtot ${periodDebitTotal}`);
 	var overallTotal = (dtotal != 0) ? dtotal : ctotal;
 	console.log(`OVERALL TOTES: ${overallTotal}`);
 	
@@ -1383,7 +1393,7 @@ function changeChart() {
 	var chartViewBtn = document.querySelector("#chart-view-btn");
 	var stateIndicator = chartViewBtn.innerHTML;
 	
-	console.log(`start changeChart,stateIndicator: ${stateIndicator}`);
+	//console.log(`start changeChart,stateIndicator: ${stateIndicator}`);
 	let ctype = chartType.PIE;
 	//Chart in Pie state if stateIndicator == bar graph
 	if (stateIndicator == "Bar Graph") {
@@ -1412,7 +1422,7 @@ function changeChart() {
 		//not displayed -> in non-category view
 		
 		if(inYearView()) {	
-			console.log(`in non-category view && in yearview`);
+			//console.log(`in non-category view && in yearview`);
 			var displayDate = document.querySelector('#date-span');
 			var dd = displayDate.innerHTML;
 			let rgex = /\d\d\d\d/;
@@ -1421,13 +1431,13 @@ function changeChart() {
 			loadTable(yr.concat("/11/11"), jperiod.YEAR, ctype);			
 		}
 		else if (inEpochView()) {
-			console.log(`in category view && in epochview`);
+			//console.log(`in category view && in epochview`);
 			loadTable(0, jperiod.ALL, ctype);
 			//console.log(`load Table from inEpochView ${ctype}`);
 		}
 		else {
 			var dateOrDefaultToZero = 0;
-			console.log("not epoch, not year");
+			//console.log("not epoch, not year");
 			//see if a value is in transaction input text box (i.e. user-input)
 			
 			dateOrDefaultToZero = globalDisplayedDate;
@@ -1435,7 +1445,7 @@ function changeChart() {
 			
 			if (dateElem = document.querySelector('#bydate').value) {
 				var tdate1 = dateElem;
-				console.log(`in date view (I guess) -tdate1: ${tdate1} `);								
+				//console.log(`in date view (I guess) -tdate1: ${tdate1} `);								
 				dateOrDefaultToZero = dateElem.replace(/-/g, "/");				
 				//console.log(`dateOrDefaultToZero: ${dateOrDefaultToZero} ++ ${dateElem}`);
 			}
@@ -1446,7 +1456,7 @@ function changeChart() {
 		//console.log('in the cat_grpDiv branch');
 	}
 	else {
-		console.log(`msg0: ${msgs[0]}, msg1: ${msgs[1].trim()} vs ${msgs[1]}`);
+		//console.log(`msg0: ${msgs[0]}, msg1: ${msgs[1].trim()} vs ${msgs[1]}`);
 		catView(msgs[0], (msgs[1].trim() == "group" || msgs[1].trim() == "grouping") ? column.GRP : column.CAT, ctype);
 		//console.log(`catview ${ctype} - gets here if cat_grp has cat `);
 	}

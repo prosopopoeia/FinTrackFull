@@ -44,3 +44,25 @@ class CompareForm(forms.Form):
     value2 = forms.CharField(
         max_length=10,
         widget = forms.TextInput(attrs={'id':'value2', "rows":10}))
+        
+class RandomFactoidForm(forms.Form):
+    value1 = forms.CharField(
+        max_length=10,
+        initial='2024/12',
+        widget = forms.TextInput(attrs={'id':'value1', "rows":10}))
+    value2 = forms.CharField(
+        max_length=10,
+        initial='2023/12',
+        widget = forms.TextInput(attrs={'id':'value2', "rows":10}))
+        
+class RemoveFromFactoidsForm(forms.Form):
+    remover = forms.CharField(
+        max_length=800,
+        initial='grocery',
+        widget = forms.TextInput(attrs={'id':'remover', "rows":800}))
+        
+        
+        
+        
+        
+        
