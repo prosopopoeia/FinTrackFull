@@ -807,7 +807,7 @@ def parse_csv(csv_file, request):
     idebit = 0
     icredit = 0
     
-    isBank = True
+
     for csv_entry in csv_list:
         # first row will be headings, get the order of the columns
         if firstEntry:
@@ -816,38 +816,38 @@ def parse_csv(csv_file, request):
             
             # figure out which element is which in csv by using headings 
             # done by getting column number of each element
-            heading_elems = csv_entry.split(',')
+            heading_elems = csv_entry.split(',')  # split column labels (headings)
             for elems in heading_elems:
-                #determine if we have a bank csv...
-                #if elems.upper().find("STATUS") == -1:
-                #    isBank = False                     
                 if elems.upper().find("DATE") != -1:
                     idate = elem_count
                     #return idate               #UNCOMMENT TO DEBUG
-                if elems.upper().find("DESC") != -1:
+                elif elems.upper().find("DESC") != -1:
                     idesc = elem_count
                     #return idesc
-                if elems.upper().find("DEBIT") != -1:
+                elif elems.upper().find("DEBIT") != -1:
                     idebit = elem_count
                     #return idebit
-                if elems.upper().find("CREDIT") != -1:
+                elif elems.upper().find("CREDIT") != -1:
                     icredit = elem_count 
                     #return icredit
                 elem_count += 1
-            continue
+            continue # extracted the column number from column labels (headings), continue
         #return "have header"
+
+        # go through each row and extract the info!
         csv_elements = csv_entry.split(',')       
-        split_date = csv_elements[idate].split('/')       
-        
+        split_date = csv_elements[idate].split('/')  # assumes mm/dd/yyyy
+
         try: 
             # put date in format that works for Django date objects...
-            tdate = split_date[2] + '-' + split_date[0] + '-' + split_date[1]
+            tdate = split_date[2] + '-' + split_date[0] + '-' + split_date[1] # now its yyyy-mm-dd
             #return tdate
-            tdesc = re.sub('^\d\d/\d\d', '', csv_elements[idesc]) # replace date digits with ""
+            tdesc = re.sub('^\d\d/\d\d', '', csv_elements[idesc]) # replace date digits with "" - just cleaning up desc.
             #return tdesc
-            if tdesc.upper().find("XFER") != -1:
+            if tdesc.upper().find("XFR") != -1 or tdesc.upper().find("XFER") != -1:  # don't need internal transfers
                 continue
-                        
+
+            # get and turn debits negative, get credits
             tdebit = 0
             if csv_elements[idebit] != '0':
                 tdebit = float(csv_elements[idebit]) * -1
