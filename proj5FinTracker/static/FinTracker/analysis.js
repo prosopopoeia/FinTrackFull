@@ -17,8 +17,15 @@ var expenseGroupNames;
 var currentPeriod;	// is this a year, month, or epoch view?
 var currentType; 	// is this a category or group view?
 
+const columnHeadings = {
+	YR: 		'Year',
+	TOT:		'Total',
+	COUNT:		'Count',
+	AVG: 		'Average'	
+};
+
 function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
-	console.log(`get all data: ${jsperiod}, ${date}`);
+	//console.log(`get all data: ${jsperiod}, ${date}`);
 	// Get all transactions for current user
 	currentPeriod = jsperiod;
 	fetch('jsvmonth', {
@@ -35,19 +42,19 @@ function getAllData(jsperiod = jperiod.ALL, date ="2018-11-11") {
 		var jsyear = document.querySelector('#analyze-year');		
 		var tdClickAttr = document.createAttribute('onClick');
 		tdClickAttr.value = `byYearClicked()`;
-		console.log(`getAllData jsyear.text, ${jsyear.value} innerText`);
+		//console.log(`getAllData jsyear.text, ${jsyear.value} innerText`);
 		jsyear.setAttributeNode(tdClickAttr);
 		
 	});	
 }
 
 function byYearClicked(type = 0, ctype = column.CAT ) {
-	console.log(`byYearClicked clicked`);
+	//console.log(`byYearClicked clicked`);
 	var jsyearBox = document.querySelector('#gyf-year');
 	date = jsyearBox.value + '-01-01';
 	globalDisplayedDate = date;
 	currentPeriod = jperiod.YEAR;
-	console.log(`byYearClicked: ${type}, ${ctype}`);
+	//console.log(`byYearClicked: ${type}, ${ctype}`);
 	if (type) {
 		if (column.CAT) {
 			getCatDAta(type, 0, date, jperiod.YEAR);
@@ -61,16 +68,52 @@ function byYearClicked(type = 0, ctype = column.CAT ) {
 	}	
 }
 
-function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
-	console.log(`getCatDAta: cat ${cat} group ${group}`);
+async function getCatData(cat, group, date = "2018-12-01", jsperiod = jperiod.ALL) {
+	//console.log(`getCatDAta: cat ${cat} group ${group}`);
 	// Get all transactions for current user
-	currentPeriod = jsperiod;
+	currentPeriod = jsperiod;	
+	
+	let processYear = await getEarliest();	
+	let pYear1 = processYear["earliest"];
+	let pYear = Number(pYear1.substring(0,4));	
+	let currentYear = new Date().getFullYear();	
+	let catTotals = new Map();	
+	
+	while (pYear <= currentYear) {
+		let response = await getCatYearTotal(cat, group, pYear, jsperiod);
+		catTotals.set(pYear, [response['yearSum'], response['yearCount'], response['yearAvg']]);
+		//console.log(`getCatDAta: ${pYear} year total for, ${response['yearSum']} `);
+		pYear++;
+		//console.log(pYear);
+	}
+	//catTotals.forEach((v,k)=>{console.log(`k: ${k}, v-total: ${v[0]}, count: ${v[1]}`);})
+	clearTable();
+	// cat blurbs from here
 	fetchCategories(cat, group, date, jsperiod);
-	setUpTable(cat, group, date, jsperiod);
+	//table from here
+	displayData(catTotals, cat, group);	
 }
 
-async function setUpTable(cat, group, date, jsperiod) {
-	fetch('jsvreturnbyyear', {
+async function getEarliest() {
+	return await fetch('jsvreturnearliestdate').then(response => response.json()) 
+}
+
+async function getCatYearTotal(cat, group, year, jsperiod) {
+	const response = await fetch('jsvreturnbyyear', {
+		method: 'POST',
+		body: JSON.stringify({
+			jscat: cat,
+			jsgrp: group,
+			jsdate: year,
+			jsperiod: jsperiod		
+		})			
+	});
+	const returnData = await response.json();
+	return returnData;	
+}
+
+async function fetchCategories(cat, group, date, jsperiod) {
+	fetch('jsvcat', {
 		method: 'POST',
 		body: JSON.stringify({
 			jscat: cat,
@@ -80,49 +123,10 @@ async function setUpTable(cat, group, date, jsperiod) {
 		})			
 	})
 	.then(response => response.json())
-	.then(items => {
-		
-		//for (it of items["items"])
-			console.log(items["2018"]["trans_amt__sum"]);
-		console.log(items["2018"][0]);
-		let ox = items["2018"];
-		for (butt of ox) {
-			console.log(butt);
-		}
-		
-		let indy = ox.search(/\d/);
-		let chibby = ox.substring(indy,5);
-		console.log(indy);
-		let glibby = ox.substr(5,indy);
-		console.log(chibby);
-		console.log(glibby);
-//		ighty = items["2018"];
-		
-		//console.log(items["thing"][0]);
-		//console.log(items["thing"]["2018"]);
-		console.log(ox);
-			//displayCTrans(tranny);
-		//}
-	});		
-}
-
-
-
-async function fetchCategories(cat, group, date, jsperiod) {
-	const response = await fetch('jsvcat', {
-	method: 'POST',
-	body: JSON.stringify({
-		jscat: cat,
-		jsgrp: group,
-		jsdate: date,
-		jsperiod: jsperiod		
-		})			
-	})
-	.then(response => response.json())
 	.then(transactions => {	
 		var bottomHeading = document.querySelector('#bottom-heading');
 		bottomHeading.style.display = 'block';
-		console.log(`group: ${group}`);
+		//console.log(`group: ${group}`);
 		calculateDict(transactions, 'trans_date', window.screen.width, 600, jsperiod, group, cat);
 		let transactionDisplayElement = document.querySelector('#top-heading');
 		transactionDisplayElement.innerHTML = (cat) ? `${cat}` : `${group}`;
@@ -138,8 +142,8 @@ async function fetchCategories(cat, group, date, jsperiod) {
 }
 
 function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGroup = false, isCat = false) {
-	
-	console.log(`calculateDict: is group: ${isGroup}`);
+	// transaction, name of a database field (e.g. date) w&h - for determine chart size
+	//console.log(`calculateDict: is group: ${isGroup}`);
 	unifiedExpenseMap = new Object();
 	expenseCountMap = new Object()	
 	incomeMap = new Object();
@@ -164,13 +168,15 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 	var statList = [];
 	
 	while (tran = transactions[tCount++]) {
-		
+		///console.log(`dbfield name ${dbFieldName}`);
 		tAmount = parseFloat(tran['trans_amt']);
 		tElem = tran[`${dbFieldName}`];		// if always using date... then don't need this
 		
 		//don't need this with changes - TODO#1 confirm TODO TODO TODO TODO
+		//console.log(`hit TODO1, this is needed and can remove comment a couple line up`);
 		if (tElem.match(regexDateFormat) && jsperiod == jperiod.ALL) {
-			tElem = tElem.match(regexDateFormat);			
+			//console.log(`hit TODO1, this is needed and can remove comment a couple line up`);
+			tElem = tElem.match(regexDateFormat);		// this will make sure tElem conforms to needed date format 	
 		}				
 		
 		
@@ -206,7 +212,8 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 			runningTally += tAmount;
 		}
 		else {
-			hasIncomeData = true; //TODO -> If there is a positive value, even if not income, this will be set true and destroy display
+			if (incomeCount[tElem] > 4) //todo, need a better scheme, this is a hack
+				hasIncomeData = true; //TODO -> If there is a positive value, even if not income, this will be set true and destroy display
 			if (incomeMap[tElem]) {
 				incomeMap[tElem] += tAmount;
 				incomeCount[tElem] += 1;
@@ -215,10 +222,11 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 				incomeMap[tElem] = tAmount;	
 				incomeCount[tElem] = 1;
 			}
+			//console.log(`income: ${tAmount} + ${incomeTally} : count: ${incomeCount[tElem]}`);
 			incomeTally += tAmount;
 		}
 		if (isGroup) {
-			console.log(`tran[amt]: ${tran['trans_category']}`); 
+			//console.log(`tran[amt]: ${tran['trans_category']}`); 
 			let transactionCategory = tran.trans_category;
 			if (groupMap[transactionCategory]) {
 				//console.log(`tran[cat]: ${tran['trans_amt']}`); 
@@ -264,13 +272,13 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 	let transactionDisplayElement2 = document.querySelector('#section2');
 	
 	if (hasIncomeData && !hasExpenseData) {
-		//console.log(`hasExpenseData && !hasIncomeData`);
+		console.log(`first if: hasExpenseData && hasIncomeData`);
 		displayGraph(formatDataForChart(incomeMap), 'section1' , 'Monthly Income', width, height);		
 		transactionDisplayElement.style.display = 'none';	
 		showTotal(incomeTally.toFixed(2), 'sub2');
 	}	
-	else if (hasExpenseData && !hasIncomeData && isGroup) {
-		//console.log(`hasExpenseData && !hasIncomeData && isGroup`);
+	else if (hasExpenseData && !hasIncomeData && isGroup) { //groupCase
+		console.log(`hasExpenseData && (does not hasIncomeData && isGroup`);
 		transactionDisplayElement.style.display = 'none';	
 		displayGraph(formatDataForChart(unifiedExpenseMap), 'section1', 'Expenses by Group', width, height);			
 		displayGraph(formatDataForChart(groupMap), 'section2', 'Breakdown by Category', width, height);	
@@ -286,6 +294,7 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 		showTotal(runningTally.toFixed(2), 'sub2');
 	}
 	else {
+		console.log(`bottom else: hasExpenseData && hasIncomeData`);
 		displayGraph(formatDataForChart(incomeMap), 'section1' , 'Monthly Income', width, height);
 		showTotal(incomeTally.toFixed(2), 'sub1');
 		displayGraph(formatDataForChart(unifiedExpenseMap), 'section2', 'Monthly Cumulative Expense Total', width, height);	
@@ -294,17 +303,72 @@ function calculateDict(transactions, dbFieldName, width, height, jsperiod, isGro
 	
 	let transactionDisplayElement3 = document.querySelector('#displayBody');
 	//console.log(`expenseCatElements: ${expenseCatTableElems}, ${expenseGroupNames}`);
-	clearTable();
+	//clearTable();
 	statList.forEach(showStats);
+	//buildCatTable(statList);
 	showGroupAndCatList(expenseCatTableElems, expenseGroupNames, transactionDisplayElement3);
 }
 
+function displayGraph(dataMap, elem, ctitle, cwidth, cheight) {
+	
+	//console.log(`displayGraph: ${elem}`)
+	currElem = document.getElementById(elem)
+    	
+    var options = {
+          title: ctitle,
+		  hAxis: {title: 'month/year', slantedText: 'true'},
+		  vAxis: {title: 'amt'},
+		  pointSize: '6',
+		  theme: 'maximized',		  
+		  backgroundColor: '#e6e6e6',		  
+		  trendlines: {
+			1: {
+			  type: 'linear',
+			  color: 'green',
+			  lineWidth: 30,
+			  opacity: 1,
+			  showR2: true			  
+			}
+		  },
+          series: {
+			  1: {curveType: 'function'}
+		  },
+		  width: cwidth, 
+		  height: cheight,
+		  //backgroundColor.stroke: 'red',
+		  chartArea: {left: 10},
+          legend: { position: 'bottom' }
+	 };
+    
+	var chart2 = new google.visualization.ColumnChart(currElem);
+	//var chart = new google.visualization.LineChart(currElem);
+    
+	chart2.draw(dataMap, options);
+	//chart.draw(dataMap, options); 
+}
+
+
 function clearTable() {
+	//console.log("clearing table, sub2b")
 	var htmlTarget = document.querySelector('#sub2b');
 	htmlTarget.innerHTML = "";
-}
-function showStats(stat) {
+	let headingRow = document.querySelector('#headingTarget');
+	headingRow.innerHTML = "";
+	var bodyRow = document.querySelector('#displayBodyByYear');
+	bodyRow.innerHTML = "";
 	
+}
+
+// function buildCatTable(stats) {
+	// var statNameTR = document.createElement('tr');
+	// var statNameTD = document.createElement('td');
+	
+	
+// }
+
+function showStats(stat) {
+	//console.log('showing stats');
+	//no called on cat, is called on all data + group data
 	var statTable = document.createElement('table');
 	var statTableAttr = document.createAttribute('class');
 	statTableAttr.value = 'table table-bordered table-striped';
@@ -454,82 +518,6 @@ function formatToUSDollar(value) {
 	return dollars;
 }
 
-function displayGraph(dataMap, elem, ctitle, cwidth, cheight) {
-	
-	//console.log(`displayGraph: ${elem}`)
-	currElem = document.getElementById(elem)
-    	
-    var options = {
-          title: ctitle,
-		  hAxis: {title: 'month/year', slantedText: 'true'},
-		  vAxis: {title: 'amt'},
-		  pointSize: '6',
-		  theme: 'maximized',		  
-		  backgroundColor: '#e6e6e6',		  
-		  trendlines: {
-			1: {
-			  type: 'linear',
-			  color: 'green',
-			  lineWidth: 30,
-			  opacity: 1,
-			  showR2: true			  
-			}
-		  },
-          series: {
-			  1: {curveType: 'function'}
-		  },
-		  width: cwidth, 
-		  height: cheight,
-		  //backgroundColor.stroke: 'red',
-		  chartArea: {left: 10},
-          legend: { position: 'bottom' }
-	 };
-    
-	var chart2 = new google.visualization.ColumnChart(currElem);
-	//var chart = new google.visualization.LineChart(currElem);
-    
-	chart2.draw(dataMap, options);
-	//chart.draw(dataMap, options); 
-}
-
-function showGroupAndCatList(list1, list2, transactionDisplayElement) {
-	//console.log(`Outer: ${tran['trans_category']}, indexOf: ${expenseCatTableElems.indexOf(trElem)} bool: ${expenseCatTableElems.indexOf(trElem) == -1}`);
-	
-	//tdElem.append(tran['trans_category']);
-	//
-	transactionDisplayElement.innerHTML = "";
-	
-	var heading2 = document.createElement('h2');
-	heading2.append("cli>ck to displya")
-	var tableHeading = document.querySelector("#table_heading");
-	tableHeading.innerHTML = "";
-	tableHeading.append(heading2);
-	
-	for (let i = 0; i < list1.length - 1; i++) {
-		var trElem = document.createElement('tr');
-		var tdElem1 = document.createElement('td');
-		var tdElem2 = document.createElement('td');
-		tdElem1.append(list1[i]);
-		if (list2[i])		
-			tdElem2.append(list2[i]);
-			
-		var tdClickAttr = document.createAttribute('onClick');
-		var tdClickFunction = `getCatData('${list1[i]}', 0, globalDisplayedDate, ${currentPeriod})`;
-		tdClickAttr.value = tdClickFunction;
-		tdElem1.setAttributeNode(tdClickAttr);
-		
-		var tdClickAttr2 = document.createAttribute('onClick');
-		var tdClickFunction2 = `getCatData(0, '${list2[i]}', globalDisplayedDate, ${currentPeriod})`;
-		tdClickAttr2.value = tdClickFunction2;
-		tdElem2.setAttributeNode(tdClickAttr2);
-		
-		trElem.append(tdElem1);
-		trElem.append(tdElem2);		
-		transactionDisplayElement.append(trElem);
-	}	
-}
-
-
 ///TODO - DONT THINK THIS IS USED, HAVEN'T TESTED THOUROUGHLY BUT LIKELY CAN BE REMOVED
 function convertMapTotalToAvg(dataMap, dataCounts) {
 	console.log(`CALLED convertMapTotalToAvg - IT IS NEEDED AFTERALL `);
@@ -558,31 +546,36 @@ function convertMapTotalToAvg(dataMap, dataCounts) {
 
 function formatDataForChart(imap) {
 	var tranMapKeys = Object.keys(imap);
-	var runningAvg = imap[tranMapKeys[0]]; //INIT WITH LATEST VALUE
+	var runningAvg = imap[tranMapKeys[1]]; //INIT WITH LATEST VALUE
 	let numberOTrannies = 1;
-	let totes = imap[tranMapKeys[0]];
-		//console.log(`imap ${tranMapKeys[0]}: ${imap[tranMapKeys[0]]} `);
+	let totes = imap[tranMapKeys[1]];
+	//console.log(`imap ${tranMapKeys[1]}: ${imap[tranMapKeys[1]]} `);
+	const regexDateFormat = /\d\d\d\d-\d\d/;
 	var returnList = [["Year", "Expenses"]];////////////////////TBD////////////
+	let shortDate = 0;
 	for (k of tranMapKeys) {
 		//Get rid of outliers:
 		let dollarAmt = imap[k];
-		let shortDate = k.slice(5,7) + "/" + k.slice(2,4);
-		
-		if(dollarAmt > (runningAvg * 3.1 )) {
-				//console.log(`hit2 ${dollarAmt}, greatest: ${runningAvg}`);
-				shortDate = '!!'
-				dollarAmt = 0;
-		}
-		else {
+		if (k.match(regexDateFormat))
+			shortDate = k.slice(5,7) + "/" + k.slice(2,4);
+		else
+			shortDate = k;
+		// attempt to get rid of outlier TODO TODO TODO!
+		//if(dollarAmt > (runningAvg * 7 )) {
+				//console.log(`dollar amt ${dollarAmt}, fluidAverage: ${runningAvg} x100: ${runningAvg * 100}`);
+		//		shortDate = '!!'
+		//		dollarAmt = 0;
+		//}
+		//else {
 			totes += dollarAmt;
 			numberOTrannies += 1;
 			runningAvg = totes/numberOTrannies;
-		}		
+		//}		
 				
 		let kv = [shortDate , dollarAmt];
 		returnList.push(kv);
 	}	
-	
+	//console.log(`if the display has excessive !!, check line a few lines above this one - need to adjust formula`);
 	//console.log(`returnList: ${returnList} `);
 	//console.log(`imap: ${tranMapKeys}`);
 	return google.visualization.arrayToDataTable(returnList);
@@ -594,6 +587,121 @@ function formatDataForChart(imap) {
 	
 // }
 
+function showGroupAndCatList(list1, list2, transactionDisplayElement) {
+	//console.log(`Outer: ${tran['trans_category']}, indexOf: ${expenseCatTableElems.indexOf(trElem)} bool: ${expenseCatTableElems.indexOf(trElem) == -1}`);
+	//console.log(`showGroupAndCatList`);
+	//tdElem.append(tran['trans_category']);
+	//
+	transactionDisplayElement.innerHTML = "";
+	
+	var heading2 = document.createElement('h2');
+	heading2.append("cli>ck to displya")
+	var tableHeading = document.querySelector("#table_heading");
+	tableHeading.innerHTML = "";
+	tableHeading.append(heading2);
+	
+	for (let i = 0; i < list1.length - 1; i++) {
+		var trElem = document.createElement('tr');
+		var tdElem1 = document.createElement('td');
+		var tdElem2 = document.createElement('td');
+		tdElem1.append(list1[i]);
+		if (list2[i])		
+			tdElem2.append(list2[i]);
+		//console.log(`lists: cat: ${list1[i]}, group: ${list2[i]}`);
+		var tdClickAttr = document.createAttribute('onClick');
+		//console.log(`cat: ${list1[i]}, grp: ${list2[i]}`)
+		var tdClickFunction = `getCatData('${list1[i]}', 0, globalDisplayedDate, ${currentPeriod})`;
+		tdClickAttr.value = tdClickFunction;
+		tdElem1.setAttributeNode(tdClickAttr);
+		
+		var tdClickAttr2 = document.createAttribute('onClick');
+		var tdClickFunction2 = `getCatData(0, '${list2[i]}', globalDisplayedDate, ${currentPeriod})`;
+		tdClickAttr2.value = tdClickFunction2;
+		tdElem2.setAttributeNode(tdClickAttr2);
+		
+		trElem.append(tdElem1);
+		trElem.append(tdElem2);	
+		console.log(`that intermittent grouping table thing happened+++++++++++++++++=======================`)
+		transactionDisplayElement.append(trElem);
+	}	
+}
+
+function displayData(dataSet, cat, group) {
+	//incoming: {year, totalAmount, avg}, cat group]
+	//clearTable();
+	//console.log(`cat ${cat}, grp ${group}`);
+	let headingRow = document.querySelector('#headingTarget');	
+	let descriptionTR = document.createElement('tr');
+	let descTHAttr = document.createAttribute('colspan');
+	//console.log(dataSet.size);
+	descTHAttr.value = dataSet.size;
+	let dtd = document.createElement('th');
+	dtd.setAttributeNode(descTHAttr);
+	if (cat != 0)
+		dtd.append(cat + ' expenditures by year');
+	else{
+		//console.log(`grp ${group}`);
+		dtd.append(group + ' expenditures by year');
+	}
+	descriptionTR.append(dtd);
+	headingRow.append(descriptionTR);
+	var tr0 = document.createElement('tr');	
+	var bodyRow = document.querySelector('#displayBodyByYear');
+	var tr1 = document.createElement('tr');
+	var tr2 = document.createElement('tr');
+	var tr3 = document.createElement('tr');
+	let trackingVar = 0;
+	
+	let thheading = document.createElement('th');
+		thheading.append(columnHeadings.YR);
+		tr0.append(thheading);
+	let td1heading = document.createElement('td');
+		td1heading.append(columnHeadings.TOT);
+		tr1.append(td1heading);
+	let td2heading = document.createElement('td');
+		td2heading.append(columnHeadings.COUNT);
+		tr2.append(td2heading);	
+	let td3heading = document.createElement('td');
+		td3heading.append(columnHeadings.AVG);
+		tr3.append(td3heading);	
+		
+	dataSet.forEach((data, heading) => {
+		console.log(`0: ${data[0]} 1: ${data[1]} 2: ${data[2]}`)
+		let th0 = document.createElement('th');
+		let amount = 0
+		th0.append(heading);
+		tr0.append(th0);
+		if (data[0] < 0)
+			amount = -1 * data[0];
+		else
+			amount = data[0];
+		
+		amount = formatToUSDollar(amount);
+		
+		let td1 = document.createElement('td');
+		td1.append(amount);
+		tr1.append(td1);
+				
+		let td2 = document.createElement('td');
+		td2.append(data[1]);
+		tr2.append(td2)
+		let avg = 0;
+		if (data[2] < 0)
+			avg = -1 * data[2];
+		else
+			avg = data[2];
+		avg = formatToUSDollar(avg);
+		let td3 = document.createElement('td');
+		td3.append(avg);
+		tr3.append(td3)
+		
+	});
+	//console.log(`new table ahppened--------------------------------------------........`)
+	headingRow.append(tr0);
+	bodyRow.append(tr1);	
+	bodyRow.append(tr2);
+	bodyRow.append(tr3);
+}
 
 function displayCTrans(row, ctarget) {
 	//incoming: [0cat, 1total, 2%income, 3%expenses, 4diff, 5%ofother ]

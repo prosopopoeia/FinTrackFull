@@ -273,20 +273,24 @@ function setAggregateDisplay() {
 			` <br>Number of ${globalAggs.get("cat")} transactions: ${globalAggs.get("count")}`;
 		
 		
-		var message1b = ` <br>Income for this period: ${globalAggs.get("periodDate")}`;
-		var message1b2 = `<br>Total expenses for period: ${globalAggs.get("spent")}`;
+		var message1b = ` <br>Credits (Income, Gifts, Investments, etc.): ${globalAggs.get("income")}`;
+		var message1b2 = `<br>Expenses: ${globalAggs.get("spent")}`;
 		
 		var message1c = (globalAggs.get("cat") == "") ?
 			` <br>Most expensive entry: ${globalAggs.get("mostExpensive")} (${globalAggs.get("meitem1")}, ${globalAggs.get("meitem2")})` : 
 			` <br>Most expensive ${globalAggs.get("cat")} transaction: ${globalAggs.get("mostExpensive")} on ${globalAggs.get("meitem2")} (${globalAggs.get("meitem1")})`;
 			
 		var message1d = (globalAggs.get("cat") == "") ?
-			` <br>Total saved for this period: ${globalAggs.get("totalSavings")}` : 
-			` <br>Total amount spent on ${globalAggs.get("cat")}: ${globalAggs.get("totalSavings")}`;
+			` <br>Total Saved (Credits - Debits): ${globalAggs.get("totalSavings")}` : 
+			(globalAggs.get("cat") == "income") ?
+				` <br>Total ${globalAggs.get("cat")}: ${globalAggs.get("totalSavings")}` :
+				` <br>Total amount spent on ${globalAggs.get("cat")}: ${globalAggs.get("totalSavings")}`;
 
 		var message1e = (globalAggs.get("cat") == "") ?
 			'' :  
-			` <br>Average amount of each ${globalAggs.get("cat")}(s) tranaction: ${globalAggs.get("avSpent")}`;
+			(globalAggs.get("avSpent")) ? 
+				` <br>Average amount of each ${globalAggs.get("cat")}(s) transaction: ${globalAggs.get("avSpent")}`
+				: '';
 		
 		var message1g = (globalAggs.get("cat") == "") ?
 			` <br>Percentage of income saved: ${globalAggs.get("percentSavedFormatted")}` : 
@@ -297,7 +301,8 @@ function setAggregateDisplay() {
 		msg += message1a;
 		msg += message1b;
 		msg += message1b2;
-		msg += message1c;
+		if (globalAggs.get("mostExpensive") < 0)
+			msg += message1c;
 		msg += message1d;
 		msg += message1e;
 		msg += message1g;
@@ -496,7 +501,7 @@ async function fetchCTrannys(pdate, catGrpName, groupName) {
 			jsdate: pdate,
 			jsperiod: currentPeriodType  ///this needs to address whether in year/month, not set..yet
 		})
-	})
+	});
 	
 	const returnData = await response.json();	
 	return returnData;

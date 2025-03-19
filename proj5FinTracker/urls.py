@@ -26,4 +26,5 @@ urlpatterns = [
     path("jsvgetaggs", views.jsvgetaggs, name="jsvgetaggs"),
     path("edittransaction", views.edittransaction, name="edittransaction"),
     path("jsvreturnbyyear", views.jsvreturnbyyear, name="jsvreturnbyyear"),
+    path("jsvreturnearliestdate", views.jsvreturnearliestdate, name="jsvreturnearliestdate")
 ]

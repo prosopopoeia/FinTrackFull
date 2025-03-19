@@ -10,39 +10,61 @@
 		<br />
 		<button type="submit" id="analyze-year" form="graph-by-year" class="btn btn-primary" value="Submit">>View-By-Year</button>
 	</div>
+	
 	<div class="container text-center bg-success">	
 	
-		
-		<h3><span id='top-heading'> *top heading* </span></h3>
+		 <!-- *top heading* shows cat/group name -->
+		<h3><span id='top-heading'> </span></h3>
+		<!-- bottom heading is just the lower half of the heading bar -->
 		<span id='bottom-heading'><a href="{% url 'vanalysis' %}">View-All-Data</a></span>
 		
 	</div>
+	<!-- this is top chart : see calculateDict function -->
+	
 	<span class="container" id='section1'></span>	
 	
 	<!-- sub 1 and two contain the headline monetary value beneath each chart -->
+	
 	<div class="container text-center bg-primary text-white" id='sub1'></div>
-	 <!-- i think this is upper chart -->
+	 <!-- i think this is lower chart -->
+	
 	<span class="container" id='section2'></span>
 	
 	
 	<div class="container text-center bg-primary text-white" id='sub2'></div>
-	<!-- list o' categories I believe -->
-	<div class="container bg-info text-white text-center" id='sub2b'>
 	
 	
-	  <!-- <table class="table table-bordered table-striped" id="sub2b-table">
-			
-			<tbody id='sub2b-target'></tbody>
-	  </table> -->
-		  
-	
+	<div class="container text-center bg-primary " id='unidentified-items'>
+	   <table class="container table-bordered table-striped " id='displayByYearTable'>
+		<!-- <caption class="mid"	id="byYearTableHeading"></caption> -->
+		  <thead id='headingTarget'>
+						
+							<!-- <th id='testh'></th> -->
+							<!-- <th>arc</th> -->
+							<!-- <!-- <th id="lcat">Category</th> --> 
+							<!-- <th id="ltotal">Total Spent</th> -->
+							<!-- <th id="lpoincome">percent of income spent on this</th> -->
+							<!-- <th id="lpospent">percent of expenses spent on this</th> -->
+							<!-- <th id="ldifference">difference in amount from other time period</th> -->
+							<!-- <th id="lpoother">percentage difference from compared time period</th> -->
+						
+						
+		  </thead>
+		  <tbody id='displayBodyByYear'>
+		 <!-- BODY ROW HERE <tr><td>a</td><td>b</td></tr> -->
+		  </tbody>
+	   </table>
 	</div>
 	
-	<!-- not used -->
+	<!-- this expands and is only displayed in a groupings display this has been verified -->
 	
-	<!-- end not used -->
+
+	<div class="container bg-info text-white text-center" id='sub2b'></div>
+	
+
 	
 	
+	<!-- this is the section at the bottom with the clickable cats/groupings -->
 	<div class="container" id='displayDiv'>
 	   <table class="container" id='displayTable'>
 		<caption class="right"	id="table_heading"></caption>
@@ -51,20 +73,20 @@
 	   </table>
 	</div>
 	
-	 <table class="table table-bordered table-striped" id="YbyYTable">
-					   <thead>
-						<tr id="YbyYHeader">
-							<!-- <th id="lcat">Category</th> -->
-							<!-- <th id="ltotal">Total Spent</th> -->
-							<!-- <th id="lpoincome">percent of income spent on this</th> -->
-							<!-- <th id="lpospent">percent of expenses spent on this</th> -->
-							<!-- <th id="ldifference">difference in amount from other time period</th> -->
-							<!-- <th id="lpoother">percentage difference from compared time period</th> -->
-						</tr>
-					  </thead>
-					  <tbody id='YbyYBody'>
-					  </tbody>
-				  </table>
+	 <!-- <table class="table table-bordered table-striped" id="YbyYTable"> -->
+		   <!-- <thead> -->
+			<!-- <tr id="YbyYHeader"> -->
+				<!-- <th id="lcat">Category</th> -->
+				<!-- <th id="ltotal">Total Spent</th> -->
+				<!-- <th id="lpoincome">percent of income spent on this</th> -->
+				<!-- <th id="lpospent">percent of expenses spent on this</th> -->
+				<!-- <th id="ldifference">difference in amount from other time period</th> -->
+				<!-- <th id="lpoother">percentage difference from compared time period</th> -->
+			<!-- </tr> -->
+		  <!-- </thead> -->
+		<!-- <tbody id='YbyYBody'> -->
+		<!-- </tbody> -->
+	<!-- </table> -->
 	
 
 {% endblock %}

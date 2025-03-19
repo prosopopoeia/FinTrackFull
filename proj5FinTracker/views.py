@@ -426,54 +426,112 @@ def json_response(something):
     ###
     """
     
-#from django.core.serializers.json import DjangoJSONEncoder
-from decimal import Decimal
-
-@csrf_exempt    
+@csrf_exempt
+def jsvreturnearliestdate(request):
+    #earliest_transaction_date = 
+    return JsonResponse({"earliest": BankTransaction.objects.earliest('trans_date').trans_date})
+    
+    
+@csrf_exempt
 def jsvreturnbyyear(request):
     data = json.loads(request.body)
+    vcat = data['jscat']
+    vgroup = data['jsgrp']
+    vdate = data['jsdate']
+    
     try:
         this_user = get_user(request)
     except:
         return HttpResponseRedirect(reverse("vlogin"))    
-    earliest_transaction_date = BankTransaction.objects.earliest('trans_date').trans_date
-    # format: 2017-06-23
-    year_of_transaction = earliest_transaction_date.year
-    current_year =  datetime.now().date().year
     
-    #print(year_of_transaction)
-   
-    
-    transo = {}
-    listo = []
-    while  year_of_transaction <= current_year:  
-        listo = list(BankTransaction.objects.filter(trans_owner=this_user, trans_category=data['jscat'], trans_date__year=year_of_transaction).aggregate(Sum('trans_amt')))
-      # print(year_of_transaction)
-        year_of_transaction += 1
-     #   print(transo)
-        transo[year_of_transaction]  =  json.dumps(listo)
-        #print('--------------------------------------------')
-        print(transo[year_of_transaction])
+    if vcat != 0:
+        print('in cat if')
+        print(vcat)
+        yearsTotal = BankTransaction.objects.filter(
+            trans_owner=this_user, 
+            trans_category=vcat, 
+            trans_date__year=vdate
+        ).aggregate(Sum('trans_amt'))
         
+        years_avg = BankTransaction.objects.filter(
+            trans_owner=this_user, 
+            trans_category=vcat, 
+            trans_date__year=vdate
+        ).aggregate(Avg('trans_amt'))
+        
+        yearsCount = BankTransaction.objects.filter(
+            trans_owner=this_user, 
+            trans_category=vcat, 
+            trans_date__year=vdate
+        ).count()
+        
+    else:
+       # print('in group else')
+        #print(vgroup)
+        yearsTotal = BankTransaction.objects.filter(
+            trans_owner=this_user, 
+            trans_group=vgroup, 
+            trans_date__year=vdate
+        ).aggregate(Sum('trans_amt'))
+        
+        years_avg = BankTransaction.objects.filter(
+            trans_owner=this_user, 
+            trans_group=vgroup, 
+            trans_date__year=vdate
+        ).aggregate(Avg('trans_amt'))
+        
+        yearsCount = BankTransaction.objects.filter(
+            trans_owner=this_user, 
+            trans_group=vgroup, 
+            trans_date__year=vdate
+        ).count()
+        
+    if yearsTotal['trans_amt__sum'] is not None:
+        vtransumSpent = "{:.2f}".format(yearsTotal['trans_amt__sum'])
+    else:
+        vtransumSpent = 0
+        
+    if years_avg['trans_amt__avg'] is not None:
+        vtran_avg = "{:.2f}".format(years_avg['trans_amt__avg'])
+    else:
+        vtran_avg = 0
+    print('averages')
+    print(years_avg)
+    print(vtran_avg)
+    return JsonResponse({"yearSum": vtransumSpent,
+                                                            "yearCount": yearsCount,
+                                                            "yearAvg": vtran_avg})    
+                                                            
+                                                            
+# if tranavg != 0 and tranavg['trans_amt__avg'] is not None:
+        # vtranavg = "{:.2f}".format(tranavg['trans_amt__avg'])
+                                                          
+# def jsvreturnbyyear(request):
+    # data = json.loads(request.body)
+    # vcat = data['jscat']
+    # vgroup = data['jsgrp']
+    # vdate = data['jsdate']
     
-    print(type(transo))
-    # for k, v in transo.items():
-         # json.dumps(v)
-    # return JsonResponse({"agcount": trancount, 
-                    # "agavg": vtranavg, 
-                    # "agmin": vtranmin, 
-                    # "agsum": vtransum,
-                    # "agsumPos": vtransumPos,
-                    # "mostExpensiveItem1": mei1,
-                    # "mostExpensiveItem2": mei2,
-                    # "totalSpent" : vtransumSpent}) 
-    tunky = {}
-    for k,v in transo.items():
-        tunky[json.dumps(k)] = json.dumps(v)
-    return  JsonResponse(tunky)#[json.dumps(transact), json.dumps(vansact) for transact, vansact in transo.items()], safe=False)#{"items": json.dumps(transo)})
-
+    # try:
+        # this_user = get_user(request)
+    # except:
+        # return HttpResponseRedirect(reverse("vlogin"))    
     
-    
+    # if vcat != "":
+        # yearsTotal =  BankTransaction.objects.filter(trans_owner=this_user, 
+                                                                                                                                                                        # trans_category=vcat, 
+                                                                                                                                                                        # trans_date__year=vdate).aggregate(Sum('trans_amt'))
+    # else:
+        # yearsTotal =  BankTransaction.objects.filter(trans_owner=this_user, 
+                                                                                                                                                                        # trans_group=vgroup, 
+                                                                                                                                                                        # trans_date__year=vdate).aggregate(Sum('trans_amt'))   
+                                                                                                                                                                        
+    # yearsTotal['trans_amt__sum'] is not None:
+        # vtransumSpent = "{:.2f}".format(yearsTotal['trans_amt__sum'])
+    # else:
+        # vtransumSpent = 0
+        
+    # return  JsonResponse({"yearSum": vtransumSpent})
         
 @login_required
 @csrf_exempt
@@ -739,6 +797,8 @@ def parse_csv(csv_file, request):
     csv_list = csv_mod.split('\\r\\n')
     #return csv_list #UNCOMMENT TO DEBUG
     #["Status,Date,Description,Debit,Credit,Member Name", "Cleared,12/30/2019, HIHO SERVICE AUTO REPAIR ENGLEWOOD CO ,180.45,,RONNI C MONSTER", "Cleared,12/28/2019, FANCY TIGER CRAFTS DENVER CO ,50.20,,RONNI C MONSTER", "Cleared,12/27/2019, COSTCO WHSE #1027 SHERIDAN CO ,27.99,,RONNI C MONSTER", "Cleared,12/27/2019, COSTCO WHSE #0468 LONE TREE CO ,92.91,,JASON Z ISAACS"] 
+    #[Transaction Date, Check Nuumber, Description, Debit Amount, Credit Amount]
+    #[Transaction Date,Description,Debit Amount,Credit Amount]
     incomplete_transactions = []
     c_user = get_user(request)
     firstEntry = True
@@ -845,8 +905,131 @@ def parse_csv(csv_file, request):
             incomplete_transactions.append(trans_str.strip())
                         
     return incomplete_transactions
-         
-      
+                  
+    
+# def parse_csv(csv_file, request):
+    # ######################################
+    # #CSV Headings: Transaction Date,Check Number,Description,Debit Amount,Credit Amount
+    # ##################OR##################
+    # #CC Heading: Status,Date,Description,Debit,Credit,Member Name
+    # ######################################
+    
+    # csv_str = str(csv_file.read())
+            # #csv_strip = csv_str.strip()
+    # csv_mod = re.sub('[\']', '', csv_str)
+    # csv_list = csv_mod.split('\\r\\n')
+    # #return csv_list #UNCOMMENT TO DEBUG
+    # #["Status,Date,Description,Debit,Credit,Member Name", "Cleared,12/30/2019, HIHO SERVICE AUTO REPAIR ENGLEWOOD CO ,180.45,,RONNI C MONSTER", "Cleared,12/28/2019, FANCY TIGER CRAFTS DENVER CO ,50.20,,RONNI C MONSTER", "Cleared,12/27/2019, COSTCO WHSE #1027 SHERIDAN CO ,27.99,,RONNI C MONSTER", "Cleared,12/27/2019, COSTCO WHSE #0468 LONE TREE CO ,92.91,,JASON Z ISAACS"] 
+    # #[Transaction Date, Check Nuumber, Description, Debit Amount, Credit Amount]
+    # #[Transaction Date,Description,Debit Amount,Credit Amount]
+    # incomplete_transactions = []
+    # c_user = get_user(request)
+    # firstEntry = True
+    # idate = 0
+    # idesc = 0
+    # idebit = 0
+    # icredit = 0
+    
+    # isBank = True
+    # for csv_entry in csv_list:
+        # # first row will be headings, get the order of the columns
+        # if firstEntry:
+            # firstEntry = False
+            # elem_count = 0
+            
+            # # figure out which element is which in csv by using headings 
+            # # done by getting column number of each element
+            # heading_elems = csv_entry.split(',')
+            # for elems in heading_elems:
+                # #determine if we have a bank csv...
+                # #if elems.upper().find("STATUS") == -1:
+                # #    isBank = False                     
+                # if elems.upper().find("DATE") != -1:
+                    # idate = elem_count
+                    # #return idate               #UNCOMMENT TO DEBUG
+                # if elems.upper().find("DESC") != -1:
+                    # idesc = elem_count
+                    # #return idesc
+                # if elems.upper().find("DEBIT") != -1:
+                    # idebit = elem_count
+                    # #return idebit
+                # if elems.upper().find("CREDIT") != -1:
+                    # icredit = elem_count 
+                    # #return icredit
+                # elem_count += 1
+            # continue
+        # #return "have header"
+        # csv_elements = csv_entry.split(',')       
+        # split_date = csv_elements[idate].split('/')       
+        
+        # try: 
+            # # put date in format that works for Django date objects...
+            # tdate = split_date[2] + '-' + split_date[0] + '-' + split_date[1]
+            # #return tdate
+            # tdesc = re.sub('^\d\d/\d\d', '', csv_elements[idesc]) # replace date digits with ""
+            # #return tdesc
+            # if tdesc.upper().find("XFER") != -1:
+                # continue
+                        
+            # tdebit = 0
+            # if csv_elements[idebit] != '0':
+                # tdebit = float(csv_elements[idebit]) * -1
+                # #return tdebit
+            # else:             
+                # tcredit = float(csv_elements[icredit])                            
+                # #return tcredit
+        # except:
+            # continue
+                
+        # try: 
+            # #return "in try"
+            # #do we have transaction with the same desc...
+           
+            # duplicate = False
+            # #return "after dupe dec"
+            # bto = BankTransaction.objects.filter(
+                    # trans_owner=c_user,
+                    # trans_msg=tdesc.strip(),
+                    # # trans_amt=tdebit
+                    # ) 
+            # # if this is a duplicate, continue to the next
+            # #return "have bto"
+            # for matching_trans in bto:
+                # #return str(matching_trans.trans_date)
+                # #return tdate
+                # if str(tdate) == str(matching_trans.trans_date):# and (bto.trans_amt == tdebit or bto.trans_amt == tcredit):
+                    # duplicate = True
+                    # break
+            # if duplicate == True:
+                # continue            
+            # #return bto.trans_msg
+            # #we have everything we need to save the transaction
+            # tcat = bto.first().trans_category
+            # #return bto.first().trans_msg
+            # tgroup = bto.first().trans_group
+            
+            
+            # if tdebit == 0:
+                # ramt = tcredit                
+            # else: 
+                # ramt = tdebit
+            # BankTransaction.objects.create(
+                        # trans_date=tdate,
+                        # trans_owner=c_user,
+                        # trans_amt = ramt,
+                        # trans_msg = tdesc.strip(),
+                        # trans_category = tcat,
+                        # trans_group = tgroup
+                        # )
+                        
+        # except:
+            # #...or does the transaction need to be classified
+            # trans_str = tdate + ' ' + "{:.2f}".format(tdebit if (tdebit != 0) else tcredit) + ' ' + tdesc
+            # incomplete_transactions.append(trans_str.strip())
+                        
+    # return incomplete_transactions
+                  
+
 def process_transactions(bank_string, transaction_pattern):   
     #data comes in as one long string which is split on date to format below    
     #'200.00 AUTO XFER CREDIT DDA TRNSFR 0000 *****************80071',

@@ -18,7 +18,7 @@ var periodSavedTotal = 0;
 const cod = {
 	CATGRP:  0,
 	DATE: 1	
-}
+};
 
 const column = {
 	NONE: 0,
@@ -39,7 +39,7 @@ const jperiod = {
 const chartType = {
 	PIE: 1,
 	BAR: 2
-}
+};
 
 //*********Global Vars END***********************************************************//
 
